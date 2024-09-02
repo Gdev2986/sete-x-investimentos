@@ -10,26 +10,32 @@ const columns = [
         sort: true,
     },
     {
-        Header: 'Name',
-        accessor: 'name',
+        Header: 'Nome',
+        accessor: 'nome',
         sort: true,
     },
     {
-        Header: 'Phone Number',
-        accessor: 'phone',
+        Header: 'Contato',
+        accessor: 'contato',
         sort: false,
     },
     {
-        Header: 'Age',
-        accessor: 'age',
+        Header: 'Total Alocado (R$)',
+        accessor: 'totalAlocado',
         sort: true,
     },
     {
-        Header: 'Company',
-        accessor: 'company',
+        Header: 'Saldo Atual (R$)',
+        accessor: 'saldoAtual',
+        sort: true,
+    },
+    {
+        Header: 'Email',
+        accessor: 'email',
         sort: false,
     },
 ];
+
 
 const sizePerPageList = [
     {
@@ -59,7 +65,7 @@ const CustomAdvancedTable = () => {
                     <Card>
                         <Card.Body>
                             <div className="d-flex justify-content-between align-items-center">
-                                <h4 className="header-title">Historico de Retiradas</h4>
+                                <h4 className="header-title">Solicitações de Retiradas</h4>
                                 <GreenDropdownButton /> {/* Botão verde */}
                             </div>
                             <br />

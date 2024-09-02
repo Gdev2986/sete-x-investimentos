@@ -6,7 +6,7 @@ import { usePageTitle } from '../../../hooks';
 // component
 import Statistics from './Statistics';
 import SalesChart from './SalesChart';
-import RevenueChart from './RevenueChart';
+import SplineAreaChart from './SplineAreaChart';
 import CustomTable from './CustomTable';
 
 
@@ -25,23 +25,24 @@ const DashBoard1 = () => {
 
     return (
         <>
-
-            <Row>
-                
-                <Col xl={12}>
-                    <RevenueChart />
-                </Col>
-            </Row>
-
             <Statistics />
 
             <Row>
+                
                 <Col xl={8}>
-                  <CustomTable />
+                    <SplineAreaChart />
                 </Col>
                 <Col xl={4}>
                     <SalesChart />
                 </Col>
+            </Row>
+
+
+            <Row>
+                <Col xl={12}>
+                  <CustomTable />
+                </Col>
+                
             </Row>
         </>
     );

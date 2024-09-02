@@ -10,26 +10,32 @@ const columns = [
         sort: true,
     },
     {
-        Header: 'Name',
-        accessor: 'name',
+        Header: 'Nome',
+        accessor: 'nome',
         sort: true,
     },
     {
-        Header: 'Phone Number',
-        accessor: 'phone',
+        Header: 'Contato',
+        accessor: 'contato',
         sort: false,
     },
     {
-        Header: 'Age',
-        accessor: 'age',
+        Header: 'Total Alocado (R$)',
+        accessor: 'totalAlocado',
         sort: true,
     },
     {
-        Header: 'Company',
-        accessor: 'company',
+        Header: 'Saldo Atual (R$)',
+        accessor: 'saldoAtual',
+        sort: true,
+    },
+    {
+        Header: 'Email',
+        accessor: 'email',
         sort: false,
     },
 ];
+
 
 const sizePerPageList = [
     {

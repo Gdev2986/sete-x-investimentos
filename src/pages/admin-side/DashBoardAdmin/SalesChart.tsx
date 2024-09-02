@@ -10,9 +10,9 @@ const SalesChart = () => {
     const updateChartHeight = () => {
         const screenHeight = window.innerHeight;
         if (window.innerWidth > 2000) {
-                setChartHeight(398); // Altura para monitores maiores
+                setChartHeight(592); // Altura para monitores maiores
             } else {
-                setChartHeight(418); // Altura padrão para monitores menores
+                setChartHeight(307); // Altura padrão para monitores menores
             }
     };
 

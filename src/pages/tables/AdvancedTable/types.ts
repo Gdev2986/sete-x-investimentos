@@ -1,10 +1,12 @@
 export type Record = {
-    id: number;
-    age: number;
-    name: string;
-    company: string;
-    phone: string;
+    id: number;  
+    nome: string; 
+    totalAlocado: number;
+    saldoAtual: number; 
+    contato: string;
+    email: string; 
 };
+
 
 export type ExpandableRecord = {
     id: number;
@@ -12,5 +14,13 @@ export type ExpandableRecord = {
     name: string;
     company: string;
     phone: string;
-    subRows: Record[];
+    subRows: [
+        {
+            id: number;
+            age: number;
+            name: string;
+            company: string;
+            phone: string;
+        },
+    ];
 };
