@@ -57,7 +57,7 @@ const SalesChart = () => {
         dataLabels: {
             enabled: false,
         },
-        colors: ['#6658dd', '#ff8acc', '#35b8e0'],
+        colors: ['#6658dd', '#41C56D', '#F4FF00'],
         legend: {
             show: true,
             position: 'bottom',
@@ -66,7 +66,7 @@ const SalesChart = () => {
                 useSeriesColors: true,
             },
         },
-        labels: ['In-Store Sales', 'Download Sales', 'Mail-Order Sales'],
+        labels: ['Total Alocado', 'Rendimento Clientes', 'Rendimento Sete X'],
         tooltip: {
             enabled: false,
         },
