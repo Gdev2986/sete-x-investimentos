@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Card, Col, Row, Modal, Button } from 'react-bootstrap';
 import Table from '../../../components/Table';
-import { records as data } from '../../tables/AdvancedTable/data';
+import AdmintoDatepicker from '../../../components/Datepicker'; // Importando o Datepicker
+import { rendimentos } from './datatable'; // Importando dados dos rendimentos
 
 const columns = [
     {
@@ -10,32 +11,36 @@ const columns = [
         sort: true,
     },
     {
-        Header: 'Nome',
-        accessor: 'nome',
+        Header: 'Data',
+        accessor: 'data',
         sort: true,
     },
     {
-        Header: 'Contato',
-        accessor: 'contato',
-        sort: false,
-    },
-    {
-        Header: 'Total Alocado (R$)',
-        accessor: 'totalAlocado',
+        Header: 'Valor Alocado (R$)',
+        accessor: 'valorAlocado',
         sort: true,
     },
     {
-        Header: 'Saldo Atual (R$)',
-        accessor: 'saldoAtual',
+        Header: 'Lucro Bruto (R$)',
+        accessor: 'lucroBruto',
         sort: true,
     },
     {
-        Header: 'Email',
-        accessor: 'email',
-        sort: false,
+        Header: 'Impostos (R$)',
+        accessor: 'impostos',
+        sort: true,
+    },
+    {
+        Header: '% Clientes (R$)',
+        accessor: 'percentualClientes',
+        sort: true,
+    },
+    {
+        Header: 'Lucro Real (R$)',
+        accessor: 'lucroReal',
+        sort: true,
     },
 ];
-
 
 const sizePerPageList = [
     {
@@ -52,13 +57,14 @@ const sizePerPageList = [
     },
     {
         text: 'Todos',
-        value: data.length,
+        value: rendimentos.length,
     },
 ];
 
 const CustomAdvancedTable = () => {
     const [responsiveModal, setResponsiveModal] = useState<boolean>(false);
     const [rotation, setRotation] = useState<number>(45); // Estado para controlar a rotação do ícone
+    const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 1))); // Estado para controlar a data selecionada
 
     // Função para alternar o estado de visibilidade do modal e resetar a rotação ao fechar
     const toggleResponsiveModal = () => {
@@ -75,13 +81,20 @@ const CustomAdvancedTable = () => {
         setRotation((prevRotation) => (prevRotation === 45 ? 90 : 45));
     };
 
+    // Função para atualizar a data selecionada
+    const handleDateChange = (date: Date) => {
+        if (date) {
+            setSelectedDate(date);
+        }
+    };
+
     return (
         <>
             {/* Botão para abrir o modal */}
             <Button
                 variant="success"
                 className="waves-effect waves-light mb-3 d-flex align-items-center "
-                style={{borderRadius: "10px"}}
+                style={{ borderRadius: "10px" }}
                 onClick={toggleResponsiveModal} // Chama a função que abre o modal e altera a rotação
             >
                 {/* Ícone MDI com rotação controlada pelo estado e transição suave */}
@@ -97,89 +110,45 @@ const CustomAdvancedTable = () => {
             </Button>
 
             {/* Modal Responsivo */}
-            <Modal show={responsiveModal} onHide={toggleResponsiveModal} >
+            <Modal show={responsiveModal} onHide={toggleResponsiveModal}>
                 <Modal.Header closeButton>
                     <h4 className="modal-title">Adicione um Novo Rendimento</h4>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="row">
+                        <div className="col-md-12">
+                            <div className="mb-3">
+                                <label className="form-label">Data do Rendimento</label> <br />
+                                <AdmintoDatepicker
+                                    hideAddon={true}
+                                    value={selectedDate}
+                                    onChange={(date: Date) => handleDateChange(date)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row">
                         <div className="col-md-6">
                             <div className="mb-3">
                                 <label htmlFor="field-1" className="form-label">
-                                    Name
+                                    Valor Alocado
                                 </label>
-                                <input type="text" className="form-control" id="field-1" placeholder="John" required />
+                                <input type="number" className="form-control" id="field-1" placeholder="50000" required />
                             </div>
                         </div>
                         <div className="col-md-6">
                             <div className="mb-3">
                                 <label htmlFor="field-2" className="form-label">
-                                    Surname
+                                    Lucro Bruto
                                 </label>
-                                <input type="text" className="form-control" id="field-2" placeholder="Doe" required />
+                                <input type="number" className="form-control" id="field-2" placeholder="10000" required />
                             </div>
                         </div>
                     </div>
-                    <div className="row">
-                        <div className="col-md-12">
-                            <div className="mb-3">
-                                <label htmlFor="field-3" className="form-label">
-                                    Address
-                                </label>
-                                <input type="text" className="form-control" id="field-3" placeholder="Address" required />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-4">
-                            <div className="mb-3">
-                                <label htmlFor="field-4" className="form-label">
-                                    City
-                                </label>
-                                <input type="text" className="form-control" id="field-4" placeholder="Boston" required />
-                            </div>
-                        </div>
-                        <div className="col-md-4">
-                            <div className="mb-3">
-                                <label htmlFor="field-5" className="form-label">
-                                    Country
-                                </label>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    id="field-5"
-                                    placeholder="United States"
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <div className="col-md-4">
-                            <div className="mb-3">
-                                <label htmlFor="field-6" className="form-label">
-                                    Zip
-                                </label>
-                                <input type="text" className="form-control" id="field-6" placeholder="123456" required />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-12">
-                            <div className="">
-                                <label htmlFor="field-7" className="form-label">
-                                    Personal Info
-                                </label>
-                                <textarea
-                                    className="form-control"
-                                    id="field-7"
-                                    placeholder="Write something about yourself"
-                                    required
-                                ></textarea>
-                            </div>
-                        </div>
-                    </div>
+                    
                 </Modal.Body>
 
-                <Modal.Footer >
+                <Modal.Footer>
                     <Button variant="secondary" className="waves-effect" onClick={toggleResponsiveModal}>
                         Cancelar
                     </Button>
@@ -189,15 +158,15 @@ const CustomAdvancedTable = () => {
                 </Modal.Footer>
             </Modal>
 
-            {/* Tabela de Clientes */}
-            <Row >
-                <Col >
+            {/* Tabela de Rendimentos */}
+            <Row>
+                <Col>
                     <Card>
                         <Card.Body>
-                            <h4 className="header-title">Clientes</h4>
+                            <h4 className="header-title">Rendimentos</h4>
                             <Table
                                 columns={columns}
-                                data={data}
+                                data={rendimentos}
                                 pageSize={5}
                                 sizePerPageList={sizePerPageList}
                                 isSortable={true}

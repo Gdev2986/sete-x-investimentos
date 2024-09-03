@@ -1,6 +1,10 @@
 import React, { forwardRef } from 'react';
-import DatePicker from 'react-datepicker';
+import DatePicker, { registerLocale } from 'react-datepicker';
 import classNames from 'classnames';
+import { ptBR } from 'date-fns/locale'; // Importando o idioma PT-BR
+
+// Registrar o locale para uso no DatePicker
+registerLocale('pt-BR', ptBR);
 
 type DatepickerInputProps = {
     onClick?: () => void;
@@ -76,6 +80,7 @@ const AdmintoDatepicker = (props: AdmintoDatepickerProps) => {
         <>
             {/* date picker control */}
             <DatePicker
+                locale="pt-BR" // Configura o idioma para PT-BR
                 calendarClassName={props.calendarClassName || 'shadow'}
                 selectsRange={props.selectsRange}
                 startDate={props.startDate}
@@ -87,7 +92,7 @@ const AdmintoDatepicker = (props: AdmintoDatepickerProps) => {
                 showTimeSelect={props.showTimeSelect}
                 timeFormat={props.timeFormat || 'hh:mm a'}
                 timeCaption={props.timeCaption}
-                dateFormat={props.dateFormat || 'MM/dd/yyyy'}
+                dateFormat={props.dateFormat || 'dd/MM/yyyy'}
                 minDate={props.minDate}
                 maxDate={props.maxDate}
                 monthsShown={props.monthsShown}

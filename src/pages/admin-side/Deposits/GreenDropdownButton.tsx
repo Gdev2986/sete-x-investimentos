@@ -1,4 +1,5 @@
-import { Dropdown, ButtonGroup, Button } from 'react-bootstrap';
+import { useState } from 'react';
+import { Dropdown, ButtonGroup } from 'react-bootstrap';
 import swal from 'sweetalert2';
 
 const GreenDropdownButton = () => {
@@ -28,6 +29,9 @@ const GreenDropdownButton = () => {
         });
     };
 
+    // Estado para controlar o hover no item de exclusão
+    const [hover, setHover] = useState(false);
+
     return (
         <Dropdown as={ButtonGroup} className="mb-2 me-1">
             <Dropdown.Toggle variant="success">
@@ -35,24 +39,27 @@ const GreenDropdownButton = () => {
                 <i className="mdi mdi-chevron-down ms-1"></i>
             </Dropdown.Toggle>
             <Dropdown.Menu>
-                {/* Dropdown "Alterar Status" com dropstart */}
-                <Dropdown drop="start" as={ButtonGroup}>
-                    <Dropdown.Toggle as={Button} variant="link" className="p-0 m-0 border-0 text-dark d-flex align-items-center">
-                        {/* Adicionando margem ao ícone */}
-                        <i className="mdi mdi-chevron-left me-1" style={{ marginLeft: '10px' }}></i> Alterar Status
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-
-                        <Dropdown.Item href="#" onClick={showSuccessAlert} style={{ marginTop: '-7px', marginBottom: '-7px' }}>Aprovado</Dropdown.Item>
-                        <Dropdown.Divider />
-                        <Dropdown.Item href="#" onClick={showSuccessAlert} style={{ marginTop: '-7px', marginBottom: '-7px' }}>Cancelado</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-
-                <Dropdown.Divider />
-                <Dropdown.Item 
-                    onClick={showDeleteAlert} 
-                    style={{ marginTop: '-5px', marginBottom: '-5px' }}>
+                <Dropdown.Item
+                    onClick={showDeleteAlert}
+                    onMouseEnter={() => setHover(true)} // Ativa o hover
+                    onMouseLeave={() => setHover(false)} // Desativa o hover
+                    style={{
+                        backgroundColor: hover ? '#D22222' : '#FFFFFF', // Fundo vermelho no hover, branco padrão
+                        color: hover ? '#FFFFFF' : '#000000', // Texto branco no hover, preto padrão
+                        display: 'flex',
+                        alignItems: 'center',
+                        transition: 'background-color 0.1s, color 0.1s', 
+                        marginTop: '-8px',
+                        marginBottom: '-8px'
+                    }}
+                >
+                    <i
+                        className="mdi mdi-trash-can-outline"
+                        style={{
+                            marginRight: '5px',
+                            color: hover ? '#FFFFFF' : '#000000', // Ícone branco no hover, preto padrão
+                        }}
+                    ></i>
                     Excluir
                 </Dropdown.Item>
             </Dropdown.Menu>

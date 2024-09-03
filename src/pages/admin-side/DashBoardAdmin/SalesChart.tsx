@@ -57,7 +57,7 @@ const SalesChart = () => {
         dataLabels: {
             enabled: false,
         },
-        colors: ['#6658dd', '#41C56D', '#F4FF00'],
+        colors: ['#1C8CE3', '#41C56D', '#F4FF00'],
         legend: {
             show: true,
             position: 'bottom',
