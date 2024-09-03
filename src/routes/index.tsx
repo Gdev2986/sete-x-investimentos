@@ -34,9 +34,9 @@ const Withdrawals = React.lazy(() => import('../pages/admin-side/Withdrawals'));
 
 //User
 const DashBoardUser = React.lazy(() => import('../pages/user-side/DashBoardUser'));
-const WithdrawalsUser = React.lazy(() => import('../pages/user-side/DashBoardUser'));
-const InvestmentsUser = React.lazy(() => import('../pages/user-side/DashBoardUser'));
-const DepositsUser = React.lazy(() => import('../pages/user-side/DashBoardUser'));
+const WithdrawalsUser = React.lazy(() => import('../pages/user-side/Withdrawals'));
+const InvestmentsUser = React.lazy(() => import('../pages/user-side/Investments'));
+const DepositsUser = React.lazy(() => import('../pages/user-side/Deposits'));
 
 // apps
 const CalendarApp = React.lazy(() => import('../pages/apps/Calendar'));
@@ -494,7 +494,7 @@ const AllRoutes = () => {
     {
       // User protected routes
       path: '/',
-      element: <PrivateRoute roles={['admin']} component={Layout} />,
+      element: <PrivateRoute roles={['user']} component={Layout} />,
       children: [
         {
           path: 'dashboard-user',

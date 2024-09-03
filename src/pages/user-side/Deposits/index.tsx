@@ -11,11 +11,11 @@ import RevenueChart from './RevenueChart';
 const DepositsUser = () => {
 
     usePageTitle({
-        title: 'DashBoard',
+        title: 'Depositos',
         breadCrumbItems: [
             {
                 path: '/dashboard-user',
-                label: 'DashBoard',
+                label: 'Depositos',
                 active: true,
             },
         ],

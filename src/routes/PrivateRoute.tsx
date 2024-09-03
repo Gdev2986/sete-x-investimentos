@@ -5,6 +5,7 @@ import { APICore } from '../helpers/api/apiCore';
 
 // hooks
 import { useUser } from '../hooks';
+import { user } from "../helpers/fake-backend"
 
 type PrivateRouteProps = {
     component: React.ComponentType;
@@ -32,7 +33,7 @@ const PrivateRoute = ({ component: RouteComponent, roles = [], ...rest }: Privat
     // check if route is restricted by role
     if (roles.length > 0 && !roles.includes(loggedInUser.role.toLowerCase())) { // Ensure correct role check
         // role not authorised so redirect to home page
-        return <Navigate to={{ pathname: '/' }} />;
+        return <Navigate to={{ pathname: `/dashboard-${user.role}` }} />;
     }
 
     return <RouteComponent />;

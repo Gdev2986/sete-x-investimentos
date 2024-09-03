@@ -5,17 +5,16 @@ import { usePageTitle } from '../../../hooks';
 
 // component
 import Statistics from './Statistics';
-import RevenueChart from './RevenueChart';
 
 
 const InvestmentsUser = () => {
 
     usePageTitle({
-        title: 'DashBoard',
+        title: 'Investimentos',
         breadCrumbItems: [
             {
-                path: '/dashboard-user',
-                label: 'DashBoard',
+                path: '/dashboard-user/investments',
+                label: 'Investimentos',
                 active: true,
             },
         ],
@@ -27,7 +26,6 @@ const InvestmentsUser = () => {
 
             <Row>
                 <Col xl={12}>
-                    <RevenueChart />
                 </Col>
             </Row>
         </>

@@ -3,97 +3,76 @@ import { Card, Dropdown } from 'react-bootstrap';
 import Chart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
 
-const RevenueChart = () => {
-    const [chartHeight, setChartHeight] = useState(320); // Altura padrão para monitores menores
+const SplineAreaChart = () => {
+    const [chartHeight, setChartHeight] = useState(320);
 
     useEffect(() => {
         const updateChartHeight = () => {
             if (window.innerWidth > 2000) {
-                setChartHeight(660); // Altura para monitores maiores
+                setChartHeight(560); 
             } else {
-                setChartHeight(273); // Altura padrão para monitores menores
+                setChartHeight(274);
             }
         };
 
-        window.addEventListener('resize', updateChartHeight); // Adiciona o listener para redimensionamento da janela
-        updateChartHeight(); // Chama uma vez para definir o valor inicial
+        window.addEventListener('resize', updateChartHeight); 
+        updateChartHeight(); 
 
-        return () => window.removeEventListener('resize', updateChartHeight); // Limpeza ao desmontar o componente
+        return () => window.removeEventListener('resize', updateChartHeight); 
     }, []);
 
-    const options: ApexOptions = {
+
+    const apexAreaChart1Opts: ApexOptions = {
         chart: {
-            height: 350,
-            type: 'line',
+            height: 360,
+            type: 'area',
             toolbar: {
                 show: false,
             },
-            stacked: false,
             zoom: {
-                enabled: false,
+                enabled: false, 
             },
-        },
-        stroke: {
-            curve: 'smooth',
-            width: [3, 3],
         },
         dataLabels: {
             enabled: false,
         },
+        stroke: {
+            width: 3,
+            curve: 'smooth',
+        },
+        colors: ['#35b8e0', '#41C56D'],
         legend: {
-            show: true,
+            offsetY: 0,
         },
-        fill: {
-            type: 'solid',
-            opacity: [0, 1],
-        },
-        colors: ['#3cc469', '#188ae2'],
         xaxis: {
-            categories: ['2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015'],
-            axisBorder: {
-                show: false,
-            },
-            axisTicks: {
-                show: false,
-            },
-            labels: {
-                style: {
-                    colors: '#adb5bd',
-                },
-            },
+            categories: ['Jan', 'Fev', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
         },
-        yaxis: {
-            tickAmount: 4,
-            min: 0,
-            max: 100,
-            labels: {
-                style: {
-                    colors: '#adb5bd',
-                },
+        tooltip: {
+            enabled: true,
+            fixed: {
+                enabled: false,
+                position: 'topRight',
             },
         },
         grid: {
-            show: false,
-            padding: {
-                top: 0,
-                bottom: 0,
+            row: {
+                colors: ['transparent', 'transparent'],
+                opacity: 0.2,
             },
-        },
-        tooltip: {
-            theme: 'dark',
+            borderColor: '#f7f7f7',
         },
     };
-
-    const series = [
+    
+    // Dados do gráfico SplineArea
+    const apexAreaChart1Data = [
         {
-            name: 'Series A',
-            type: 'area',
-            data: [50, 75, 30, 50, 75, 50, 75, 100],
+            name: 'Rendimentos',
+            data: [31, 40, 28, 51, 42, 109, 100],
         },
         {
-            name: 'Series B',
-            type: 'line',
-            data: [0, 40, 80, 40, 10, 40, 50, 70],
+            name: 'Retiradas',
+            data: [11, 32, 45, 32, 34, 52, 41],
+            
         },
     ];
 
@@ -115,9 +94,9 @@ const RevenueChart = () => {
 
                 <div dir="ltr">
                     <Chart
-                        options={options}
-                        series={series}
-                        type="line"
+                        options={apexAreaChart1Opts}
+                        series={apexAreaChart1Data}
+                        type="area"
                         height={chartHeight} // Altura dinâmica com base no tamanho da tela
                         className="apex-charts mt-2"
                     />
@@ -127,4 +106,4 @@ const RevenueChart = () => {
     );
 };
 
-export default RevenueChart;
+export default SplineAreaChart;

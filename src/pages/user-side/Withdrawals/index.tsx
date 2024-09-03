@@ -11,11 +11,11 @@ import RevenueChart from './RevenueChart';
 const WithdrawalsUser = () => {
 
     usePageTitle({
-        title: 'DashBoard',
+        title: 'Retiradas',
         breadCrumbItems: [
             {
                 path: '/dashboard-user',
-                label: 'DashBoard',
+                label: 'Retiradas',
                 active: true,
             },
         ],

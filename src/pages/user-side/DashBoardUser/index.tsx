@@ -5,7 +5,7 @@ import { usePageTitle } from '../../../hooks';
 
 // component
 import Statistics from './Statistics';
-import RevenueChart from './RevenueChart';
+import SplineAreaChart from './RevenueChart';
 
 
 const DashBoardUser = () => {
@@ -27,7 +27,7 @@ const DashBoardUser = () => {
 
             <Row>
                 <Col xl={12}>
-                    <RevenueChart />
+                    <SplineAreaChart />
                 </Col>
             </Row>
         </>

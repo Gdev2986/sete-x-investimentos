@@ -149,10 +149,10 @@ const CustomAdvancedTable = () => {
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="secondary" className="waves-effect" onClick={toggleResponsiveModal}>
+                    <Button variant="secondary" className="waves-effect" onClick={toggleResponsiveModal} >
                         Cancelar
                     </Button>
-                    <Button type="submit" className="btn btn-info waves-effect waves-light">
+                    <Button type="submit" className="btn btn-info waves-effect waves-light" style={{ backgroundColor :'#41C56D' }}>
                         Salvar
                     </Button>
                 </Modal.Footer>
