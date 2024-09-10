@@ -16,7 +16,7 @@ const DashBoard1 = () => {
         title: 'DashBoard',
         breadCrumbItems: [
             {
-                path: '/dashboard',
+                path: 'admin/dashboard',
                 label: 'DashBoard',
                 active: true,
             },

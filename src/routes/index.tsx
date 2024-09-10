@@ -31,12 +31,15 @@ const DashBoard1 = React.lazy(() => import('../pages/admin-side/DashBoardAdmin')
 const Deposits = React.lazy(() => import('../pages/admin-side/Deposits'));
 const Yields = React.lazy(() => import('../pages/admin-side/Yields'));
 const Withdrawals = React.lazy(() => import('../pages/admin-side/Withdrawals'));
+const Profile = React.lazy(() => import('../pages/admin-side/Profile'));
+
 
 //User
 const DashBoardUser = React.lazy(() => import('../pages/user-side/DashBoardUser'));
 const WithdrawalsUser = React.lazy(() => import('../pages/user-side/Withdrawals'));
 const InvestmentsUser = React.lazy(() => import('../pages/user-side/Investments'));
 const DepositsUser = React.lazy(() => import('../pages/user-side/Deposits'));
+const ProfileUser = React.lazy(() => import('../pages/user-side/Profile'));
 
 // apps
 const CalendarApp = React.lazy(() => import('../pages/apps/Calendar'));
@@ -46,7 +49,7 @@ const Kanban = React.lazy(() => import('../pages/apps/Tasks/Board'));
 const TaskDetail = React.lazy(() => import('../pages/apps/Tasks/Detail'));
 const Projects = React.lazy(() => import('../pages/apps/Projects'));
 const List = React.lazy(() => import('../pages/apps/Contacts/List'));
-const Profile = React.lazy(() => import('../pages/apps/Contacts/Profile'));
+
 
 // extra pages
 const Starter = React.lazy(() => import('../pages/other/Starter'));
@@ -200,24 +203,28 @@ const AllRoutes = () => {
       element: <PrivateRoute roles={['admin']} component={Layout} />,
       children: [
         {
-          path: 'dashboard-admin',
+          path: 'admin/dashboard',
           element: <LoadComponent component={DashBoard1} />,
         },
         {
-          path: 'dashboard-admin/yields',
+          path: 'admin/yields',
           element: <LoadComponent component={Yields} />,
         },
         {
-          path: 'dashboard-admin/clients',
+          path: 'admin/clients',
           element: <LoadComponent component={Clients} />,
         },
         {
-          path: 'dashboard-admin/deposits',
+          path: 'admin/deposits',
           element: <LoadComponent component={Deposits} />,
         },
         {
-          path: 'dashboard-admin/withdrawals',
+          path: 'admin/withdrawals',
           element: <LoadComponent component={Withdrawals} />,
+        },
+        {
+          path: 'admin/profile',
+          element: <LoadComponent component={Profile} />,
         },
         
         
@@ -253,10 +260,7 @@ const AllRoutes = () => {
               path: 'contacts/list',
               element: <LoadComponent component={List} />,
             },
-            {
-              path: 'contacts/profile',
-              element: <LoadComponent component={Profile} />,
-            },
+            
           ],
           
         },
@@ -497,20 +501,24 @@ const AllRoutes = () => {
       element: <PrivateRoute roles={['user']} component={Layout} />,
       children: [
         {
-          path: 'dashboard-user',
+          path: 'user/dashboard',
           element: <LoadComponent component={DashBoardUser} />,
         },
         {
-          path: 'dashboard-user/investments',
+          path: 'user/investments',
           element: <LoadComponent component={InvestmentsUser} />,
         },
         {
-          path: 'dashboard-user/deposits',
+          path: 'user/deposits',
           element: <LoadComponent component={DepositsUser} />,
         },
         {
-          path: 'dashboard-user/withdrawals',
+          path: 'user/withdrawals',
           element: <LoadComponent component={WithdrawalsUser} />,
+        },
+        {
+          path: 'user/profile',
+          element: <LoadComponent component={ProfileUser} />,
         },
       ],
     },

@@ -38,7 +38,7 @@ const SplineAreaChart = () => {
         },
         stroke: {
             width: 3,
-            curve: 'smooth',
+            curve: 'straight',
         },
         colors: ['#35b8e0', '#41C56D'],
         legend: {

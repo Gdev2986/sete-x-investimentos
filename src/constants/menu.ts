@@ -17,11 +17,11 @@ const MENU_ITEMS: MenuItemTypes[] = [
     { key: 'navigation', label: 'Visão Geral - Admin', isTitle: true },
     //Admin Sidebar
     {
-        key: 'dashboard-admin',
+        key: 'admin/dashboard',
         label: 'Dashboard',
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
-        url: '/dashboard-admin',
+        url: 'admin/dashboard',
     },
     
     {
@@ -29,28 +29,28 @@ const MENU_ITEMS: MenuItemTypes[] = [
         label: 'Rendimentos',
         isTitle: false,
         icon: 'mdi mdi-chart-line',
-        url: '/dashboard-admin/yields',
+        url: 'admin/yields',
     },
     {
         key: 'clients',
         label: 'Clientes',
         isTitle: false,
         icon: 'mdi mdi-account',
-        url: '/dashboard-admin/clients',
+        url: 'admin/clients',
     },
     {
         key: 'deposits',
         label: 'Depositos',
         isTitle: false,
         icon: 'mdi mdi-cash-plus',
-        url: '/dashboard-admin/deposits',
+        url: 'admin/deposits',
     },
     {
         key: 'withdrawals',
         label: 'Retiradas',
         isTitle: false,
         icon: 'mdi mdi-cash-refund',
-        url: '/dashboard-admin/withdrawals',
+        url: 'admin/withdrawals',
     },
 //User Sidebar
 { key: 'navigation', label: 'Visão Geral - User', isTitle: true },
@@ -59,28 +59,28 @@ const MENU_ITEMS: MenuItemTypes[] = [
         label: 'Dashboard',
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
-        url: '/dashboard-user',
+        url: 'user/dashboard',
     },
     {
         key: 'investments',
         label: 'Investimentos',
         isTitle: false,
         icon: 'mdi mdi-chart-line',
-        url: '/dashboard-user/investments',
+        url: 'user/investments',
     },
     {
         key: 'deposits',
         label: 'Depositos',
         isTitle: false,
         icon: 'mdi mdi-cash-plus',
-        url: '/dashboard-user/deposits',
+        url: 'user/deposits',
     },
     {
         key: 'withdrawals',
         label: 'Retiradas',
         isTitle: false,
         icon: 'mdi mdi-cash-refund',
-        url: '/dashboard-user/withdrawals',
+        url: 'user/withdrawals',
     },
    
 
@@ -769,26 +769,6 @@ const HORIZONTAL_MENU_ITEMS: MenuItemTypes[] = [
                 isTitle: false,
                 url: '/apps/projects',
                 parentKey: 'apps',
-            },
-            {
-                key: 'apps-contacts',
-                label: 'Contacts',
-                isTitle: false,
-                parentKey: 'apps',
-                children: [
-                    {
-                        key: 'contacts-list',
-                        label: 'Members List',
-                        url: '/apps/contacts/list',
-                        parentKey: 'apps-contacts',
-                    },
-                    {
-                        key: 'contacts-profile',
-                        label: 'Profile',
-                        url: '/apps/contacts/profile',
-                        parentKey: 'apps-contacts',
-                    },
-                ],
             },
         ],
     },

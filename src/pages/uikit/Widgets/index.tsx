@@ -7,9 +7,7 @@ import { usePageTitle } from '../../../hooks';
 import StatisticsWidget1 from '../../../components/StatisticsWidget1';
 import StatisticsWidget2 from '../../../components/StatisticsWidget2';
 import StatisticsWidget3 from '../../../components/StatisticsWidget3';
-import TeamMembers from '../../../components/TeamMembers';
 import ContactDetails from '../../../components/ContactDetails';
-import Reminders from '../../../components/Reminders';
 
 import StatisticsWidget from './StatisticsWidget';
 import Progressbar from './Progressbar';
@@ -22,7 +20,6 @@ import avatar4 from '../../../assets/images/users/user-10.jpg';
 
 // dummy data
 import { contact, statisticsWidgets } from './data';
-import { members, reminder } from '../../apps/Contacts/Profile/data';
 
 const Widgets = () => {
     // set pagetitle
@@ -171,17 +168,12 @@ const Widgets = () => {
             <StatisticsWidget statisticsWidgets={statisticsWidgets} />
 
             <Row>
-                <Col xl={3} md={6}>
-                    <TeamMembers members={members} />
-                </Col>
+                
                 <Col xl={3} md={6}>
                     <ContactDetails contact={contact} />
                 </Col>
                 <Col xl={3} md={6}>
                     <Progressbar />
-                </Col>
-                <Col xl={3} md={6}>
-                    <Reminders reminder={reminder} />
                 </Col>
             </Row>
         </>

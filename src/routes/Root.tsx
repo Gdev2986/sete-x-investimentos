@@ -6,7 +6,7 @@ const Root = () => {
     // const api = new APICore();
 
     const getRootUrl = () => {
-        let url: string = `dashboard-${user.role}`;
+        let url: string = `${user.role}/dashboard`;
         return url;
     };
 

@@ -81,19 +81,6 @@ const UserBox = () => {
             </Dropdown>
             <p className="text-muted left-user-info">Admin</p>
 
-            <ul className="list-inline">
-                <li className="list-inline-item">
-                    <Link to="#" className="text-muted left-user-info">
-                        <i className="mdi mdi-cog"></i>
-                    </Link>
-                </li>
-
-                <li className="list-inline-item">
-                    <Link to="#">
-                        <i className="mdi mdi-power"></i>
-                    </Link>
-                </li>
-            </ul>
         </div>
     );
 };
