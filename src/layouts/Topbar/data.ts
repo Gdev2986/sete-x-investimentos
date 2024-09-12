@@ -1,5 +1,6 @@
 import { Notification, ProfileMenu } from '../types';
-
+import { user } from "../../helpers/fake-backend"
+ 
 // images
 import avatar1 from '../../assets/images/users/user-1.jpg';
 import avatar4 from '../../assets/images/users/user-4.jpg';
@@ -54,7 +55,7 @@ const profileMenus: ProfileMenu[] = [
     {
         label: 'Meu Perfil',
         icon: 'fe-user',
-        redirectTo: '/apps/contacts/profile',
+        redirectTo: `/${user.role}/profile` ,
     },
     {
         label: 'Bloqueio',

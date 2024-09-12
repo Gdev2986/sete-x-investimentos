@@ -126,14 +126,15 @@ const Landing = React.lazy(() => import('../pages/Landing'));
 const loading = () => <div className=""></div>;
 
 type LoadComponentProps = {
-  component: React.LazyExoticComponent<() => JSX.Element>;
+  component: React.LazyExoticComponent<React.ComponentType<any>>;
 };
 
-const LoadComponent = ({ component: Component }: LoadComponentProps) => (
-  <Suspense fallback={loading()}>
+const LoadComponent: React.FC<LoadComponentProps> = ({ component: Component }) => (
+  <Suspense fallback={<div>Carregando...</div>}>
     <Component />
   </Suspense>
 );
+
 
 const AllRoutes = () => {
   const { appSelector } = useRedux();
@@ -498,7 +499,7 @@ const AllRoutes = () => {
     {
       // User protected routes
       path: '/',
-      element: <PrivateRoute roles={['user']} component={Layout} />,
+      element: <PrivateRoute roles={['admin']} component={Layout} />,
       children: [
         {
           path: 'user/dashboard',
