@@ -22,7 +22,6 @@ const Login = React.lazy(() => import('../pages/auth/Login'));
 const Register = React.lazy(() => import('../pages/auth/Register'));
 const Confirm = React.lazy(() => import('../pages/auth/Confirm'));
 const ForgetPassword = React.lazy(() => import('../pages/auth/ForgetPassword'));
-const LockScreen = React.lazy(() => import('../pages/auth/LockScreen'));
 const Logout = React.lazy(() => import('../pages/auth/Logout'));
 
 // Admin
@@ -172,7 +171,6 @@ const AllRoutes = () => {
             { path: 'register', element: <LoadComponent component={Register} /> },
             { path: 'confirm', element: <LoadComponent component={Confirm} /> },
             { path: 'forget-password', element: <LoadComponent component={ForgetPassword} /> },
-            { path: 'lock-screen', element: <LoadComponent component={LockScreen} /> },
             { path: 'logout', element: <LoadComponent component={Logout} /> },
           ],
         },

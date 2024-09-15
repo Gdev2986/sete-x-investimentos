@@ -11,7 +11,7 @@ const Footer = () => {
                     </Col>
                     <Col md={6}>
                         <div className="text-md-end footer-links d-none d-md-block" >
-                            <h5 style={{color: "#727b83"}}>Alguma duvida? <Link to="#" style={{color: "#1c8ce3"}}>Fale Consoco</Link> </h5>
+                            <h5 style={{color: "#727b83"}}>Precisa de Ajuda? <Link to="#" style={{color: "#41C56D"}}>Fale Consoco</Link> </h5>
                         </div>
                     </Col>
                 </Row>

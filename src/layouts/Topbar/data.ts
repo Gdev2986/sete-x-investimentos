@@ -58,11 +58,6 @@ const profileMenus: ProfileMenu[] = [
         redirectTo: `/${user.role}/profile` ,
     },
     {
-        label: 'Bloqueio',
-        icon: 'fe-lock',
-        redirectTo: '/auth/lock-screen',
-    },
-    {
         label: 'Sair',
         icon: 'fe-log-out',
         redirectTo: '/auth/logout',
