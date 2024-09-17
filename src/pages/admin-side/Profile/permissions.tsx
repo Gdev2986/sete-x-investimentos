@@ -71,7 +71,13 @@ const Permissions: React.FC = () => {
         <Form.Select
           value={row.original.role}
           onChange={(e) => handleRoleChange(row.original.id, e.target.value)}
-          className="bg-transparent border-0 p-0 text-muted"
+          className="border-0 p-0"
+          style={{
+            backgroundColor: 'var(--bs-body-bg)',  // Variável que acompanha o tema
+            color: 'var(--bs-body-color)',         // Variável para a cor do texto
+            padding: '0.375rem 1.75rem 0.375rem 0.75rem',
+            marginBottom: '0',
+          }}
         >
           <option value="Usuário">Usuário</option>
           <option value="Admin">Admin</option>
@@ -116,7 +122,7 @@ const Permissions: React.FC = () => {
               Cancelar
             </Button>
           )}
-          <Button variant="success" onClick={() => setShowModal(true)}>
+          <Button variant="success" onClick={() => setShowModal(true)} disabled={!hasChanges}>
             Salvar
           </Button>
         </div>

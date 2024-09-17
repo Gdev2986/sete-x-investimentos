@@ -133,7 +133,7 @@ const CustomAdvancedTable = () => {
                                 <label htmlFor="field-1" className="form-label">
                                     Valor Alocado
                                 </label>
-                                <input type="number" className="form-control" id="field-1" placeholder="50000" required />
+                                <input type="number" className="form-control" id="field-1" placeholder="Insira o valor" required />
                             </div>
                         </div>
                         <div className="col-md-6">
@@ -141,18 +141,18 @@ const CustomAdvancedTable = () => {
                                 <label htmlFor="field-2" className="form-label">
                                     Lucro Bruto
                                 </label>
-                                <input type="number" className="form-control" id="field-2" placeholder="10000" required />
+                                <input type="number" className="form-control" id="field-2" placeholder="Insira o valor" required />
                             </div>
                         </div>
                     </div>
                     
                 </Modal.Body>
 
-                <Modal.Footer>
+                <Modal.Footer >
                     <Button variant="secondary" className="waves-effect" onClick={toggleResponsiveModal} >
                         Cancelar
                     </Button>
-                    <Button type="submit" className="btn btn-info waves-effect waves-light" style={{ backgroundColor :'#41C56D' }}>
+                    <Button type="submit" className="btn btn-info waves-effect waves-light" style={{ backgroundColor :'#41C56D'}}>
                         Salvar
                     </Button>
                 </Modal.Footer>

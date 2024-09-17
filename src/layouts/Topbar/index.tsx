@@ -51,7 +51,7 @@ const Topbar = ({ openLeftMenuCallBack, containerClass }: TopbarProps) => {
             <div className={containerClass}>
                 <ul className="list-unstyled topnav-menu float-end mb-0">
                     {/* Theme Switcher */}
-                    <li className="dropdown notification-list">
+                    <li className="dropdown notification-list" style={{marginTop: "-3px"}}>
                         <ThemeSwitcher /> {/* Usando o ThemeSwitcher para alternar o tema */}
                     </li>
 

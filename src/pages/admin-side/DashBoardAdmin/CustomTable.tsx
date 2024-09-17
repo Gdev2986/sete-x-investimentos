@@ -1,7 +1,6 @@
 import { Card, Col, Row } from 'react-bootstrap';
 import Table from '../../../components/Table';
-import { usePageTitle } from '../../../hooks';
-
+import { Link } from 'react-router-dom';
 
 import { records as data } from '../../tables/AdvancedTable/data';
 
@@ -64,7 +63,11 @@ const CustomAdvancedTable = () => {
                 <Col>
                     <Card>
                         <Card.Body>
-                            <h4 className="header-title">Clientes</h4>
+                            <h4 className="header-title">
+                              <Link to="/admin/clients" className="text-decoration-none text-dark">
+                                Clientes
+                              </Link>
+                            </h4>
                             <Table
                                 columns={columns}
                                 data={data}
