@@ -3,10 +3,12 @@
 //
 
 .footer {
+    display: flex;
     bottom: 0;
-    padding: 19px 15px 20px;
+    padding: 19px 15px 10px;
     position: absolute;
     right: 0;
+    justify-content: flex-start;
     color: $footer-color;
     left: $leftbar-width;
     background-color: $footer-bg;
