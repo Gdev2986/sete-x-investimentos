@@ -1,12 +1,7 @@
 import { Col, Row } from 'react-bootstrap';
-
+import CustomTable from './CustomTable';
 // hooks
 import { usePageTitle } from '../../../hooks';
-
-// component
-import Statistics from './Statistics';
-import RevenueChart from './RevenueChart';
-
 
 const WithdrawalsUser = () => {
 
@@ -23,11 +18,9 @@ const WithdrawalsUser = () => {
 
     return (
         <>
-            <Statistics />
-
             <Row>
-                <Col xl={12}>
-                    <RevenueChart />
+                <Col xl={12} >
+                  <CustomTable />
                 </Col>
             </Row>
         </>
