@@ -2,8 +2,7 @@ import { Col, Row } from 'react-bootstrap';
 
 // hooks
 import { usePageTitle } from '../../../hooks';
-
-// component
+import CustomTable from './CustomTable';
 import Statistics from './Statistics';
 
 
@@ -26,6 +25,7 @@ const InvestmentsUser = () => {
 
             <Row>
                 <Col xl={12}>
+                    <CustomTable />
                 </Col>
             </Row>
         </>

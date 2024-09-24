@@ -75,13 +75,6 @@ const MENU_ITEMS: MenuItemTypes[] = [
         icon: 'mdi mdi-cash-plus',
         url: 'user/deposits',
     },
-    {
-        key: 'withdrawals',
-        label: 'Retiradas',
-        isTitle: false,
-        icon: 'mdi mdi-cash-refund',
-        url: 'user/withdrawals',
-    },
    
 
     { key: 'apps', label: 'Apps', isTitle: true },
