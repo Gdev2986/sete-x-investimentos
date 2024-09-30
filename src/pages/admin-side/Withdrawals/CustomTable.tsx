@@ -4,10 +4,24 @@ import Table from '../../../components/Table';
 import swal from 'sweetalert2';
 import { retiradas } from '../../../helpers/data'; // Importando corretamente as retiradas
 
-// Componente para Tabela de Retiradas
+// Definindo o tipo para os dados de retiradas
+type Retirada = {
+    id: number;
+    userId: number;
+    nome: string;
+    valorSolicitado: number;
+    valorDisponivel: number;
+    status: string;
+    dataSolicitacao: string;
+    metodoPagamento: string;
+    comprovante: string;
+    ultimaAtualizacao: string;
+    observacoes: string;
+};
+
 const CustomAdvancedTable = () => {
-    const [usersData, setUsersData] = useState(retiradas); // Usando os dados de retiradas
-    const [tempUsersData, setTempUsersData] = useState(retiradas); // Dados temporários para restaurar se o modal for cancelado
+    const [usersData, setUsersData] = useState<Retirada[]>(retiradas); // Usando os dados de retiradas com o tipo Retirada
+    const [tempUsersData, setTempUsersData] = useState<Retirada[]>(retiradas); // Dados temporários para restaurar se o modal for cancelado
     const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false); // Estado para o botão "Salvar"
 
     // Função para lidar com a mudança de status
@@ -58,36 +72,31 @@ const CustomAdvancedTable = () => {
             className: 'text-center', // Centraliza o cabeçalho e a coluna de Nome
         },
         {
-            Header: 'Contato',
-            accessor: 'contato',
-            sort: false,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de Contato
-            Cell: ({ value }: any) => <span style={{ whiteSpace: 'nowrap', fontSize: '0.9rem' }}>{value}</span>,
-        },
-        {
-            Header: 'Total Alocado (R$)',
-            accessor: 'totalAlocado',
+            Header: 'Valor Solicitado (R$)',
+            accessor: 'valorSolicitado',
             sort: true,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de Total Alocado
+            className: 'text-center', // Centraliza o cabeçalho e a coluna de valor solicitado
+            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), // Formatação correta de moeda
         },
         {
-            Header: 'Saldo Atual (R$)',
-            accessor: 'saldoAtual',
+            Header: 'Valor Disponível (R$)',
+            accessor: 'valorDisponivel',
             sort: true,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de Saldo Atual
+            className: 'text-center', // Centraliza o cabeçalho e a coluna de valor disponível
+            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), // Formatação correta de moeda
         },
         {
-            Header: 'Data',
-            accessor: 'data',
+            Header: 'Data de Solicitação',
+            accessor: 'dataSolicitacao',
             sort: true,
             className: 'text-center', // Centraliza o cabeçalho e a coluna de Data
             Cell: ({ value }: any) => <span style={{ whiteSpace: 'nowrap', fontSize: '0.9rem' }}>{value}</span>,
         },
         {
-            Header: 'Email',
-            accessor: 'email',
+            Header: 'Método de Pagamento',
+            accessor: 'metodoPagamento',
             sort: false,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de Email
+            className: 'text-center', // Centraliza o cabeçalho e a coluna de método de pagamento
         },
         {
             Header: 'Status',

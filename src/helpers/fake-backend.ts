@@ -15,7 +15,7 @@ export type UserData = {
 export const user ={
     id: 1,
     email: 'teste@teste.com',
-    username: 'Gabriel',
+    username: 'Gabriel Campos',
     password: 'test',
     firstName: 'Test',
     lastName: 'User',

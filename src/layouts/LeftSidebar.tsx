@@ -5,40 +5,23 @@ import classNames from 'classnames';
 
 // helpers
 import { getMenuItems } from '../helpers/menu';
+import { user } from '../helpers/fake-backend'; // Importando o user do backend fake
 
 // components
 import Scrollbar from '../components/Scrollbar';
-
 import AppMenu from './Menu';
 
 // images
 import profileImg from '../assets/images/users/user-1.jpg';
 
+/* Função para filtrar itens de menu por role */
+const filterMenuByRole = (menuItems: any[], userRole: string) => {
+    return menuItems.filter((item) => !item.role || item.role === userRole); // Filtra por role ou exibe se o item não tiver role
+};
+
 /* user box */
 const UserBox = () => {
-    // get the profilemenu
-    const ProfileMenus = [
-        {
-            label: 'My Account',
-            icon: 'fe-user',
-            redirectTo: '/apps/contacts/profile',
-        },
-        {
-            label: 'Settings',
-            icon: 'fe-settings',
-            redirectTo: '#',
-        },
-        {
-            label: 'Lock Screen',
-            icon: 'fe-lock',
-            redirectTo: '/auth/lock-screen',
-        },
-        {
-            label: 'Logout',
-            icon: 'fe-log-out',
-            redirectTo: '/auth/logout',
-        },
-    ];
+    // Menu de perfil
 
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
@@ -51,48 +34,34 @@ const UserBox = () => {
 
     return (
         <div className="user-box text-center">
-            <img src={profileImg} alt="" title="Mat Helme" className="rounded-circle img-thumbnail avatar-md" />
+            <img src={profileImg} alt="" title={user.username} className="rounded-circle img-thumbnail avatar-md" />
             <Dropdown show={dropdownOpen} onToggle={toggleDropdown}>
                 <Dropdown.Toggle
                     id="dropdown-notification"
-                    to="#"
+                    to={`/${user.role}/profile`}
                     as={Link}
                     onClick={toggleDropdown}
                     className="user-name h5 mt-2 mb-1 d-block"
                 >
-                    Gabriel Campos
+                    {user.username}
                 </Dropdown.Toggle>
-                <Dropdown.Menu className="user-pro-dropdown">
-                    <div onClick={toggleDropdown}>
-                        {(ProfileMenus || []).map((item, index) => {
-                            return (
-                                <Link
-                                    to={item.redirectTo}
-                                    className="dropdown-item notify-item"
-                                    key={index + '-profile-menu'}
-                                >
-                                    <i className={classNames(item.icon, 'me-1')}></i>
-                                    <span>{item.label}</span>
-                                </Link>
-                            );
-                        })}
-                    </div>
-                </Dropdown.Menu>
+              
             </Dropdown>
-            <p className="text-muted left-user-info">Admin</p>
-
+            <p className="text-muted left-user-info">{user.role}</p> {/* Exibe o role do usuário */}
         </div>
     );
 };
 
 /* sidebar content */
 const SideBarContent = () => {
+    const filteredMenuItems = filterMenuByRole(getMenuItems(), user.role); // Filtra os itens com base no role
+
     return (
         <>
             <UserBox />
 
             <div id="sidebar-menu">
-                <AppMenu menuItems={getMenuItems()} />
+                <AppMenu menuItems={filteredMenuItems} /> {/* Renderiza itens filtrados */}
             </div>
 
             <div className="clearfix" />
@@ -128,12 +97,13 @@ const LeftSidebar = ({ isCondensed }: LeftSidebarProps) => {
 
     return (
         <div className="left-side-menu" ref={menuNodeRef}>
-            {!isCondensed && (
+            {!isCondensed ? (
                 <Scrollbar style={{ maxHeight: '100%' }}>
                     <SideBarContent />
                 </Scrollbar>
+            ) : (
+                <SideBarContent />
             )}
-            {isCondensed && <SideBarContent />}
         </div>
     );
 };

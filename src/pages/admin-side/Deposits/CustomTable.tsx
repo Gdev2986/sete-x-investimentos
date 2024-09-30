@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, Col, Row, Form, Button } from 'react-bootstrap';
 import Table from '../../../components/Table';
 import swal from 'sweetalert2';
-import { depositos } from '../../../helpers/data'; // Importando os dados
+import { depositos } from '../../../helpers/data'; // Importando os dados dos depósitos
 
 const CustomAdvancedTable = () => {
     const [usersData, setUsersData] = useState(depositos); // Usando os dados importados
@@ -57,36 +57,25 @@ const CustomAdvancedTable = () => {
             className: 'text-center',
         },
         {
-            Header: 'Contato',
-            accessor: 'contato',
-            sort: false,
-            className: 'text-center',
-            Cell: ({ value }: any) => <span style={{ whiteSpace: 'nowrap', fontSize: '0.9rem' }}>{value}</span>,
-        },
-        {
-            Header: 'Total Alocado (R$)',
-            accessor: 'totalAlocado',
+            Header: 'Valor Depositado (R$)',
+            accessor: 'valorDepositado',
             sort: true,
             className: 'text-center',
+            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), // Formatação de moeda
         },
         {
             Header: 'Saldo Atual (R$)',
             accessor: 'saldoAtual',
             sort: true,
             className: 'text-center',
+            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), // Formatação de moeda
         },
         {
-            Header: 'Data',
-            accessor: 'data',
+            Header: 'Data do Depósito',
+            accessor: 'dataDeposito',
             sort: true,
             className: 'text-center',
             Cell: ({ value }: any) => <span style={{ whiteSpace: 'nowrap', fontSize: '0.9rem' }}>{value}</span>,
-        },
-        {
-            Header: 'Email',
-            accessor: 'email',
-            sort: false,
-            className: 'text-center',
         },
         {
             Header: 'Status',

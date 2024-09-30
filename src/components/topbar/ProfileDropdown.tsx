@@ -12,10 +12,11 @@ import { ProfileMenu } from '../../layouts/types';
 type ProfileDropdownProps = {
     userImage: string;
     username: string;
+    userId: number; // Adicionando o ID do usuário como prop
     menuItems: ProfileMenu[];
 };
 
-const ProfileDropdown = ({ userImage, username, menuItems }: ProfileDropdownProps) => {
+const ProfileDropdown = ({ userImage, username, userId, menuItems }: ProfileDropdownProps) => {
     const [isOpen, show, hide] = useToggle();
 
     /*
@@ -36,14 +37,17 @@ const ProfileDropdown = ({ userImage, username, menuItems }: ProfileDropdownProp
             >
                 <img src={userImage} alt="user" className="rounded-circle" />
                 <span className="pro-user-name ms-1">
-                    {username} <i className="mdi mdi-chevron-down"></i>
+                    {username}
+                    <i className="mdi mdi-chevron-down ms-1"></i> {/* Setinha do dropdown */}
                 </span>
+                {/* Exibir ID do usuário abaixo do nome */}
             </Dropdown.Toggle>
 
             <Dropdown.Menu align="end" className="profile-dropdown">
                 <div onClick={toggleDropdown}>
                     <Dropdown.Header className="noti-title">
                         <h6 className="text-overflow m-0">Bem-vindo !</h6>
+                        <div style={{ fontSize: '0.75rem', marginTop: '0px', marginBottom: '-15px', color: '#6c757d' }}>id: {userId}</div>
                     </Dropdown.Header>
 
                     {(menuItems || []).map((menu, i) => {

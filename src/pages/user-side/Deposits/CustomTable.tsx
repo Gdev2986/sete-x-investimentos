@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import { Card, Col, Row, Modal, Button, Form } from 'react-bootstrap';
 import Table from '../../../components/Table';
-import AdmintoDatepicker from '../../../components/Datepicker'; // Importando o Datepicker
 import { depositos } from '../../../helpers/data'; // Dados dos depósitos
 import { user } from '../../../helpers/fake-backend'; // Dados do usuário logado
-import Statistics from './Statistics'; // Dados dos widgets de estatísticas
+
+// Definindo o tipo para os depósitos
+type Deposit = {
+    id: number;
+    userId: number;
+    nome: string;
+    valorDepositado: number;
+    saldoAtual: number;
+    status: string;
+    dataDeposito: string;
+    comprovante: string;
+    ultimaAtualizacao: string;
+    observacoes: string;
+};
 
 const columns = [
     {
@@ -14,13 +26,14 @@ const columns = [
     },
     {
         Header: 'Data',
-        accessor: 'data',
+        accessor: 'dataDeposito', // Atualizado para refletir o nome correto do campo de data
         sort: true,
     },
     {
         Header: 'Valor Depositado (R$)', // Exibe o valor depositado
-        accessor: 'totalAlocado', // Isso mostra o valor depositado como o total alocado
+        accessor: 'valorDepositado', 
         sort: true,
+        Cell: ({ value }: any) => formatCurrency(value), // Exibe o valor formatado corretamente
     },
     {
         Header: 'Status',
@@ -30,6 +43,13 @@ const columns = [
     },
 ];
 
+// Função para formatar valores no formato R$ brasileiro
+const formatCurrency = (value: number) => {
+    return value.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+    });
+};
 
 const sizePerPageList = [
     { text: '5', value: 5 },
@@ -39,44 +59,68 @@ const sizePerPageList = [
 ];
 
 const UserDeposits = () => {
-    // Pegando dados dos widgets de estatísticas
-    const totalInvestido = 5000; // Pegue isso de StatisticsWidget1
-    const totalCarteira = 6200;  // Pegue isso de StatisticsWidget2
-    const rendimentoDisponivel = 1200; // Pegue isso de StatisticsWidget4
+    // Filtrando os depósitos pelo ID do usuário logado
+    const userId = user.id; // Pegando o ID do usuário logado
+    const [userDeposits, setUserDeposits] = useState<Deposit[]>(
+        depositos.filter((deposito) => deposito.userId === userId)
+    );
 
-    const [userDeposits, setUserDeposits] = useState(depositos.filter((deposito) => deposito.nome === user.username));
     const [responsiveModal, setResponsiveModal] = useState<boolean>(false);
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-    const [depositValue, setDepositValue] = useState<number>(0); // Valor do depósito inserido
+    const [depositValue, setDepositValue] = useState<string>(''); // Valor do depósito inserido
+    const [isInvalid, setIsInvalid] = useState(false); // Verificação se o campo é inválido
+    const [showShake, setShowShake] = useState(false); // Animação de erro ao campo ser inválido
 
     // Função para alternar o estado de visibilidade do modal
     const toggleResponsiveModal = () => setResponsiveModal(!responsiveModal);
 
-    // Função para atualizar a data selecionada
-    const handleDateChange = (date: Date) => {
-        if (date) setSelectedDate(date);
+    // Função para validar o valor digitado e aplicar a lógica de obrigatoriedade
+    const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const inputValue = e.target.value.replace(/[^\d.,]/g, ''); // Remove caracteres que não sejam números, ponto ou vírgula
+
+        if (!inputValue || parseFloat(inputValue.replace(',', '.')) < 100) {
+            setIsInvalid(true);
+            setShowShake(true);
+            setTimeout(() => setShowShake(false), 300); // Remove a classe shake após 300ms
+        } else {
+            setIsInvalid(false);
+        }
+
+        setDepositValue(inputValue); // Mantém o valor formatado no estado
+    };
+
+    // Função para converter string formatada para número antes de salvar no backend
+    const parseToNumber = (value: string) => {
+        return parseFloat(value.replace('.', '').replace(',', '.')); // Remove os pontos e substitui a vírgula por ponto
     };
 
     // Função para criar um novo depósito
     const handleCreateDeposit = () => {
-        const newDeposit = {
+        const valorNumerico = parseToNumber(depositValue);
+        if (!valorNumerico || isInvalid || valorNumerico < 100) {
+            setShowShake(true);
+            setTimeout(() => setShowShake(false), 300);
+            return; // Não permite salvar se o valor for inválido
+        }
+
+        const newDeposit: Deposit = {
             id: userDeposits.length + 1, // Gerando ID sequencial
+            userId: userId, // Associando ao ID do usuário
             nome: `${user.firstName} ${user.lastName}`, // Nome completo do usuário
-            contato: '+55 31 91234-5678', // Contato fictício
-            totalAlocado: depositValue.toFixed(2), // Valor do depósito como total alocado
-            saldoAtual: '0.00', // Como o depósito é novo, o saldo pode começar como '0.00'
-            email: user.email, // Email do usuário
+            valorDepositado: valorNumerico, // Valor do depósito como número
+            saldoAtual: 0.00, 
             status: 'Pendente', // Status inicial do depósito
-            data: selectedDate.toISOString().split('T')[0], // Data do depósito no formato YYYY-MM-DD
+            dataDeposito: new Date().toISOString().split('T')[0], // Data atual no formato YYYY-MM-DD
+            comprovante: '', // Comprovante vazio inicialmente
+            ultimaAtualizacao: new Date().toISOString().split('T')[0], // Última atualização com a data atual
+            observacoes: '', // Observações vazias
         };
-    
+
         // Atualiza a lista de depósitos do usuário
         setUserDeposits([...userDeposits, newDeposit]);
-    
+
         // Fecha o modal após criar o depósito
         toggleResponsiveModal();
     };
-    
 
     return (
         <>
@@ -101,21 +145,22 @@ const UserDeposits = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="mb-3">
-                        <label className="form-label">Data do Depósito</label> <br />
-                        <AdmintoDatepicker hideAddon={true} value={selectedDate} onChange={handleDateChange} />
-                    </div>
-                    <div className="mb-3">
                         <label htmlFor="deposit-value" className="form-label">
                             Valor do Depósito (R$)
                         </label>
                         <Form.Control
-                            type="number"
+                            type="text"
                             id="deposit-value"
                             value={depositValue}
-                            onChange={(e) => setDepositValue(parseFloat(e.target.value))}
-                            placeholder="Insira o valor do depósito"
+                            onChange={handleValorChange}
+                            isInvalid={isInvalid}
+                            placeholder="Insira o valor do depósito (mínimo R$100,00)"
+                            className={showShake && isInvalid ? 'shake' : ''}
                             required
                         />
+                        <Form.Control.Feedback type="invalid">
+                            O valor mínimo para depósito é R$100,00
+                        </Form.Control.Feedback>
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
@@ -127,8 +172,9 @@ const UserDeposits = () => {
                         className="btn btn-info waves-effect waves-light"
                         style={{ backgroundColor: '#41C56D' }}
                         onClick={handleCreateDeposit}
+                        disabled={!depositValue || isInvalid || parseToNumber(depositValue) < 100} // Desativa o botão se o valor for inválido ou menor que 100
                     >
-                        Salvar
+                        Confirmar Depósito
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -151,6 +197,23 @@ const UserDeposits = () => {
                     </Card>
                 </Col>
             </Row>
+
+            {/* CSS para shake animation */}
+            <style>
+                {`
+                    .shake {
+                        animation: shake 0.3s;
+                    }
+
+                    @keyframes shake {
+                        0% { transform: translateX(0); }
+                        25% { transform: translateX(-5px); }
+                        50% { transform: translateX(5px); }
+                        75% { transform: translateX(-5px); }
+                        100% { transform: translateX(0); }
+                    }
+                `}
+            </style>
         </>
     );
 };

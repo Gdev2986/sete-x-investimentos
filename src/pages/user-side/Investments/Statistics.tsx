@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Col,Dropdown, Row, Button, Modal, Form } from 'react-bootstrap';
-
+import { Card, Col, Dropdown, Row, Button, Modal, Form } from 'react-bootstrap';
 
 const Statistics = () => {
     const totalInvestido = 5000;
@@ -9,11 +8,14 @@ const Statistics = () => {
 
     const [showModalRetirada, setShowModalRetirada] = useState(false);
     const [showModalRealocar, setShowModalRealocar] = useState(false);
-    const [valor, setValor] = useState<number | string>('');
-    const [isInvalid, setIsInvalid] = useState(false);
+    const [valorRetirada, setValorRetirada] = useState<string>('');  // Separando os valores de retirada e realocar
+    const [valorRealocar, setValorRealocar] = useState<string>(''); 
+    const [isInvalidRetirada, setIsInvalidRetirada] = useState(false);
+    const [isInvalidRealocar, setIsInvalidRealocar] = useState(false);
     const [nomeTitular, setNomeTitular] = useState('');
     const [chavePix, setChavePix] = useState('');
-    const [showShake, setShowShake] = useState(false);
+    const [showShakeNome, setShowShakeNome] = useState(false);
+    const [showShakePix, setShowShakePix] = useState(false);
 
     // Função para abrir o modal de retirada
     const handleRetiradaClick = () => setShowModalRetirada(true);
@@ -28,40 +30,98 @@ const Statistics = () => {
     const handleCloseModalRealocar = () => setShowModalRealocar(false);
 
     // Função para formatar valores no formato R$ brasileiro
-    const formatCurrency = (value: number) => {
-        return value.toLocaleString('pt-BR', {
+    const formatCurrency = (value: string | number) => {
+        const numericValue = typeof value === 'string' ? parseFloat(value.replace(/[^\d]/g, '')) : value;
+        return numericValue.toLocaleString('pt-BR', {
             style: 'currency',
             currency: 'BRL',
         });
     };
 
     // Função para validar o valor digitado e aplicar a lógica de limite
-    const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const inputValue = Number(e.target.value);
-
-        if (inputValue > disponivelRetirada) {
-            setIsInvalid(true);
-            setShowShake(true);
-            setTimeout(() => setShowShake(false), 300); // Remove a classe shake após 300ms
-        } else {
-            setIsInvalid(false);
+    const handleValorChangeRetirada = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const inputValue = e.target.value;
+    
+        // Permitir apenas dígitos e uma vírgula
+        if (/^[\d,.]*$/.test(inputValue)) {
+            const numericValue = parseFloat(inputValue.replace(',', '.'));
+            if (numericValue > disponivelRetirada) {
+                setIsInvalidRetirada(true);
+            } else {
+                setIsInvalidRetirada(false);
+            }
+            setValorRetirada(inputValue);
         }
+    };
+    
+    const handleValorBlurRetirada = () => {
+        // Substitui a vírgula por ponto para cálculo e garante duas casas decimais
+        const valorNumerico = parseFloat(valorRetirada.replace(',', '.'));
+        if (!isNaN(valorNumerico) && valorNumerico > 0) {
+            // Formata corretamente o valor com vírgula e dois decimais
+            setValorRetirada(valorNumerico.toFixed(2).replace('.', ','));
+        }
+    };
+    
+    const handleValorChangeRealocar = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const inputValue = e.target.value;
+    
+        // Permitir apenas dígitos e uma vírgula
+        if (/^[\d,.]*$/.test(inputValue)) {
+            const numericValue = parseFloat(inputValue.replace(',', '.'));
+            if (numericValue > disponivelRetirada) {
+                setIsInvalidRealocar(true);
+            } else {
+                setIsInvalidRealocar(false);
+            }
+            setValorRealocar(inputValue);
+        }
+    };
+    
+    const handleValorBlurRealocar = () => {
+        // Substitui a vírgula por ponto para cálculo e garante duas casas decimais
+        const valorNumerico = parseFloat(valorRealocar.replace(',', '.'));
+        if (!isNaN(valorNumerico) && valorNumerico > 0) {
+            // Formata corretamente o valor com vírgula e dois decimais
+            setValorRealocar(valorNumerico.toFixed(2).replace('.', ','));
+        }
+    };
+    
+    
 
-        setValor(inputValue);
+    const isFormValidRetirada = () => {
+        const valorNumerico = typeof valorRetirada === 'string' ? parseFloat(valorRetirada.replace(/[^\d]/g, '')) : valorRetirada;
+        return nomeTitular && chavePix && !isInvalidRetirada && valorNumerico > 0 && valorNumerico <= disponivelRetirada;
     };
 
-    const isFormValid = () => {
-        const valorNumerico = typeof valor === 'string' ? parseFloat(valor) : valor;
-        return nomeTitular && chavePix && !isInvalid && valorNumerico > 0;
+    const isFormValidRealocar = () => {
+        const valorNumerico = parseFloat(valorRealocar.replace(',', '.'));
+        return !isNaN(valorNumerico) && valorNumerico > 0 && valorNumerico <= disponivelRetirada; // Verifica apenas se está dentro do limite
     };
 
     const handleInvalidSubmit = () => {
-        setShowShake(true);
-        setTimeout(() => setShowShake(false), 300); // Remove a classe shake após 300ms
+        setShowShakeNome(true);
+        setShowShakePix(true);
+        setTimeout(() => {
+            setShowShakeNome(false);
+            setShowShakePix(false);
+        }, 300); // Remove a classe shake após 300ms
+    };
+
+    // Valida em tempo real os campos de texto
+    const handleNomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNomeTitular(e.target.value);
+        if (!e.target.value) setShowShakeNome(true);
+    };
+
+    const handlePixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setChavePix(e.target.value);
+        if (!e.target.value) setShowShakePix(true);
     };
 
     return (
         <>
+            {/* Os quatro cards */}
             <Row>
                 <Col xl={3} md={6}>
                     <Card>
@@ -79,6 +139,7 @@ const Statistics = () => {
                         </Card.Body>
                     </Card>
                 </Col>
+
                 <Col xl={3} md={6}>
                     <Card>
                         <Card.Body>
@@ -95,6 +156,7 @@ const Statistics = () => {
                         </Card.Body>
                     </Card>
                 </Col>
+
                 <Col xl={3} md={6}>
                     <Card>
                         <Card.Body>
@@ -111,6 +173,7 @@ const Statistics = () => {
                         </Card.Body>
                     </Card>
                 </Col>
+
                 <Col xl={3} md={6}>
                     <Card>
                         <Card.Body>
@@ -153,10 +216,12 @@ const Statistics = () => {
                                 type="text"
                                 placeholder="Digite o nome completo do titular da conta"
                                 value={nomeTitular}
-                                onChange={(e) => setNomeTitular(e.target.value)}
-                                isInvalid={!nomeTitular && showShake}
+                                onChange={handleNomeChange}
+                                isInvalid={!nomeTitular && showShakeNome}
                                 required
+                                onBlur={() => setShowShakeNome(!nomeTitular)}
                             />
+                            <Form.Control.Feedback type="invalid">Campo obrigatório</Form.Control.Feedback>
                         </Form.Group>
 
                         <Form.Group controlId="pix" className="mt-3">
@@ -165,21 +230,23 @@ const Statistics = () => {
                                 type="text"
                                 placeholder="Digite a chave Pix"
                                 value={chavePix}
-                                onChange={(e) => setChavePix(e.target.value)}
-                                isInvalid={!chavePix && showShake}
+                                onChange={handlePixChange}
+                                isInvalid={!chavePix && showShakePix}
                                 required
+                                onBlur={() => setShowShakePix(!chavePix)}
                             />
+                            <Form.Control.Feedback type="invalid">Campo obrigatório</Form.Control.Feedback>
                         </Form.Group>
 
                         <Form.Group controlId="valor" className="mt-3">
                             <Form.Label>Valor</Form.Label>
                             <Form.Control
-                                type="number"
-                                value={valor}
-                                onChange={handleValorChange}
-                                isInvalid={isInvalid}
+                                type="text"
+                                value={valorRetirada}
+                                onChange={handleValorChangeRetirada}
+                                onBlur={handleValorBlurRetirada}
+                                isInvalid={isInvalidRetirada}
                                 placeholder={`Digite o valor (Máximo: ${formatCurrency(disponivelRetirada)})`}
-                                className={showShake && isInvalid ? 'shake' : ''}
                                 required
                             />
                             <Form.Control.Feedback type="invalid">
@@ -194,7 +261,8 @@ const Statistics = () => {
                     </Button>
                     <Button
                         variant="success"
-                        onClick={() => (isFormValid() ? handleCloseModalRetirada() : handleInvalidSubmit())}
+                        onClick={() => (isFormValidRetirada() ? handleCloseModalRetirada() : handleInvalidSubmit())}
+                        disabled={!isFormValidRetirada()} // Desativa o botão se o formulário não for válido
                     >
                         Confirmar Retirada
                     </Button>
@@ -215,12 +283,12 @@ const Statistics = () => {
                         <Form.Group controlId="realocar-valor" className="mt-3">
                             <Form.Label>Valor para Realocar</Form.Label>
                             <Form.Control
-                                type="number"
-                                value={valor}
-                                onChange={handleValorChange}
-                                isInvalid={isInvalid}
+                                type="text"
+                                value={valorRealocar}
+                                onChange={handleValorChangeRealocar}
+                                onBlur={handleValorBlurRealocar}
+                                isInvalid={isInvalidRealocar}
                                 placeholder={`Digite o valor (Máximo: ${formatCurrency(disponivelRetirada)})`}
-                                className={showShake && isInvalid ? 'shake' : ''}
                                 required
                             />
                             <Form.Control.Feedback type="invalid">
@@ -235,7 +303,8 @@ const Statistics = () => {
                     </Button>
                     <Button
                         variant="success"
-                        onClick={() => (isFormValid() ? handleCloseModalRealocar() : handleInvalidSubmit())}
+                        onClick={() => (isFormValidRealocar() ? handleCloseModalRealocar() : handleInvalidSubmit())}
+                        disabled={!isFormValidRealocar()} // Desativa o botão apenas se o valor ultrapassar o limite
                     >
                         Confirmar Realocação
                     </Button>
