@@ -1,26 +1,34 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
+    "target": "es5",                     // Mantém compatível com versões mais antigas
+    "lib": ["dom", "dom.iterable", "esnext"],  // Libs necessárias para o front-end e compatibilidade com ESNext
+    "allowJs": true,                     // Permite usar arquivos JS junto com TS
+    "skipLibCheck": true,                // Evita checagem de arquivos de definições (pode ser útil para bibliotecas)
+    "esModuleInterop": true,             // Importa/exporta compatível com ES Modules e CommonJS
     "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
+    "strict": true,                      // Ativa verificação rigorosa de tipos
+    "forceConsistentCasingInFileNames": true,  // Garante consistência em nomes de arquivos
+    "noFallthroughCasesInSwitch": true,  // Evita casos não intencionais em switch
+    "module": "esnext",                  // Esnext para front-end compatível com React
+    "moduleResolution": "node",          // Usa a resolução de módulos do Node.js
+    "resolveJsonModule": true,           // Suporta importação de arquivos JSON
+    "isolatedModules": true,             // Cada arquivo será tratado como um módulo independente (React)
+    "noEmit": true,                      // Não emite arquivos de saída (geralmente em React)
+    "jsx": "react-jsx"                   // Suporte a JSX em React
   },
   "include": [
-    "src"
-  ]
+    "src"                                // Inclui apenas a pasta src (fronte-end)
+  ],
+  "exclude": [
+    "backend",                           // Exclui o back-end da compilação do front-end
+    "node_modules"
+  ],
+  "compilerOptions-backend": {           // Adiciona suporte para back-end
+    "target": "es6",                     // Suporte a ES6 no back-end
+    "module": "commonjs",                // Módulo CommonJS para compatibilidade com Node.js
+    "outDir": "./dist",                  // Diretório de saída para back-end compilado
+    "rootDir": "./backend",              // Pasta root do back-end
+    "noImplicitAny": true,               // Reforça o uso de tipos explícitos
+    "strictNullChecks": true             // Garante que valores nulos/undefined sejam tratados corretamente
+  }
 }
