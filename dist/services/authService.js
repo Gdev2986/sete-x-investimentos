@@ -12,16 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUser = void 0;
+exports.login = void 0;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const user_1 = __importDefault(require("../models/user"));
-const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // Usar findByPk para buscar pelo ID
-    const user = yield user_1.default.findByPk(req.params.id);
-    if (!user) {
-        res.status(404).json({ message: 'User not found' });
+const appConfig_1 = __importDefault(require("../config/appConfig"));
+const login = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
+    // Encontrar o usuário pelo email
+    const user = yield user_1.default.findOne({ where: { email } });
+    if (!user || !bcrypt_1.default.compareSync(password, user.password)) {
+        // Lançar erro se o usuário não for encontrado ou a senha estiver incorreta
+        throw new Error('Invalid credentials');
     }
-    else {
-        res.json(user);
-    }
+    // Gerar token JWT com o ID do usuário
+    const token = jsonwebtoken_1.default.sign({ id: user.id }, appConfig_1.default.jwtSecret, { expiresIn: '1h' });
+    return token;
 });
-exports.getUser = getUser;
+exports.login = login;
+exports.default = { login: exports.login };

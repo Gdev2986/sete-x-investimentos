@@ -1,7 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const pg_1 = require("pg");
-const pool = new pg_1.Pool({
-    connectionString: process.env.DATABASE_URL,
+const sequelize_1 = require("sequelize");
+// Criando a conexão com o banco de dados usando Sequelize
+const sequelize = new sequelize_1.Sequelize(process.env.DATABASE_URL || '', {
+    dialect: 'postgres',
+    protocol: 'postgres',
+    logging: false, // Desativa logs do Sequelize no console
+    dialectOptions: {
+        ssl: {
+            require: true,
+            rejectUnauthorized: false // Para conexões SSL
+        }
+    }
 });
-exports.default = pool;
+exports.default = sequelize;

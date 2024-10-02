@@ -13,15 +13,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.login = void 0;
-const authService_1 = __importDefault(require("../services/authService"));
-const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email, password } = req.body;
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const user_1 = __importDefault(require("../models/user"));
+const appConfig_1 = __importDefault(require("../config/appConfig"));
+const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const token = yield authService_1.default.login(email, password);
-        res.json({ token });
+        const { email, password } = req.body;
+        // Verifica se o usuário existe no banco de dados
+        const user = yield user_1.default.findOne({ where: { email } });
+        if (!user) {
+            res.status(401).json({ error: 'Usuário não encontrado' });
+            return;
+        }
+        // Compara a senha
+        const isMatch = bcrypt_1.default.compareSync(password, user.password);
+        if (!isMatch) {
+            res.status(401).json({ error: 'Credenciais inválidas' });
+            return;
+        }
+        // Gera um token JWT
+        const token = jsonwebtoken_1.default.sign({ id: user.id }, appConfig_1.default.jwtSecret, { expiresIn: '1h' });
+        res.status(200).json({ token });
     }
     catch (error) {
-        res.status(401).json({ message: 'Invalid credentials' });
+        next(error); // Passa o erro para o middleware de tratamento de erros
     }
 });
 exports.login = login;

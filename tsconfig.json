@@ -23,12 +23,4 @@
     "backend",                           // Exclui o back-end da compilação do front-end
     "node_modules"
   ],
-  "compilerOptions-backend": {           // Adiciona suporte para back-end
-    "target": "es6",                     // Suporte a ES6 no back-end
-    "module": "commonjs",                // Módulo CommonJS para compatibilidade com Node.js
-    "outDir": "./dist",                  // Diretório de saída para back-end compilado
-    "rootDir": "./backend",              // Pasta root do back-end
-    "noImplicitAny": true,               // Reforça o uso de tipos explícitos
-    "strictNullChecks": true             // Garante que valores nulos/undefined sejam tratados corretamente
-  }
 }

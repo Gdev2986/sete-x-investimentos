@@ -1,20 +1,16 @@
 {
-    "compilerOptions": {
-      "target": "es6",                     // Suporte a ES6 para o back-end
-      "module": "commonjs",                // Módulo compatível com Node.js
-      "outDir": "./dist",                  // Diretório de saída do back-end compilado
-      "rootDir": "./backend",              // Diretório raiz dos arquivos do back-end
-      "strict": true,                      // Ativa verificação rigorosa de tipos
-      "esModuleInterop": true,             // Suporte para ES Modules e CommonJS
-      "resolveJsonModule": true,           // Permite importação de JSON
-      "skipLibCheck": true,                // Evita checagem de arquivos de definições de tipos
-      "forceConsistentCasingInFileNames": true  // Garante consistência em nomes de arquivos
-    },
-    "include": [
-      "backend/**/*.ts"                    // Inclui todos os arquivos .ts no diretório backend
-    ],
-    "exclude": [
-      "node_modules"                       // Exclui a pasta node_modules
-    ]
-  }
-  
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",  // Alterado para 'node'
+    "outDir": "./dist",
+    "rootDir": "./backend",
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,   // Agora vai funcionar corretamente
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["backend/**/*.ts"],
+  "exclude": ["node_modules"]
+}

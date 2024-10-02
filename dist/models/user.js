@@ -27,7 +27,7 @@ User.init({
         allowNull: false,
     },
 }, {
-    sequelize: database_1.default,
+    sequelize: database_1.default, // Referência à instância Sequelize configurada
     modelName: 'User',
 });
 exports.default = User;

@@ -1,8 +1,7 @@
 {
-  "name": "adminto-react",
+  "name": "sete-x-dashboard",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "dependencies": {
     "@fullcalendar/bootstrap": "^5.10.1",
     "@fullcalendar/core": "^5.10.1",
@@ -77,8 +76,9 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write 'src/**/*.{ts,tsx}'",
-    "server": "ts-node-dev --respawn --transpile-only backend/index.ts",
-    "dev": "concurrently \"yarn start\" \"yarn server\""
+    "server": "node dist/index.js",
+    "dev": "concurrently \"yarn start\" \"yarn server\"",
+    "build:backend": "tsc -p tsconfig-backend.json"
   },
   "eslintConfig": {
     "extends": [
@@ -108,7 +108,7 @@
     "@types/html-to-draftjs": "^1.4.0",
     "@types/jest": "^27.0.1",
     "@types/jsonwebtoken": "^9.0.7",
-    "@types/node": "^16.7.13",
+    "@types/node": "^22.7.4",
     "@types/pg": "^8.11.10",
     "@types/react": "^17.0.0",
     "@types/react-albus": "^2.0.8",
@@ -123,6 +123,7 @@
     "@types/redux-saga": "^0.10.5",
     "@types/sequelize": "^4.28.20",
     "prettier": "2.5.1",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0"
   }
 }

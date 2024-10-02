@@ -7,10 +7,10 @@ exports.authMiddleware = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const appConfig_1 = __importDefault(require("../config/appConfig"));
 const authMiddleware = (req, res, next) => {
-    var _a;
-    const token = (_a = req.header('Authorization')) === null || _a === void 0 ? void 0 : _a.replace('Bearer ', '');
+    const authHeader = req.header('Authorization');
+    const token = authHeader === null || authHeader === void 0 ? void 0 : authHeader.replace('Bearer ', '');
     if (!token) {
-        return res.status(401).send({ error: 'Unauthorized' });
+        return res.status(401).send({ error: 'Unauthorized' }); // Agora retornamos explicitamente o Response
     }
     try {
         const decoded = jsonwebtoken_1.default.verify(token, appConfig_1.default.jwtSecret);
@@ -18,7 +18,7 @@ const authMiddleware = (req, res, next) => {
         next();
     }
     catch (error) {
-        res.status(401).send({ error: 'Invalid token' });
+        return res.status(401).send({ error: 'Invalid token' });
     }
 };
 exports.authMiddleware = authMiddleware;
