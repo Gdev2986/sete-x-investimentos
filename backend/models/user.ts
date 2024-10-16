@@ -2,34 +2,48 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
 
 class User extends Model {
-  public id!: string;
-  public name!: string;
+  public id!: number;
   public email!: string;
   public password!: string;
+  public name!: string;
+  public role!: string;
+  public balance!: number;
 }
 
 User.init({
   id: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     primaryKey: true,
-    defaultValue: DataTypes.UUIDV4,
-  },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    autoIncrement: true,
   },
   email: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(100),
     unique: true,
     allowNull: false,
   },
   password: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(100),
     allowNull: false,
   },
+  name: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+  },
+  role: {
+    type: DataTypes.STRING(20),
+    defaultValue: 'user',
+  },
+  balance: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0.00,
+  },
 }, {
-  sequelize,   // Referência à instância Sequelize configurada
+  sequelize,
+  schema: 'setex',
   modelName: 'User',
+  timestamps: true,
+  updatedAt: 'updated_at',
+  createdAt: 'created_at',
 });
 
 export default User;

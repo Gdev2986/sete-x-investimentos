@@ -1,22 +1,13 @@
 import { Sequelize } from 'sequelize';
 
-let sequelize: Sequelize;
+// Conexão manual com o banco de dados PostgreSQL
+const sequelize = new Sequelize('postgres://postgres:34213345@localhost:5432/setex', {
+  dialect: 'postgres',
+  protocol: 'postgres',
+  logging: false, // Desativa logs de SQL no console
+});
 
-if (process.env.DATABASE_URL) {
-  sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: 'postgres',
-    protocol: 'postgres',
-    logging: false,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false, // Para conexões SSL, se necessário
-      },
-    },
-  });
-} else {
-  console.log('DATABASE_URL não configurada. Conexão com o banco de dados não será feita.');
-  sequelize = new Sequelize('sqlite::memory:'); // Modo temporário em memória (opcional)
-}
+// Definir o schema padrão (opcional)
+sequelize.query('SET search_path TO setex');
 
 export default sequelize;

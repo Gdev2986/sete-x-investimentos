@@ -1,14 +1,23 @@
 import express from 'express';
-import authRoutes from './routes/authRoutes';
-import userRoutes from './routes/userRoutes';
-import config from './config/appConfig';
+import sequelize from './config/database';
+import userRoutes from './routes/userRoutes';  // Ajuste conforme suas rotas
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.use(express.json());
 
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/users', userRoutes);
+// Testando conexão com o banco
+sequelize.authenticate()
+  .then(() => {
+    console.log('Conexão com o banco de dados estabelecida.');
+  })
+  .catch((error) => {
+    console.error('Erro ao conectar no banco de dados:', error);
+  });
 
-app.listen(config.port, () => {
-  console.log(`Server is running on port ${config.port}`);
+app.use('/users', userRoutes);  // Rota de exemplo
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
