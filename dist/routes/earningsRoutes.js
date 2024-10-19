@@ -13,13 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const user_1 = __importDefault(require("../models/user")); // Importa o modelo de usuário
+const earnings_1 = __importDefault(require("../models/earnings")); // Assumindo que o modelo Earnings já está criado
 const router = express_1.default.Router();
-// Criar novo usuário (POST /users)
-router.post('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Criar novo rendimento (POST /earnings)
+router.post('/earnings', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield user_1.default.create(req.body);
-        res.status(201).json(user);
+        const earnings = yield earnings_1.default.create(req.body);
+        res.status(201).json(earnings);
     }
     catch (error) {
         if (error instanceof Error) {
@@ -30,11 +30,11 @@ router.post('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         }
     }
 }));
-// Pegar todos os usuários (GET /users)
-router.get('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar todos os rendimentos (GET /earnings)
+router.get('/earnings', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const users = yield user_1.default.findAll();
-        res.status(200).json(users);
+        const earnings = yield earnings_1.default.findAll();
+        res.status(200).json(earnings);
     }
     catch (error) {
         if (error instanceof Error) {
@@ -45,36 +45,15 @@ router.get('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* (
         }
     }
 }));
-// Pegar um usuário específico (GET /users/:id)
-router.get('/users/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar um rendimento específico (GET /earnings/:id)
+router.get('/earnings/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield user_1.default.findByPk(req.params.id);
-        if (user) {
-            res.status(200).json(user);
+        const earnings = yield earnings_1.default.findByPk(req.params.id);
+        if (earnings) {
+            res.status(200).json(earnings);
         }
         else {
-            res.status(404).json({ message: 'Usuário não encontrado' });
-        }
-    }
-    catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
-    }
-}));
-// Atualizar um usuário (PUT /users/:id)
-router.put('/users/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const user = yield user_1.default.findByPk(req.params.id);
-        if (user) {
-            yield user.update(req.body);
-            res.status(200).json(user);
-        }
-        else {
-            res.status(404).json({ message: 'Usuário não encontrado' });
+            res.status(404).json({ message: 'Rendimento não encontrado' });
         }
     }
     catch (error) {
@@ -86,16 +65,37 @@ router.put('/users/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
         }
     }
 }));
-// Deletar um usuário (DELETE /users/:id)
-router.delete('/users/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Atualizar um rendimento (PUT /earnings/:id)
+router.put('/earnings/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield user_1.default.findByPk(req.params.id);
-        if (user) {
-            yield user.destroy();
+        const earnings = yield earnings_1.default.findByPk(req.params.id);
+        if (earnings) {
+            yield earnings.update(req.body);
+            res.status(200).json(earnings);
+        }
+        else {
+            res.status(404).json({ message: 'Rendimento não encontrado' });
+        }
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            res.status(500).json({ message: error.message });
+        }
+        else {
+            res.status(500).json({ message: 'Unknown error occurred' });
+        }
+    }
+}));
+// Deletar um rendimento (DELETE /earnings/:id)
+router.delete('/earnings/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const earnings = yield earnings_1.default.findByPk(req.params.id);
+        if (earnings) {
+            yield earnings.destroy();
             res.status(204).send();
         }
         else {
-            res.status(404).json({ message: 'Usuário não encontrado' });
+            res.status(404).json({ message: 'Rendimento não encontrado' });
         }
     }
     catch (error) {

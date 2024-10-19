@@ -1,22 +1,18 @@
 import express from 'express';
-import sequelize from './config/database';
-import userRoutes from './routes/userRoutes';  // Ajuste conforme suas rotas
+import userRoutes from './routes/userRoutes'; // Importa as rotas de usuários
+import depositRoutes from './routes/depositRoutes'; 
+import withdrawalRoutes from './routes/withdrawalRoutes';
+import earningsRoutes from './routes/earningsRoutes';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(userRoutes);
+app.use(depositRoutes);
+app.use(withdrawalRoutes);
+app.use(earningsRoutes);
 
-// Testando conexão com o banco
-sequelize.authenticate()
-  .then(() => {
-    console.log('Conexão com o banco de dados estabelecida.');
-  })
-  .catch((error) => {
-    console.error('Erro ao conectar no banco de dados:', error);
-  });
-
-app.use('/users', userRoutes);  // Rota de exemplo
+const PORT = process.env.PORT || 5432;
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);

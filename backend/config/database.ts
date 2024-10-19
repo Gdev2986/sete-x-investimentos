@@ -1,13 +1,12 @@
 import { Sequelize } from 'sequelize';
 
-// Conexão manual com o banco de dados PostgreSQL
-const sequelize = new Sequelize('postgres://postgres:34213345@localhost:5432/setex', {
+const sequelize = new Sequelize('postgres://postgres:161120@localhost:5432/postgres', {
   dialect: 'postgres',
   protocol: 'postgres',
-  logging: false, // Desativa logs de SQL no console
+  logging: false,
+  dialectOptions: {
+    ssl: false, // Para conexões locais, evite SSL
+  },
 });
-
-// Definir o schema padrão (opcional)
-sequelize.query('SET search_path TO setex');
 
 export default sequelize;

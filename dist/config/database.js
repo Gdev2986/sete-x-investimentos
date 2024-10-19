@@ -1,16 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-// Criando a conexão com o banco de dados usando Sequelize
-const sequelize = new sequelize_1.Sequelize(process.env.DATABASE_URL || '', {
+const sequelize = new sequelize_1.Sequelize('postgres://postgres:161120@localhost:5432/postgres', {
     dialect: 'postgres',
     protocol: 'postgres',
-    logging: false, // Desativa logs do Sequelize no console
+    logging: false,
     dialectOptions: {
-        ssl: {
-            require: true,
-            rejectUnauthorized: false // Para conexões SSL
-        }
-    }
+        ssl: false, // Para conexões locais, evite SSL
+    },
 });
 exports.default = sequelize;

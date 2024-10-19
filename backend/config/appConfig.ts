@@ -4,7 +4,7 @@ interface AppConfig {
   }
   
   const config: AppConfig = {
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 5432,
     jwtSecret: process.env.JWT_SECRET || 'mysecretkey',
   };
   

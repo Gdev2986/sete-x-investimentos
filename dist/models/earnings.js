@@ -5,41 +5,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const database_1 = __importDefault(require("../config/database"));
-class User extends sequelize_1.Model {
+const user_1 = __importDefault(require("./user"));
+class Earning extends sequelize_1.Model {
 }
-User.init({
+Earning.init({
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    email: {
-        type: sequelize_1.DataTypes.STRING(100),
-        unique: true,
+    user_id: {
+        type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: user_1.default,
+            key: 'id',
+        },
+        onDelete: 'CASCADE',
     },
-    password: {
-        type: sequelize_1.DataTypes.STRING(100),
-        allowNull: false,
-    },
-    name: {
-        type: sequelize_1.DataTypes.STRING(100),
-        allowNull: false,
-    },
-    role: {
-        type: sequelize_1.DataTypes.STRING(20),
-        defaultValue: 'user',
-    },
-    balance: {
+    amount: {
         type: sequelize_1.DataTypes.DECIMAL(10, 2),
-        defaultValue: 0.00,
+        allowNull: false,
     },
 }, {
     sequelize: database_1.default,
     schema: 'setex',
-    modelName: 'User',
+    modelName: 'Earning',
     timestamps: true,
     updatedAt: 'updated_at',
     createdAt: 'created_at',
 });
-exports.default = User;
+exports.default = Earning;
