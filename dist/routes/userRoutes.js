@@ -13,9 +13,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const user_1 = __importDefault(require("../models/user")); // Importa o modelo de usuário
+const user_1 = __importDefault(require("../models/user"));
+const authMiddleware_1 = require("../middlewares/authMiddleware"); // Middleware de autenticação JWT
 const router = express_1.default.Router();
-// Criar novo usuário (POST /users)
+// Criar novo usuário (POST /users) - Não precisa de autenticação
 router.post('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.create(req.body);
@@ -30,8 +31,8 @@ router.post('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         }
     }
 }));
-// Pegar todos os usuários (GET /users)
-router.get('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar todos os usuários (GET /users) - Protegido por autenticação
+router.get('/users', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield user_1.default.findAll();
         res.status(200).json(users);
@@ -45,8 +46,8 @@ router.get('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* (
         }
     }
 }));
-// Pegar um usuário específico (GET /users/:id)
-router.get('/users/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar um usuário específico (GET /users/:id) - Protegido por autenticação
+router.get('/users/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {
@@ -65,8 +66,8 @@ router.get('/users/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
         }
     }
 }));
-// Atualizar um usuário (PUT /users/:id)
-router.put('/users/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Atualizar um usuário (PUT /users/:id) - Protegido por autenticação
+router.put('/users/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {
@@ -86,8 +87,8 @@ router.put('/users/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
         }
     }
 }));
-// Deletar um usuário (DELETE /users/:id)
-router.delete('/users/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Deletar um usuário (DELETE /users/:id) - Protegido por autenticação
+router.delete('/users/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {

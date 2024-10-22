@@ -13,40 +13,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const deposit_1 = __importDefault(require("../models/deposit")); // Assumindo que o modelo de Deposit já está criado
+const deposit_1 = __importDefault(require("../models/deposit"));
+const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = express_1.default.Router();
-// Criar um novo depósito (POST /deposits)
-router.post('/deposits', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Criar um novo depósito (POST /deposits) - Protegido por autenticação
+router.post('/deposits', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposit = yield deposit_1.default.create(req.body);
         res.status(201).json(deposit);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
-// Pegar todos os depósitos (GET /deposits)
-router.get('/deposits', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar todos os depósitos (GET /deposits) - Protegido por autenticação
+router.get('/deposits', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposits = yield deposit_1.default.findAll();
         res.status(200).json(deposits);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
-// Pegar um depósito específico (GET /deposits/:id)
-router.get('/deposits/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar um depósito específico (GET /deposits/:id) - Protegido por autenticação
+router.get('/deposits/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposit = yield deposit_1.default.findByPk(req.params.id);
         if (deposit) {
@@ -57,16 +48,11 @@ router.get('/deposits/:id', (req, res) => __awaiter(void 0, void 0, void 0, func
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
-// Atualizar um depósito (PUT /deposits/:id)
-router.put('/deposits/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Atualizar um depósito (PUT /deposits/:id) - Protegido por autenticação
+router.put('/deposits/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposit = yield deposit_1.default.findByPk(req.params.id);
         if (deposit) {
@@ -78,16 +64,11 @@ router.put('/deposits/:id', (req, res) => __awaiter(void 0, void 0, void 0, func
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
-// Deletar um depósito (DELETE /deposits/:id)
-router.delete('/deposits/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Deletar um depósito (DELETE /deposits/:id) - Protegido por autenticação
+router.delete('/deposits/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposit = yield deposit_1.default.findByPk(req.params.id);
         if (deposit) {
@@ -99,12 +80,7 @@ router.delete('/deposits/:id', (req, res) => __awaiter(void 0, void 0, void 0, f
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 exports.default = router;

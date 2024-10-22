@@ -1,32 +1,38 @@
-import { Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcrypt';
+import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import User from '../models/user';
-import config from '../config/appConfig';
 
-export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+// Pegar a chave secreta do arquivo .env
+const JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
+
+export const login = async (req: Request, res: Response): Promise<void> => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
-    
-    // Verifica se o usuário existe no banco de dados
+    // Buscar o usuário pelo email
     const user = await User.findOne({ where: { email } });
+
     if (!user) {
-      res.status(401).json({ error: 'Usuário não encontrado' });
+      res.status(401).json({ message: 'Credenciais inválidas' });
       return;
     }
 
-    // Compara a senha
-    const isMatch = bcrypt.compareSync(password, user.password);
-    if (!isMatch) {
-      res.status(401).json({ error: 'Credenciais inválidas' });
+    // Verificar a senha usando bcrypt
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      res.status(401).json({ message: 'Credenciais inválidas' });
       return;
     }
 
-    // Gera um token JWT
-    const token = jwt.sign({ id: user.id }, config.jwtSecret, { expiresIn: '1h' });
+    // Gerar o token JWT
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, {
+      expiresIn: '1h', // O token expira em 1 hora
+    });
 
+    // Retornar o token
     res.status(200).json({ token });
   } catch (error) {
-    next(error);  // Passa o erro para o middleware de tratamento de erros
+    res.status(500).json({ message: 'Erro no servidor', error: (error as Error).message });
   }
 };

@@ -10,15 +10,19 @@ const authMiddleware = (req, res, next) => {
     const authHeader = req.header('Authorization');
     const token = authHeader === null || authHeader === void 0 ? void 0 : authHeader.replace('Bearer ', '');
     if (!token) {
-        return res.status(401).send({ error: 'Unauthorized' }); // Agora retornamos explicitamente o Response
+        // Retornar o erro caso não haja token
+        return res.status(401).json({ error: 'No token provided, authorization denied' });
     }
     try {
+        // Verificar o token JWT
         const decoded = jsonwebtoken_1.default.verify(token, appConfig_1.default.jwtSecret);
+        // Passar o payload decodificado para o `req.user`
         req.user = decoded;
-        next();
+        next(); // Continuar para a próxima função do middleware
     }
     catch (error) {
-        return res.status(401).send({ error: 'Invalid token' });
+        // Retornar o erro caso o token seja inválido
+        return res.status(401).json({ error: 'Token is not valid' });
     }
 };
 exports.authMiddleware = authMiddleware;

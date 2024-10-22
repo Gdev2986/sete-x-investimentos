@@ -1,14 +1,15 @@
 import express from 'express';
-import Earnings from '../models/earnings'; // Assumindo que o modelo Earnings já está criado
+import Earning from '../models/earning'; // Modelo de Earnings
+import { authMiddleware } from '../middlewares/authMiddleware'; // Middleware de autenticação
 import { Request, Response } from 'express';
 
 const router = express.Router();
 
-// Criar novo rendimento (POST /earnings)
-router.post('/earnings', async (req: Request, res: Response) => {
+// Criar novo rendimento (POST /earnings) - Protegido por autenticação
+router.post('/earnings', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const earnings = await Earnings.create(req.body);
-    res.status(201).json(earnings);
+    const earning = await Earning.create(req.body);
+    res.status(201).json(earning);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ message: error.message });
@@ -18,10 +19,10 @@ router.post('/earnings', async (req: Request, res: Response) => {
   }
 });
 
-// Pegar todos os rendimentos (GET /earnings)
-router.get('/earnings', async (req: Request, res: Response) => {
+// Pegar todos os rendimentos (GET /earnings) - Protegido por autenticação
+router.get('/earnings', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const earnings = await Earnings.findAll();
+    const earnings = await Earning.findAll();
     res.status(200).json(earnings);
   } catch (error) {
     if (error instanceof Error) {
@@ -32,12 +33,12 @@ router.get('/earnings', async (req: Request, res: Response) => {
   }
 });
 
-// Pegar um rendimento específico (GET /earnings/:id)
-router.get('/earnings/:id', async (req: Request, res: Response) => {
+// Pegar um rendimento específico (GET /earnings/:id) - Protegido por autenticação
+router.get('/earnings/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const earnings = await Earnings.findByPk(req.params.id);
-    if (earnings) {
-      res.status(200).json(earnings);
+    const earning = await Earning.findByPk(req.params.id);
+    if (earning) {
+      res.status(200).json(earning);
     } else {
       res.status(404).json({ message: 'Rendimento não encontrado' });
     }
@@ -50,13 +51,13 @@ router.get('/earnings/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Atualizar um rendimento (PUT /earnings/:id)
-router.put('/earnings/:id', async (req: Request, res: Response) => {
+// Atualizar um rendimento (PUT /earnings/:id) - Protegido por autenticação
+router.put('/earnings/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const earnings = await Earnings.findByPk(req.params.id);
-    if (earnings) {
-      await earnings.update(req.body);
-      res.status(200).json(earnings);
+    const earning = await Earning.findByPk(req.params.id);
+    if (earning) {
+      await earning.update(req.body);
+      res.status(200).json(earning);
     } else {
       res.status(404).json({ message: 'Rendimento não encontrado' });
     }
@@ -69,12 +70,12 @@ router.put('/earnings/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Deletar um rendimento (DELETE /earnings/:id)
-router.delete('/earnings/:id', async (req: Request, res: Response) => {
+// Deletar um rendimento (DELETE /earnings/:id) - Protegido por autenticação
+router.delete('/earnings/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const earnings = await Earnings.findByPk(req.params.id);
-    if (earnings) {
-      await earnings.destroy();
+    const earning = await Earning.findByPk(req.params.id);
+    if (earning) {
+      await earning.destroy();
       res.status(204).send();
     } else {
       res.status(404).json({ message: 'Rendimento não encontrado' });

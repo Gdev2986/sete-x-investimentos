@@ -15,13 +15,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUser = void 0;
 const user_1 = __importDefault(require("../models/user"));
 const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // Usar findByPk para buscar pelo ID
-    const user = yield user_1.default.findByPk(req.params.id);
-    if (!user) {
-        res.status(404).json({ message: 'User not found' });
+    try {
+        // Usar findByPk para buscar pelo ID
+        const user = yield user_1.default.findByPk(req.params.id);
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+        }
+        else {
+            res.json(user);
+        }
     }
-    else {
-        res.json(user);
+    catch (error) {
+        // Captura erros inesperados
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
 exports.getUser = getUser;

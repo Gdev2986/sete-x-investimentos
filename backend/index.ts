@@ -1,6 +1,6 @@
 import express from 'express';
 import userRoutes from './routes/userRoutes'; // Importa as rotas de usuários
-import depositRoutes from './routes/depositRoutes'; 
+import depositRoutes from './routes/depositRoutes';
 import withdrawalRoutes from './routes/withdrawalRoutes';
 import earningsRoutes from './routes/earningsRoutes';
 
@@ -12,7 +12,12 @@ app.use(depositRoutes);
 app.use(withdrawalRoutes);
 app.use(earningsRoutes);
 
-const PORT = process.env.PORT || 5432;
+// Rota de teste para verificar se o servidor está funcionando
+app.get('/', (req, res) => {
+  res.send('Servidor está funcionando!');
+});
+
+const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);

@@ -1,39 +1,31 @@
-import express from 'express';
-import Deposit from '../models/deposit'; // Assumindo que o modelo de Deposit já está criado
-import { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
+import Deposit from '../models/deposit';
+import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
-// Criar um novo depósito (POST /deposits)
-router.post('/deposits', async (req: Request, res: Response) => {
+// Criar um novo depósito (POST /deposits) - Protegido por autenticação
+router.post('/deposits', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.create(req.body);
     res.status(201).json(deposit);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
-// Pegar todos os depósitos (GET /deposits)
-router.get('/deposits', async (req: Request, res: Response) => {
+// Pegar todos os depósitos (GET /deposits) - Protegido por autenticação
+router.get('/deposits', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposits = await Deposit.findAll();
     res.status(200).json(deposits);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
-// Pegar um depósito específico (GET /deposits/:id)
-router.get('/deposits/:id', async (req: Request, res: Response) => {
+// Pegar um depósito específico (GET /deposits/:id) - Protegido por autenticação
+router.get('/deposits/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.findByPk(req.params.id);
     if (deposit) {
@@ -42,16 +34,12 @@ router.get('/deposits/:id', async (req: Request, res: Response) => {
       res.status(404).json({ message: 'Depósito não encontrado' });
     }
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
-// Atualizar um depósito (PUT /deposits/:id)
-router.put('/deposits/:id', async (req: Request, res: Response) => {
+// Atualizar um depósito (PUT /deposits/:id) - Protegido por autenticação
+router.put('/deposits/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.findByPk(req.params.id);
     if (deposit) {
@@ -61,16 +49,12 @@ router.put('/deposits/:id', async (req: Request, res: Response) => {
       res.status(404).json({ message: 'Depósito não encontrado' });
     }
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
-// Deletar um depósito (DELETE /deposits/:id)
-router.delete('/deposits/:id', async (req: Request, res: Response) => {
+// Deletar um depósito (DELETE /deposits/:id) - Protegido por autenticação
+router.delete('/deposits/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.findByPk(req.params.id);
     if (deposit) {
@@ -80,11 +64,7 @@ router.delete('/deposits/:id', async (req: Request, res: Response) => {
       res.status(404).json({ message: 'Depósito não encontrado' });
     }
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 

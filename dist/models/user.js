@@ -38,6 +38,7 @@ User.init({
     sequelize: database_1.default,
     schema: 'setex',
     modelName: 'User',
+    tableName: 'users',
     timestamps: true,
     updatedAt: 'updated_at',
     createdAt: 'created_at',

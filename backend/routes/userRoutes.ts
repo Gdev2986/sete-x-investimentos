@@ -1,10 +1,11 @@
 import express from 'express';
-import User from '../models/user';  // Importa o modelo de usuário
 import { Request, Response } from 'express';
+import User from '../models/user';
+import { authMiddleware } from '../middlewares/authMiddleware'; // Middleware de autenticação JWT
 
 const router = express.Router();
 
-// Criar novo usuário (POST /users)
+// Criar novo usuário (POST /users) - Não precisa de autenticação
 router.post('/users', async (req: Request, res: Response) => {
   try {
     const user = await User.create(req.body);
@@ -18,8 +19,8 @@ router.post('/users', async (req: Request, res: Response) => {
   }
 });
 
-// Pegar todos os usuários (GET /users)
-router.get('/users', async (req: Request, res: Response) => {
+// Pegar todos os usuários (GET /users) - Protegido por autenticação
+router.get('/users', authMiddleware, async (req: Request, res: Response) => {
   try {
     const users = await User.findAll();
     res.status(200).json(users);
@@ -32,8 +33,8 @@ router.get('/users', async (req: Request, res: Response) => {
   }
 });
 
-// Pegar um usuário específico (GET /users/:id)
-router.get('/users/:id', async (req: Request, res: Response) => {
+// Pegar um usuário específico (GET /users/:id) - Protegido por autenticação
+router.get('/users/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (user) {
@@ -50,8 +51,8 @@ router.get('/users/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Atualizar um usuário (PUT /users/:id)
-router.put('/users/:id', async (req: Request, res: Response) => {
+// Atualizar um usuário (PUT /users/:id) - Protegido por autenticação
+router.put('/users/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (user) {
@@ -69,8 +70,8 @@ router.put('/users/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Deletar um usuário (DELETE /users/:id)
-router.delete('/users/:id', async (req: Request, res: Response) => {
+// Deletar um usuário (DELETE /users/:id) - Protegido por autenticação
+router.delete('/users/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (user) {

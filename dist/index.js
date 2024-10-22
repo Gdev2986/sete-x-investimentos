@@ -14,7 +14,11 @@ app.use(userRoutes_1.default);
 app.use(depositRoutes_1.default);
 app.use(withdrawalRoutes_1.default);
 app.use(earningsRoutes_1.default);
-const PORT = process.env.PORT || 5432;
+// Rota de teste para verificar se o servidor está funcionando
+app.get('/', (req, res) => {
+    res.send('Servidor está funcionando!');
+});
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });

@@ -13,10 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const withdrawal_1 = __importDefault(require("../models/withdrawal")); // Assumindo que o modelo Withdrawal já está criado
+const withdrawal_1 = __importDefault(require("../models/withdrawal")); // Modelo de Withdrawal
+const authMiddleware_1 = require("../middlewares/authMiddleware"); // Middleware de autenticação
 const router = express_1.default.Router();
-// Criar uma nova retirada (POST /withdrawals)
-router.post('/withdrawals', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Criar nova retirada (POST /withdrawals) - Protegido por autenticação
+router.post('/withdrawals', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawal = yield withdrawal_1.default.create(req.body);
         res.status(201).json(withdrawal);
@@ -30,8 +31,8 @@ router.post('/withdrawals', (req, res) => __awaiter(void 0, void 0, void 0, func
         }
     }
 }));
-// Pegar todas as retiradas (GET /withdrawals)
-router.get('/withdrawals', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar todas as retiradas (GET /withdrawals) - Protegido por autenticação
+router.get('/withdrawals', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawals = yield withdrawal_1.default.findAll();
         res.status(200).json(withdrawals);
@@ -45,8 +46,8 @@ router.get('/withdrawals', (req, res) => __awaiter(void 0, void 0, void 0, funct
         }
     }
 }));
-// Pegar uma retirada específica (GET /withdrawals/:id)
-router.get('/withdrawals/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar uma retirada específica (GET /withdrawals/:id) - Protegido por autenticação
+router.get('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawal = yield withdrawal_1.default.findByPk(req.params.id);
         if (withdrawal) {
@@ -65,8 +66,8 @@ router.get('/withdrawals/:id', (req, res) => __awaiter(void 0, void 0, void 0, f
         }
     }
 }));
-// Atualizar uma retirada (PUT /withdrawals/:id)
-router.put('/withdrawals/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Atualizar uma retirada (PUT /withdrawals/:id) - Protegido por autenticação
+router.put('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawal = yield withdrawal_1.default.findByPk(req.params.id);
         if (withdrawal) {
@@ -86,8 +87,8 @@ router.put('/withdrawals/:id', (req, res) => __awaiter(void 0, void 0, void 0, f
         }
     }
 }));
-// Deletar uma retirada (DELETE /withdrawals/:id)
-router.delete('/withdrawals/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Deletar uma retirada (DELETE /withdrawals/:id) - Protegido por autenticação
+router.delete('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawal = yield withdrawal_1.default.findByPk(req.params.id);
         if (withdrawal) {

@@ -1,12 +1,11 @@
-interface AppConfig {
-    port: string | number;
-    jwtSecret: string;
-  }
-  
-  const config: AppConfig = {
-    port: process.env.PORT || 5432,
-    jwtSecret: process.env.JWT_SECRET || 'mysecretkey',
-  };
-  
-  export default config;
-  
+import dotenv from 'dotenv';
+
+// Carrega as variáveis de ambiente do arquivo .env
+dotenv.config();
+console.log(process.env.JWT_SECRET)
+const config = {
+  jwtSecret: process.env.JWT_SECRET || 'defaultSecret', // Chave secreta para JWT
+};
+
+
+export default config;

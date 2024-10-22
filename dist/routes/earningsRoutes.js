@@ -13,13 +13,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const earnings_1 = __importDefault(require("../models/earnings")); // Assumindo que o modelo Earnings já está criado
+const earning_1 = __importDefault(require("../models/earning")); // Modelo de Earnings
+const authMiddleware_1 = require("../middlewares/authMiddleware"); // Middleware de autenticação
 const router = express_1.default.Router();
-// Criar novo rendimento (POST /earnings)
-router.post('/earnings', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Criar novo rendimento (POST /earnings) - Protegido por autenticação
+router.post('/earnings', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const earnings = yield earnings_1.default.create(req.body);
-        res.status(201).json(earnings);
+        const earning = yield earning_1.default.create(req.body);
+        res.status(201).json(earning);
     }
     catch (error) {
         if (error instanceof Error) {
@@ -30,10 +31,10 @@ router.post('/earnings', (req, res) => __awaiter(void 0, void 0, void 0, functio
         }
     }
 }));
-// Pegar todos os rendimentos (GET /earnings)
-router.get('/earnings', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar todos os rendimentos (GET /earnings) - Protegido por autenticação
+router.get('/earnings', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const earnings = yield earnings_1.default.findAll();
+        const earnings = yield earning_1.default.findAll();
         res.status(200).json(earnings);
     }
     catch (error) {
@@ -45,12 +46,12 @@ router.get('/earnings', (req, res) => __awaiter(void 0, void 0, void 0, function
         }
     }
 }));
-// Pegar um rendimento específico (GET /earnings/:id)
-router.get('/earnings/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar um rendimento específico (GET /earnings/:id) - Protegido por autenticação
+router.get('/earnings/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const earnings = yield earnings_1.default.findByPk(req.params.id);
-        if (earnings) {
-            res.status(200).json(earnings);
+        const earning = yield earning_1.default.findByPk(req.params.id);
+        if (earning) {
+            res.status(200).json(earning);
         }
         else {
             res.status(404).json({ message: 'Rendimento não encontrado' });
@@ -65,13 +66,13 @@ router.get('/earnings/:id', (req, res) => __awaiter(void 0, void 0, void 0, func
         }
     }
 }));
-// Atualizar um rendimento (PUT /earnings/:id)
-router.put('/earnings/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Atualizar um rendimento (PUT /earnings/:id) - Protegido por autenticação
+router.put('/earnings/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const earnings = yield earnings_1.default.findByPk(req.params.id);
-        if (earnings) {
-            yield earnings.update(req.body);
-            res.status(200).json(earnings);
+        const earning = yield earning_1.default.findByPk(req.params.id);
+        if (earning) {
+            yield earning.update(req.body);
+            res.status(200).json(earning);
         }
         else {
             res.status(404).json({ message: 'Rendimento não encontrado' });
@@ -86,12 +87,12 @@ router.put('/earnings/:id', (req, res) => __awaiter(void 0, void 0, void 0, func
         }
     }
 }));
-// Deletar um rendimento (DELETE /earnings/:id)
-router.delete('/earnings/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Deletar um rendimento (DELETE /earnings/:id) - Protegido por autenticação
+router.delete('/earnings/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const earnings = yield earnings_1.default.findByPk(req.params.id);
-        if (earnings) {
-            yield earnings.destroy();
+        const earning = yield earning_1.default.findByPk(req.params.id);
+        if (earning) {
+            yield earning.destroy();
             res.status(204).send();
         }
         else {

@@ -1,11 +1,12 @@
 import express from 'express';
-import Withdrawal from '../models/withdrawal'; // Assumindo que o modelo Withdrawal já está criado
+import Withdrawal from '../models/withdrawal'; // Modelo de Withdrawal
+import { authMiddleware } from '../middlewares/authMiddleware'; // Middleware de autenticação
 import { Request, Response } from 'express';
 
 const router = express.Router();
 
-// Criar uma nova retirada (POST /withdrawals)
-router.post('/withdrawals', async (req: Request, res: Response) => {
+// Criar nova retirada (POST /withdrawals) - Protegido por autenticação
+router.post('/withdrawals', authMiddleware, async (req: Request, res: Response) => {
   try {
     const withdrawal = await Withdrawal.create(req.body);
     res.status(201).json(withdrawal);
@@ -18,8 +19,8 @@ router.post('/withdrawals', async (req: Request, res: Response) => {
   }
 });
 
-// Pegar todas as retiradas (GET /withdrawals)
-router.get('/withdrawals', async (req: Request, res: Response) => {
+// Pegar todas as retiradas (GET /withdrawals) - Protegido por autenticação
+router.get('/withdrawals', authMiddleware, async (req: Request, res: Response) => {
   try {
     const withdrawals = await Withdrawal.findAll();
     res.status(200).json(withdrawals);
@@ -32,8 +33,8 @@ router.get('/withdrawals', async (req: Request, res: Response) => {
   }
 });
 
-// Pegar uma retirada específica (GET /withdrawals/:id)
-router.get('/withdrawals/:id', async (req: Request, res: Response) => {
+// Pegar uma retirada específica (GET /withdrawals/:id) - Protegido por autenticação
+router.get('/withdrawals/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {
@@ -50,8 +51,8 @@ router.get('/withdrawals/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Atualizar uma retirada (PUT /withdrawals/:id)
-router.put('/withdrawals/:id', async (req: Request, res: Response) => {
+// Atualizar uma retirada (PUT /withdrawals/:id) - Protegido por autenticação
+router.put('/withdrawals/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {
@@ -69,8 +70,8 @@ router.put('/withdrawals/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Deletar uma retirada (DELETE /withdrawals/:id)
-router.delete('/withdrawals/:id', async (req: Request, res: Response) => {
+// Deletar uma retirada (DELETE /withdrawals/:id) - Protegido por autenticação
+router.delete('/withdrawals/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {
