@@ -17,37 +17,27 @@ const user_1 = __importDefault(require("../models/user"));
 const authMiddleware_1 = require("../middlewares/authMiddleware"); // Middleware de autenticação JWT
 const router = express_1.default.Router();
 // Criar novo usuário (POST /users) - Não precisa de autenticação
-router.post('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/users', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.create(req.body);
         res.status(201).json(user);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Pegar todos os usuários (GET /users) - Protegido por autenticação
-router.get('/users', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/users', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield user_1.default.findAll();
         res.status(200).json(users);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Pegar um usuário específico (GET /users/:id) - Protegido por autenticação
-router.get('/users/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {
@@ -58,16 +48,11 @@ router.get('/users/:id', authMiddleware_1.authMiddleware, (req, res) => __awaite
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Atualizar um usuário (PUT /users/:id) - Protegido por autenticação
-router.put('/users/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {
@@ -79,16 +64,11 @@ router.put('/users/:id', authMiddleware_1.authMiddleware, (req, res) => __awaite
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Deletar um usuário (DELETE /users/:id) - Protegido por autenticação
-router.delete('/users/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {
@@ -100,12 +80,7 @@ router.delete('/users/:id', authMiddleware_1.authMiddleware, (req, res) => __awa
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 exports.default = router;

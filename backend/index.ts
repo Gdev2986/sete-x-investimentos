@@ -1,8 +1,12 @@
 import express from 'express';
-import userRoutes from './routes/userRoutes'; // Importa as rotas de usuários
-import depositRoutes from './routes/depositRoutes';
+import userRoutes from './routes/userRoutes'; 
+import depositRoutes from './routes/depositRoutes'; 
 import withdrawalRoutes from './routes/withdrawalRoutes';
 import earningsRoutes from './routes/earningsRoutes';
+import authRoutes from './routes/authRoutes'; // Importar o authRoutes
+
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 
@@ -11,11 +15,7 @@ app.use(userRoutes);
 app.use(depositRoutes);
 app.use(withdrawalRoutes);
 app.use(earningsRoutes);
-
-// Rota de teste para verificar se o servidor está funcionando
-app.get('/', (req, res) => {
-  res.send('Servidor está funcionando!');
-});
+app.use(authRoutes); // Registrar as rotas de autenticação
 
 const PORT = process.env.PORT || 4000;
 

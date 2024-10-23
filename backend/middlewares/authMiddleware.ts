@@ -6,19 +6,21 @@ interface JwtPayload {
   id: string;
 }
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction): void | Response => {
+export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.header('Authorization');
   const token = authHeader?.replace('Bearer ', '');
 
   if (!token) {
-    return res.status(401).send({ error: 'Unauthorized' }); // Se não houver token, retorna 401
+    res.status(401).json({ error: 'Unauthorized' });
+    return; // Certifique-se de retornar após enviar a resposta
   }
 
   try {
-    const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload; // Verifica o token com a chave secreta
-    (req as any).user = decoded; // Adiciona os dados do usuário no `req` para uso futuro
+    const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
+    (req as any).user = decoded;
     next(); // Continua para a próxima função
   } catch (error) {
-    return res.status(401).send({ error: 'Invalid token' }); // Se o token for inválido, retorna 401
+    res.status(401).json({ error: 'Invalid token' });
+    return; // Certifique-se de retornar após enviar a resposta
   }
 };

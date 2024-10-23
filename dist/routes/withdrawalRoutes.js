@@ -17,37 +17,27 @@ const withdrawal_1 = __importDefault(require("../models/withdrawal")); // Modelo
 const authMiddleware_1 = require("../middlewares/authMiddleware"); // Middleware de autenticação
 const router = express_1.default.Router();
 // Criar nova retirada (POST /withdrawals) - Protegido por autenticação
-router.post('/withdrawals', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/withdrawals', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawal = yield withdrawal_1.default.create(req.body);
         res.status(201).json(withdrawal);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Pegar todas as retiradas (GET /withdrawals) - Protegido por autenticação
-router.get('/withdrawals', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/withdrawals', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawals = yield withdrawal_1.default.findAll();
         res.status(200).json(withdrawals);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Pegar uma retirada específica (GET /withdrawals/:id) - Protegido por autenticação
-router.get('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawal = yield withdrawal_1.default.findByPk(req.params.id);
         if (withdrawal) {
@@ -58,16 +48,11 @@ router.get('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res) => __
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Atualizar uma retirada (PUT /withdrawals/:id) - Protegido por autenticação
-router.put('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawal = yield withdrawal_1.default.findByPk(req.params.id);
         if (withdrawal) {
@@ -79,16 +64,11 @@ router.put('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res) => __
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Deletar uma retirada (DELETE /withdrawals/:id) - Protegido por autenticação
-router.delete('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawal = yield withdrawal_1.default.findByPk(req.params.id);
         if (withdrawal) {
@@ -100,12 +80,7 @@ router.delete('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res) =>
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 exports.default = router;

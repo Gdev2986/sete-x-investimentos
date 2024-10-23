@@ -1,40 +1,31 @@
-import express from 'express';
-import { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import User from '../models/user';
 import { authMiddleware } from '../middlewares/authMiddleware'; // Middleware de autenticação JWT
 
 const router = express.Router();
 
 // Criar novo usuário (POST /users) - Não precisa de autenticação
-router.post('/users', async (req: Request, res: Response) => {
+router.post('/users', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.create(req.body);
     res.status(201).json(user);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
 // Pegar todos os usuários (GET /users) - Protegido por autenticação
-router.get('/users', authMiddleware, async (req: Request, res: Response) => {
+router.get('/users', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await User.findAll();
     res.status(200).json(users);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
 // Pegar um usuário específico (GET /users/:id) - Protegido por autenticação
-router.get('/users/:id', authMiddleware, async (req: Request, res: Response) => {
+router.get('/users/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (user) {
@@ -43,16 +34,12 @@ router.get('/users/:id', authMiddleware, async (req: Request, res: Response) => 
       res.status(404).json({ message: 'Usuário não encontrado' });
     }
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
 // Atualizar um usuário (PUT /users/:id) - Protegido por autenticação
-router.put('/users/:id', authMiddleware, async (req: Request, res: Response) => {
+router.put('/users/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (user) {
@@ -62,16 +49,12 @@ router.put('/users/:id', authMiddleware, async (req: Request, res: Response) => 
       res.status(404).json({ message: 'Usuário não encontrado' });
     }
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
 // Deletar um usuário (DELETE /users/:id) - Protegido por autenticação
-router.delete('/users/:id', authMiddleware, async (req: Request, res: Response) => {
+router.delete('/users/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (user) {
@@ -81,11 +64,7 @@ router.delete('/users/:id', authMiddleware, async (req: Request, res: Response) 
       res.status(404).json({ message: 'Usuário não encontrado' });
     }
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 

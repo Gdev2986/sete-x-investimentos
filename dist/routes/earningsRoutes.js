@@ -13,43 +13,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const earning_1 = __importDefault(require("../models/earning")); // Modelo de Earnings
+const earnings_1 = __importDefault(require("../models/earnings")); // Modelo de Earnings
 const authMiddleware_1 = require("../middlewares/authMiddleware"); // Middleware de autenticação
 const router = express_1.default.Router();
 // Criar novo rendimento (POST /earnings) - Protegido por autenticação
-router.post('/earnings', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/earnings', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const earning = yield earning_1.default.create(req.body);
+        const earning = yield earnings_1.default.create(req.body);
         res.status(201).json(earning);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Pegar todos os rendimentos (GET /earnings) - Protegido por autenticação
-router.get('/earnings', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/earnings', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const earnings = yield earning_1.default.findAll();
+        const earnings = yield earnings_1.default.findAll();
         res.status(200).json(earnings);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Pegar um rendimento específico (GET /earnings/:id) - Protegido por autenticação
-router.get('/earnings/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/earnings/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const earning = yield earning_1.default.findByPk(req.params.id);
+        const earning = yield earnings_1.default.findByPk(req.params.id);
         if (earning) {
             res.status(200).json(earning);
         }
@@ -58,18 +48,13 @@ router.get('/earnings/:id', authMiddleware_1.authMiddleware, (req, res) => __awa
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Atualizar um rendimento (PUT /earnings/:id) - Protegido por autenticação
-router.put('/earnings/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/earnings/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const earning = yield earning_1.default.findByPk(req.params.id);
+        const earning = yield earnings_1.default.findByPk(req.params.id);
         if (earning) {
             yield earning.update(req.body);
             res.status(200).json(earning);
@@ -79,18 +64,13 @@ router.put('/earnings/:id', authMiddleware_1.authMiddleware, (req, res) => __awa
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 // Deletar um rendimento (DELETE /earnings/:id) - Protegido por autenticação
-router.delete('/earnings/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/earnings/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const earning = yield earning_1.default.findByPk(req.params.id);
+        const earning = yield earnings_1.default.findByPk(req.params.id);
         if (earning) {
             yield earning.destroy();
             res.status(204).send();
@@ -100,12 +80,7 @@ router.delete('/earnings/:id', authMiddleware_1.authMiddleware, (req, res) => __
         }
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Unknown error occurred' });
-        }
+        next(error); // Usando next() para lidar com erros
     }
 }));
 exports.default = router;

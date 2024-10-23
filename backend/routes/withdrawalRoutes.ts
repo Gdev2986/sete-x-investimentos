@@ -1,40 +1,31 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import Withdrawal from '../models/withdrawal'; // Modelo de Withdrawal
 import { authMiddleware } from '../middlewares/authMiddleware'; // Middleware de autenticação
-import { Request, Response } from 'express';
 
 const router = express.Router();
 
 // Criar nova retirada (POST /withdrawals) - Protegido por autenticação
-router.post('/withdrawals', authMiddleware, async (req: Request, res: Response) => {
+router.post('/withdrawals', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawal = await Withdrawal.create(req.body);
     res.status(201).json(withdrawal);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
 // Pegar todas as retiradas (GET /withdrawals) - Protegido por autenticação
-router.get('/withdrawals', authMiddleware, async (req: Request, res: Response) => {
+router.get('/withdrawals', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawals = await Withdrawal.findAll();
     res.status(200).json(withdrawals);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
 // Pegar uma retirada específica (GET /withdrawals/:id) - Protegido por autenticação
-router.get('/withdrawals/:id', authMiddleware, async (req: Request, res: Response) => {
+router.get('/withdrawals/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {
@@ -43,16 +34,12 @@ router.get('/withdrawals/:id', authMiddleware, async (req: Request, res: Respons
       res.status(404).json({ message: 'Retirada não encontrada' });
     }
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
 // Atualizar uma retirada (PUT /withdrawals/:id) - Protegido por autenticação
-router.put('/withdrawals/:id', authMiddleware, async (req: Request, res: Response) => {
+router.put('/withdrawals/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {
@@ -62,16 +49,12 @@ router.put('/withdrawals/:id', authMiddleware, async (req: Request, res: Respons
       res.status(404).json({ message: 'Retirada não encontrada' });
     }
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 
 // Deletar uma retirada (DELETE /withdrawals/:id) - Protegido por autenticação
-router.delete('/withdrawals/:id', authMiddleware, async (req: Request, res: Response) => {
+router.delete('/withdrawals/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {
@@ -81,11 +64,7 @@ router.delete('/withdrawals/:id', authMiddleware, async (req: Request, res: Resp
       res.status(404).json({ message: 'Retirada não encontrada' });
     }
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Unknown error occurred' });
-    }
+    next(error); // Usando next() para lidar com erros
   }
 });
 

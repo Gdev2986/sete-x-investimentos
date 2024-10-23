@@ -1,4 +1,5 @@
 import { DataTypes, Model } from 'sequelize';
+import bcrypt from 'bcrypt'; // Importar bcrypt para hashing
 import sequelize from '../config/database';
 
 class User extends Model {
@@ -8,6 +9,11 @@ class User extends Model {
   public name!: string;
   public role!: string;
   public balance!: number;
+
+  // Método para verificar a senha
+  public static async checkPassword(inputPassword: string, storedPassword: string): Promise<boolean> {
+    return bcrypt.compare(inputPassword, storedPassword);
+  }
 }
 
 User.init({
@@ -45,6 +51,20 @@ User.init({
   timestamps: true,
   updatedAt: 'updated_at',
   createdAt: 'created_at',
+  hooks: {
+    // Hash da senha antes de salvar o novo usuário
+    beforeCreate: async (user) => {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(user.password, salt);
+    },
+    // Hash da senha antes de atualizar o usuário
+    beforeUpdate: async (user) => {
+      if (user.changed('password')) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    },
+  },
 });
 
 export default User;
