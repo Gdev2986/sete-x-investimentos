@@ -1,11 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Deposit from '../models/deposit';
-import { authMiddleware } from '../middlewares/authMiddleware';
+import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
 // Criar um novo depósito (POST /deposits) - Protegido por autenticação
-router.post('/deposits', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/deposits', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.create(req.body);
     res.status(201).json(deposit);
@@ -15,7 +15,7 @@ router.post('/deposits', authMiddleware, async (req: Request, res: Response, nex
 });
 
 // Pegar todos os depósitos (GET /deposits) - Protegido por autenticação
-router.get('/deposits', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/deposits', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposits = await Deposit.findAll();
     res.status(200).json(deposits);
@@ -25,7 +25,7 @@ router.get('/deposits', authMiddleware, async (req: Request, res: Response, next
 });
 
 // Pegar um depósito específico (GET /deposits/:id) - Protegido por autenticação
-router.get('/deposits/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/deposits/:id', authMiddleware, adminMiddleware,async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.findByPk(req.params.id);
     if (deposit) {
@@ -39,7 +39,7 @@ router.get('/deposits/:id', authMiddleware, async (req: Request, res: Response, 
 });
 
 // Atualizar um depósito (PUT /deposits/:id) - Protegido por autenticação
-router.put('/deposits/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.put('/deposits/:id', authMiddleware, adminMiddleware,async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.findByPk(req.params.id);
     if (deposit) {
@@ -54,7 +54,7 @@ router.put('/deposits/:id', authMiddleware, async (req: Request, res: Response, 
 });
 
 // Deletar um depósito (DELETE /deposits/:id) - Protegido por autenticação
-router.delete('/deposits/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/deposits/:id', authMiddleware, adminMiddleware,async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.findByPk(req.params.id);
     if (deposit) {

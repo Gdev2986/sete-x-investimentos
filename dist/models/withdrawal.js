@@ -35,6 +35,7 @@ Withdrawal.init({
     sequelize: database_1.default,
     schema: 'setex',
     modelName: 'Withdrawal',
+    tableName: 'withdrawals',
     timestamps: true,
     updatedAt: 'updated_at',
     createdAt: 'created_at',

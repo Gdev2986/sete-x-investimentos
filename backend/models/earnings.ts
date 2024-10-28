@@ -31,6 +31,7 @@ Earning.init({
   sequelize,
   schema: 'setex',
   modelName: 'Earning',
+  tableName:'earnings',
   timestamps: true,
   updatedAt: 'updated_at',
   createdAt: 'created_at',

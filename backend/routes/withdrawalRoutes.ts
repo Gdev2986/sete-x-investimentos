@@ -1,21 +1,35 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Withdrawal from '../models/withdrawal'; // Modelo de Withdrawal
-import { authMiddleware } from '../middlewares/authMiddleware'; // Middleware de autenticação
+import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware'; // Middleware de autenticação
 
 const router = express.Router();
 
 // Criar nova retirada (POST /withdrawals) - Protegido por autenticação
-router.post('/withdrawals', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/withdrawals', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const withdrawal = await Withdrawal.create(req.body);
+    const { user_id, amount, status } = req.body;
+
+    // Log dos dados recebidos para verificar o conteúdo do request
+    console.log('Recebendo dados:', { user_id, amount, status });
+
+    const withdrawal = await Withdrawal.create({ user_id, amount, status });
     res.status(201).json(withdrawal);
   } catch (error) {
-    next(error); // Usando next() para lidar com erros
+    console.error('Erro ao criar retirada:', error); // Log detalhado do erro
+    if (error instanceof Error) {
+      res.status(500).json({
+        message: 'Erro ao processar a retirada.',
+        error: error.message,
+        stack: error.stack,
+      });
+    } else {
+      res.status(500).json({ message: 'Erro inesperado.' });
+    }
   }
 });
 
 // Pegar todas as retiradas (GET /withdrawals) - Protegido por autenticação
-router.get('/withdrawals', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/withdrawals', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawals = await Withdrawal.findAll();
     res.status(200).json(withdrawals);
@@ -25,7 +39,7 @@ router.get('/withdrawals', authMiddleware, async (req: Request, res: Response, n
 });
 
 // Pegar uma retirada específica (GET /withdrawals/:id) - Protegido por autenticação
-router.get('/withdrawals/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/withdrawals/:id', authMiddleware, adminMiddleware ,async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {
@@ -39,7 +53,7 @@ router.get('/withdrawals/:id', authMiddleware, async (req: Request, res: Respons
 });
 
 // Atualizar uma retirada (PUT /withdrawals/:id) - Protegido por autenticação
-router.put('/withdrawals/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.put('/withdrawals/:id', authMiddleware, adminMiddleware ,async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {
@@ -54,7 +68,7 @@ router.put('/withdrawals/:id', authMiddleware, async (req: Request, res: Respons
 });
 
 // Deletar uma retirada (DELETE /withdrawals/:id) - Protegido por autenticação
-router.delete('/withdrawals/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/withdrawals/:id', authMiddleware, adminMiddleware ,async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {

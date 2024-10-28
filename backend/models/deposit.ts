@@ -36,6 +36,7 @@ Deposit.init({
   sequelize,
   schema: 'setex',
   modelName: 'Deposit',
+  tableName:'deposits',
   timestamps: true,
   updatedAt: 'updated_at',
   createdAt: 'created_at',

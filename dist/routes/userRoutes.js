@@ -27,7 +27,7 @@ router.post('/users', (req, res, next) => __awaiter(void 0, void 0, void 0, func
     }
 }));
 // Pegar todos os usuários (GET /users) - Protegido por autenticação
-router.get('/users', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/users', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield user_1.default.findAll();
         res.status(200).json(users);
@@ -37,7 +37,7 @@ router.get('/users', authMiddleware_1.authMiddleware, (req, res, next) => __awai
     }
 }));
 // Pegar um usuário específico (GET /users/:id) - Protegido por autenticação
-router.get('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/users/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {
@@ -52,7 +52,7 @@ router.get('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __
     }
 }));
 // Atualizar um usuário (PUT /users/:id) - Protegido por autenticação
-router.put('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/users/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {
@@ -68,7 +68,7 @@ router.put('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __
     }
 }));
 // Deletar um usuário (DELETE /users/:id) - Protegido por autenticação
-router.delete('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/users/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {

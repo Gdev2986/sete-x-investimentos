@@ -6,7 +6,7 @@ const sequelize = new sequelize_1.Sequelize('postgres://postgres:34213345@localh
     protocol: 'postgres',
     logging: false,
     dialectOptions: {
-        ssl: false, // Para conexões locais, evite SSL
+        ssl: false,
     },
 });
 exports.default = sequelize;

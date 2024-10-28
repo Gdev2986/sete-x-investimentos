@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import User from '../models/user';
 
-// Pegar a chave secreta do arquivo .env
+
 const JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
 
 export const login = async (req: Request, res: Response): Promise<void> => {

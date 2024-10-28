@@ -5,8 +5,9 @@ const sequelize = new Sequelize('postgres://postgres:34213345@localhost:5432/pos
   protocol: 'postgres',
   logging: false,
   dialectOptions: {
-    ssl: false, // Para conexões locais, evite SSL
+    ssl: false, 
   },
+  
 });
 
 export default sequelize;

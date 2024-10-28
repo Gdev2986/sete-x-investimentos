@@ -17,7 +17,7 @@ const earnings_1 = __importDefault(require("../models/earnings")); // Modelo de 
 const authMiddleware_1 = require("../middlewares/authMiddleware"); // Middleware de autenticação
 const router = express_1.default.Router();
 // Criar novo rendimento (POST /earnings) - Protegido por autenticação
-router.post('/earnings', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/earnings', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const earning = yield earnings_1.default.create(req.body);
         res.status(201).json(earning);
@@ -27,7 +27,7 @@ router.post('/earnings', authMiddleware_1.authMiddleware, (req, res, next) => __
     }
 }));
 // Pegar todos os rendimentos (GET /earnings) - Protegido por autenticação
-router.get('/earnings', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/earnings', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const earnings = yield earnings_1.default.findAll();
         res.status(200).json(earnings);
@@ -37,7 +37,7 @@ router.get('/earnings', authMiddleware_1.authMiddleware, (req, res, next) => __a
     }
 }));
 // Pegar um rendimento específico (GET /earnings/:id) - Protegido por autenticação
-router.get('/earnings/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/earnings/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const earning = yield earnings_1.default.findByPk(req.params.id);
         if (earning) {
@@ -52,7 +52,7 @@ router.get('/earnings/:id', authMiddleware_1.authMiddleware, (req, res, next) =>
     }
 }));
 // Atualizar um rendimento (PUT /earnings/:id) - Protegido por autenticação
-router.put('/earnings/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/earnings/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const earning = yield earnings_1.default.findByPk(req.params.id);
         if (earning) {
@@ -68,7 +68,7 @@ router.put('/earnings/:id', authMiddleware_1.authMiddleware, (req, res, next) =>
     }
 }));
 // Deletar um rendimento (DELETE /earnings/:id) - Protegido por autenticação
-router.delete('/earnings/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/earnings/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const earning = yield earnings_1.default.findByPk(req.params.id);
         if (earning) {

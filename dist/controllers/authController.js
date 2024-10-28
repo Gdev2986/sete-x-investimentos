@@ -16,7 +16,6 @@ exports.login = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const user_1 = __importDefault(require("../models/user"));
-// Pegar a chave secreta do arquivo .env
 const JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;

@@ -15,7 +15,9 @@ app.use(userRoutes);
 app.use(depositRoutes);
 app.use(withdrawalRoutes);
 app.use(earningsRoutes);
-app.use(authRoutes); // Registrar as rotas de autenticação
+app.use(authRoutes);
+
+
 
 const PORT = process.env.PORT || 4000;
 

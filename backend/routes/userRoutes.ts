@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import User from '../models/user';
-import { authMiddleware } from '../middlewares/authMiddleware'; // Middleware de autenticação JWT
+import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware'; // Middleware de autenticação JWT
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ router.post('/users', async (req: Request, res: Response, next: NextFunction) =>
 });
 
 // Pegar todos os usuários (GET /users) - Protegido por autenticação
-router.get('/users', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/users', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await User.findAll();
     res.status(200).json(users);
@@ -25,7 +25,7 @@ router.get('/users', authMiddleware, async (req: Request, res: Response, next: N
 });
 
 // Pegar um usuário específico (GET /users/:id) - Protegido por autenticação
-router.get('/users/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/users/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (user) {
@@ -39,7 +39,7 @@ router.get('/users/:id', authMiddleware, async (req: Request, res: Response, nex
 });
 
 // Atualizar um usuário (PUT /users/:id) - Protegido por autenticação
-router.put('/users/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.put('/users/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (user) {
@@ -54,7 +54,7 @@ router.put('/users/:id', authMiddleware, async (req: Request, res: Response, nex
 });
 
 // Deletar um usuário (DELETE /users/:id) - Protegido por autenticação
-router.delete('/users/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/users/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (user) {

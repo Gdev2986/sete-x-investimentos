@@ -17,7 +17,7 @@ app.use(userRoutes_1.default);
 app.use(depositRoutes_1.default);
 app.use(withdrawalRoutes_1.default);
 app.use(earningsRoutes_1.default);
-app.use(authRoutes_1.default); // Registrar as rotas de autenticação
+app.use(authRoutes_1.default);
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
