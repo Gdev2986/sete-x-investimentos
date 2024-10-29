@@ -16,8 +16,8 @@ const express_1 = __importDefault(require("express"));
 const deposit_1 = __importDefault(require("../models/deposit"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = express_1.default.Router();
-// Criar um novo depósito (POST /deposits) - Protegido por autenticação
-router.post('/deposits', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Criar um novo depósito (POST /deposits) - Protegido apenas por autenticação
+router.post('/deposits', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposit = yield deposit_1.default.create(req.body);
         res.status(201).json(deposit);
@@ -26,7 +26,7 @@ router.post('/deposits', authMiddleware_1.authMiddleware, authMiddleware_1.admin
         next(error); // Usando next() para lidar com erros
     }
 }));
-// Pegar todos os depósitos (GET /deposits) - Protegido por autenticação
+// Pegar todos os depósitos (GET /deposits) - Protegido por autenticação e acesso administrativo
 router.get('/deposits', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposits = yield deposit_1.default.findAll();
@@ -36,8 +36,8 @@ router.get('/deposits', authMiddleware_1.authMiddleware, authMiddleware_1.adminM
         next(error); // Usando next() para lidar com erros
     }
 }));
-// Pegar um depósito específico (GET /deposits/:id) - Protegido por autenticação
-router.get('/deposits/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar um depósito específico (GET /deposits/:id) - Protegido apenas por autenticação
+router.get('/deposits/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposit = yield deposit_1.default.findByPk(req.params.id);
         if (deposit) {
@@ -51,8 +51,8 @@ router.get('/deposits/:id', authMiddleware_1.authMiddleware, authMiddleware_1.ad
         next(error); // Usando next() para lidar com erros
     }
 }));
-// Atualizar um depósito (PUT /deposits/:id) - Protegido por autenticação
-router.put('/deposits/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Atualizar um depósito (PUT /deposits/:id) - Protegido apenas por autenticação
+router.put('/deposits/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposit = yield deposit_1.default.findByPk(req.params.id);
         if (deposit) {
@@ -67,7 +67,7 @@ router.put('/deposits/:id', authMiddleware_1.authMiddleware, authMiddleware_1.ad
         next(error); // Usando next() para lidar com erros
     }
 }));
-// Deletar um depósito (DELETE /deposits/:id) - Protegido por autenticação
+// Deletar um depósito (DELETE /deposits/:id) - Protegido por autenticação e acesso administrativo
 router.delete('/deposits/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposit = yield deposit_1.default.findByPk(req.params.id);

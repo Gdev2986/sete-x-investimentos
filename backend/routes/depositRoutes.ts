@@ -4,8 +4,8 @@ import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
-// Criar um novo depósito (POST /deposits) - Protegido por autenticação
-router.post('/deposits', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+// Criar um novo depósito (POST /deposits) - Protegido apenas por autenticação
+router.post('/deposits', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.create(req.body);
     res.status(201).json(deposit);
@@ -14,7 +14,7 @@ router.post('/deposits', authMiddleware, adminMiddleware, async (req: Request, r
   }
 });
 
-// Pegar todos os depósitos (GET /deposits) - Protegido por autenticação
+// Pegar todos os depósitos (GET /deposits) - Protegido por autenticação e acesso administrativo
 router.get('/deposits', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposits = await Deposit.findAll();
@@ -24,8 +24,8 @@ router.get('/deposits', authMiddleware, adminMiddleware, async (req: Request, re
   }
 });
 
-// Pegar um depósito específico (GET /deposits/:id) - Protegido por autenticação
-router.get('/deposits/:id', authMiddleware, adminMiddleware,async (req: Request, res: Response, next: NextFunction) => {
+// Pegar um depósito específico (GET /deposits/:id) - Protegido apenas por autenticação
+router.get('/deposits/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.findByPk(req.params.id);
     if (deposit) {
@@ -38,8 +38,8 @@ router.get('/deposits/:id', authMiddleware, adminMiddleware,async (req: Request,
   }
 });
 
-// Atualizar um depósito (PUT /deposits/:id) - Protegido por autenticação
-router.put('/deposits/:id', authMiddleware, adminMiddleware,async (req: Request, res: Response, next: NextFunction) => {
+// Atualizar um depósito (PUT /deposits/:id) - Protegido apenas por autenticação
+router.put('/deposits/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.findByPk(req.params.id);
     if (deposit) {
@@ -53,8 +53,8 @@ router.put('/deposits/:id', authMiddleware, adminMiddleware,async (req: Request,
   }
 });
 
-// Deletar um depósito (DELETE /deposits/:id) - Protegido por autenticação
-router.delete('/deposits/:id', authMiddleware, adminMiddleware,async (req: Request, res: Response, next: NextFunction) => {
+// Deletar um depósito (DELETE /deposits/:id) - Protegido por autenticação e acesso administrativo
+router.delete('/deposits/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deposit = await Deposit.findByPk(req.params.id);
     if (deposit) {

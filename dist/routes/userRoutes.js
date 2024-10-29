@@ -26,7 +26,7 @@ router.post('/users', (req, res, next) => __awaiter(void 0, void 0, void 0, func
         next(error); // Usando next() para lidar com erros
     }
 }));
-// Pegar todos os usuários (GET /users) - Protegido por autenticação
+// Pegar todos os usuários (GET /users) - Restrito a administradores
 router.get('/users', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield user_1.default.findAll();
@@ -36,8 +36,8 @@ router.get('/users', authMiddleware_1.authMiddleware, authMiddleware_1.adminMidd
         next(error); // Usando next() para lidar com erros
     }
 }));
-// Pegar um usuário específico (GET /users/:id) - Protegido por autenticação
-router.get('/users/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Pegar um usuário específico (GET /users/:id) - Protegido apenas por autenticação
+router.get('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {
@@ -51,8 +51,8 @@ router.get('/users/:id', authMiddleware_1.authMiddleware, authMiddleware_1.admin
         next(error); // Usando next() para lidar com erros
     }
 }));
-// Atualizar um usuário (PUT /users/:id) - Protegido por autenticação
-router.put('/users/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Atualizar um usuário (PUT /users/:id) - Protegido apenas por autenticação
+router.put('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {
@@ -67,7 +67,7 @@ router.put('/users/:id', authMiddleware_1.authMiddleware, authMiddleware_1.admin
         next(error); // Usando next() para lidar com erros
     }
 }));
-// Deletar um usuário (DELETE /users/:id) - Protegido por autenticação
+// Deletar um usuário (DELETE /users/:id) - Restrito a administradores
 router.delete('/users/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);

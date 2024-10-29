@@ -11,7 +11,7 @@ export type AuthActionType = {
         | AuthActionTypes.LOGOUT_USER
         | AuthActionTypes.RESET
         | AuthActionTypes.SIGNUP_USER
-        | AuthActionTypes.UNLOCK_USER; // Adicionado aqui
+        | AuthActionTypes.UNLOCK_USER; 
     payload: {} | string;
 };
 

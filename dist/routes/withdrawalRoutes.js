@@ -17,7 +17,7 @@ const withdrawal_1 = __importDefault(require("../models/withdrawal")); // Modelo
 const authMiddleware_1 = require("../middlewares/authMiddleware"); // Middleware de autenticação
 const router = express_1.default.Router();
 // Criar nova retirada (POST /withdrawals) - Protegido por autenticação
-router.post('/withdrawals', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/withdrawals', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { user_id, amount, status } = req.body;
         // Log dos dados recebidos para verificar o conteúdo do request
@@ -39,7 +39,7 @@ router.post('/withdrawals', authMiddleware_1.authMiddleware, authMiddleware_1.ad
         }
     }
 }));
-// Pegar todas as retiradas (GET /withdrawals) - Protegido por autenticação
+// Pegar todas as retiradas (GET /withdrawals) - Restrito a administradores
 router.get('/withdrawals', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawals = yield withdrawal_1.default.findAll();
@@ -50,11 +50,17 @@ router.get('/withdrawals', authMiddleware_1.authMiddleware, authMiddleware_1.adm
     }
 }));
 // Pegar uma retirada específica (GET /withdrawals/:id) - Protegido por autenticação
-router.get('/withdrawals/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawal = yield withdrawal_1.default.findByPk(req.params.id);
         if (withdrawal) {
-            res.status(200).json(withdrawal);
+            // Verificação para garantir que o usuário autenticado é o dono ou é administrador
+            if (req.user.role === 'admin' || withdrawal.user_id === req.user.id) {
+                res.status(200).json(withdrawal);
+            }
+            else {
+                res.status(403).json({ message: 'Acesso negado' });
+            }
         }
         else {
             res.status(404).json({ message: 'Retirada não encontrada' });
@@ -65,12 +71,18 @@ router.get('/withdrawals/:id', authMiddleware_1.authMiddleware, authMiddleware_1
     }
 }));
 // Atualizar uma retirada (PUT /withdrawals/:id) - Protegido por autenticação
-router.put('/withdrawals/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/withdrawals/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawal = yield withdrawal_1.default.findByPk(req.params.id);
         if (withdrawal) {
-            yield withdrawal.update(req.body);
-            res.status(200).json(withdrawal);
+            // Verificação para garantir que o usuário autenticado é o dono ou é administrador
+            if (req.user.role === 'admin' || withdrawal.user_id === req.user.id) {
+                yield withdrawal.update(req.body);
+                res.status(200).json(withdrawal);
+            }
+            else {
+                res.status(403).json({ message: 'Acesso negado' });
+            }
         }
         else {
             res.status(404).json({ message: 'Retirada não encontrada' });
@@ -80,7 +92,7 @@ router.put('/withdrawals/:id', authMiddleware_1.authMiddleware, authMiddleware_1
         next(error); // Usando next() para lidar com erros
     }
 }));
-// Deletar uma retirada (DELETE /withdrawals/:id) - Protegido por autenticação
+// Deletar uma retirada (DELETE /withdrawals/:id) - Restrito a administradores
 router.delete('/withdrawals/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawal = yield withdrawal_1.default.findByPk(req.params.id);

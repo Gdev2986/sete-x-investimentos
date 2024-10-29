@@ -14,7 +14,7 @@ router.post('/users', async (req: Request, res: Response, next: NextFunction) =>
   }
 });
 
-// Pegar todos os usuários (GET /users) - Protegido por autenticação
+// Pegar todos os usuários (GET /users) - Restrito a administradores
 router.get('/users', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await User.findAll();
@@ -24,8 +24,8 @@ router.get('/users', authMiddleware, adminMiddleware, async (req: Request, res: 
   }
 });
 
-// Pegar um usuário específico (GET /users/:id) - Protegido por autenticação
-router.get('/users/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+// Pegar um usuário específico (GET /users/:id) - Protegido apenas por autenticação
+router.get('/users/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (user) {
@@ -38,8 +38,8 @@ router.get('/users/:id', authMiddleware, adminMiddleware, async (req: Request, r
   }
 });
 
-// Atualizar um usuário (PUT /users/:id) - Protegido por autenticação
-router.put('/users/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+// Atualizar um usuário (PUT /users/:id) - Protegido apenas por autenticação
+router.put('/users/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (user) {
@@ -53,7 +53,7 @@ router.put('/users/:id', authMiddleware, adminMiddleware, async (req: Request, r
   }
 });
 
-// Deletar um usuário (DELETE /users/:id) - Protegido por autenticação
+// Deletar um usuário (DELETE /users/:id) - Restrito a administradores
 router.delete('/users/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findByPk(req.params.id);

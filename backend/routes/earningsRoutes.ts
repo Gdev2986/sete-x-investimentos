@@ -4,8 +4,8 @@ import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
-// Criar novo rendimento (POST /earnings) - Protegido por autenticação
-router.post('/earnings', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+// Criar novo rendimento (POST /earnings) - Protegido apenas por autenticação
+router.post('/earnings', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const earning = await Earning.create(req.body);
     res.status(201).json(earning);
@@ -14,8 +14,8 @@ router.post('/earnings', authMiddleware, adminMiddleware, async (req: Request, r
   }
 });
 
-// Pegar todos os rendimentos (GET /earnings) - Protegido por autenticação
-router.get('/earnings', authMiddleware, adminMiddleware,async (req: Request, res: Response, next: NextFunction) => {
+// Pegar todos os rendimentos (GET /earnings) - Protegido por autenticação e acesso administrativo
+router.get('/earnings', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const earnings = await Earning.findAll();
     res.status(200).json(earnings);
@@ -24,8 +24,8 @@ router.get('/earnings', authMiddleware, adminMiddleware,async (req: Request, res
   }
 });
 
-// Pegar um rendimento específico (GET /earnings/:id) - Protegido por autenticação
-router.get('/earnings/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+// Pegar um rendimento específico (GET /earnings/:id) - Protegido apenas por autenticação
+router.get('/earnings/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const earning = await Earning.findByPk(req.params.id);
     if (earning) {
@@ -38,8 +38,8 @@ router.get('/earnings/:id', authMiddleware, adminMiddleware, async (req: Request
   }
 });
 
-// Atualizar um rendimento (PUT /earnings/:id) - Protegido por autenticação
-router.put('/earnings/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+// Atualizar um rendimento (PUT /earnings/:id) - Protegido apenas por autenticação
+router.put('/earnings/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const earning = await Earning.findByPk(req.params.id);
     if (earning) {
@@ -53,7 +53,7 @@ router.put('/earnings/:id', authMiddleware, adminMiddleware, async (req: Request
   }
 });
 
-// Deletar um rendimento (DELETE /earnings/:id) - Protegido por autenticação
+// Deletar um rendimento (DELETE /earnings/:id) - Protegido por autenticação e acesso administrativo
 router.delete('/earnings/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const earning = await Earning.findByPk(req.params.id);

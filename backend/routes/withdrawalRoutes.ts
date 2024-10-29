@@ -5,7 +5,7 @@ import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware';
 const router = express.Router();
 
 // Criar nova retirada (POST /withdrawals) - Protegido por autenticação
-router.post('/withdrawals', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/withdrawals', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { user_id, amount, status } = req.body;
 
@@ -28,7 +28,7 @@ router.post('/withdrawals', authMiddleware, adminMiddleware, async (req: Request
   }
 });
 
-// Pegar todas as retiradas (GET /withdrawals) - Protegido por autenticação
+// Pegar todas as retiradas (GET /withdrawals) - Restrito a administradores
 router.get('/withdrawals', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawals = await Withdrawal.findAll();
@@ -39,11 +39,16 @@ router.get('/withdrawals', authMiddleware, adminMiddleware, async (req: Request,
 });
 
 // Pegar uma retirada específica (GET /withdrawals/:id) - Protegido por autenticação
-router.get('/withdrawals/:id', authMiddleware, adminMiddleware ,async (req: Request, res: Response, next: NextFunction) => {
+router.get('/withdrawals/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {
-      res.status(200).json(withdrawal);
+      // Verificação para garantir que o usuário autenticado é o dono ou é administrador
+      if ((req as any).user.role === 'admin' || withdrawal.user_id === (req as any).user.id) {
+        res.status(200).json(withdrawal);
+      } else {
+        res.status(403).json({ message: 'Acesso negado' });
+      }
     } else {
       res.status(404).json({ message: 'Retirada não encontrada' });
     }
@@ -53,12 +58,17 @@ router.get('/withdrawals/:id', authMiddleware, adminMiddleware ,async (req: Requ
 });
 
 // Atualizar uma retirada (PUT /withdrawals/:id) - Protegido por autenticação
-router.put('/withdrawals/:id', authMiddleware, adminMiddleware ,async (req: Request, res: Response, next: NextFunction) => {
+router.put('/withdrawals/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {
-      await withdrawal.update(req.body);
-      res.status(200).json(withdrawal);
+      // Verificação para garantir que o usuário autenticado é o dono ou é administrador
+      if ((req as any).user.role === 'admin' || withdrawal.user_id === (req as any).user.id) {
+        await withdrawal.update(req.body);
+        res.status(200).json(withdrawal);
+      } else {
+        res.status(403).json({ message: 'Acesso negado' });
+      }
     } else {
       res.status(404).json({ message: 'Retirada não encontrada' });
     }
@@ -67,8 +77,8 @@ router.put('/withdrawals/:id', authMiddleware, adminMiddleware ,async (req: Requ
   }
 });
 
-// Deletar uma retirada (DELETE /withdrawals/:id) - Protegido por autenticação
-router.delete('/withdrawals/:id', authMiddleware, adminMiddleware ,async (req: Request, res: Response, next: NextFunction) => {
+// Deletar uma retirada (DELETE /withdrawals/:id) - Restrito a administradores
+router.delete('/withdrawals/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const withdrawal = await Withdrawal.findByPk(req.params.id);
     if (withdrawal) {
