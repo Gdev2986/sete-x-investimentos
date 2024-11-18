@@ -1,7 +1,7 @@
 import jwtDecode from 'jwt-decode';
 import axios from 'axios';
 
-import config from '../../config';
+import config from '../../config'
 
 // content type
 axios.defaults.headers.post['Content-Type'] = 'application/json';
