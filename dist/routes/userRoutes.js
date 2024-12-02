@@ -14,30 +14,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const user_1 = __importDefault(require("../models/user"));
-const authMiddleware_1 = require("../middlewares/authMiddleware"); // Middleware de autenticação JWT
+const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = express_1.default.Router();
-// Criar novo usuário (POST /users) - Não precisa de autenticação
-router.post('/users', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Criar um novo usuário (não exposto, controlado por /auth/register)
+router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.create(req.body);
         res.status(201).json(user);
     }
     catch (error) {
-        next(error); // Usando next() para lidar com erros
+        res.status(400).json({ message: 'Erro ao criar usuário', error: error.message });
     }
 }));
-// Pegar todos os usuários (GET /users) - Restrito a administradores
-router.get('/users', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Obter todos os usuários (somente administradores)
+router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield user_1.default.findAll();
         res.status(200).json(users);
     }
     catch (error) {
-        next(error); // Usando next() para lidar com erros
+        res.status(500).json({ message: 'Erro ao buscar usuários', error: error.message });
     }
 }));
-// Pegar um usuário específico (GET /users/:id) - Protegido apenas por autenticação
-router.get('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Obter um único usuário por ID (autenticado)
+router.get('/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield user_1.default.findByPk(req.params.id);
         if (user) {
@@ -48,39 +48,7 @@ router.get('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __
         }
     }
     catch (error) {
-        next(error); // Usando next() para lidar com erros
-    }
-}));
-// Atualizar um usuário (PUT /users/:id) - Protegido apenas por autenticação
-router.put('/users/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const user = yield user_1.default.findByPk(req.params.id);
-        if (user) {
-            yield user.update(req.body);
-            res.status(200).json(user);
-        }
-        else {
-            res.status(404).json({ message: 'Usuário não encontrado' });
-        }
-    }
-    catch (error) {
-        next(error); // Usando next() para lidar com erros
-    }
-}));
-// Deletar um usuário (DELETE /users/:id) - Restrito a administradores
-router.delete('/users/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const user = yield user_1.default.findByPk(req.params.id);
-        if (user) {
-            yield user.destroy();
-            res.status(204).send();
-        }
-        else {
-            res.status(404).json({ message: 'Usuário não encontrado' });
-        }
-    }
-    catch (error) {
-        next(error); // Usando next() para lidar com erros
+        res.status(500).json({ message: 'Erro ao buscar usuário', error: error.message });
     }
 }));
 exports.default = router;

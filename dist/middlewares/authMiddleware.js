@@ -19,32 +19,40 @@ const user_1 = __importDefault(require("../models/user"));
 // Middleware de autenticação geral
 const authMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const authHeader = req.header('Authorization');
-    const token = authHeader === null || authHeader === void 0 ? void 0 : authHeader.replace('Bearer ', '');
-    if (!token) {
-        res.status(401).json({ error: 'Unauthorized' });
+    // Valida o cabeçalho Authorization
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        res.status(401).json({ error: 'Token não fornecido ou formato inválido' });
         return;
     }
+    const token = authHeader.replace('Bearer ', '');
     try {
+        // Decodifica o token JWT
         const decoded = jsonwebtoken_1.default.verify(token, appConfig_1.default.jwtSecret);
-        // Buscando o usuário completo do banco de dados
+        // Busca o usuário no banco
         const user = yield user_1.default.findByPk(decoded.id);
         if (!user) {
             res.status(404).json({ error: 'Usuário não encontrado' });
             return;
         }
-        // Armazena o usuário completo na requisição
-        req.user = user;
+        // Armazena o usuário na requisição
+        req.user = user; // Substitua por tipagem correta se possível
         next();
     }
     catch (error) {
-        res.status(401).json({ error: 'Invalid token' });
+        console.error('Erro ao validar token:', error);
+        res.status(401).json({ error: 'Token inválido' });
     }
 });
 exports.authMiddleware = authMiddleware;
-// Middleware específico para verificar o role "admin"
 const adminMiddleware = (req, res, next) => {
     const user = req.user;
-    if ((user === null || user === void 0 ? void 0 : user.role) !== 'admin') {
+    // Verifica se o usuário está autenticado
+    if (!user) {
+        res.status(401).json({ error: 'Autenticação necessária' });
+        return;
+    }
+    // Verifica o papel do usuário
+    if (user.role !== 'admin') {
         res.status(403).json({ error: 'Acesso restrito para administradores' });
         return;
     }

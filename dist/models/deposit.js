@@ -26,6 +26,9 @@ Deposit.init({
     amount: {
         type: sequelize_1.DataTypes.DECIMAL(10, 2),
         allowNull: false,
+        validate: {
+            min: 0.01, // Valor mínimo deve ser positivo
+        },
     },
     status: {
         type: sequelize_1.DataTypes.STRING(20),

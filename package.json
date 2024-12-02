@@ -54,11 +54,11 @@
     "react-i18next": "^11.15.3",
     "react-image-lightbox": "^5.1.4",
     "react-joyride": "^2.3.2",
-    "react-nestable": "^2.0.0",
+    "react-nestable": "^3.0.2",
     "react-redux": "^7.2.6",
     "react-responsive-masonry": "^2.1.4",
     "react-router-dom": "^6.8.2",
-    "react-scripts": "^5.0.1",
+    "react-scripts": "^3.0.1",
     "react-select": "^5.2.2",
     "react-simplemde-editor": "^5.0.2",
     "react-sweetalert2": "^0.5.1",
@@ -82,6 +82,16 @@
     "dev": "concurrently \"yarn start\" \"yarn server\"",
     "backend": "tsc -p tsconfig-backend.json"
   },
+
+  "compilerOptions": {
+    "typeRoots": ["./src", "./custom.d.ts"],
+    "target": "ES6",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+
   "eslintConfig": {
     "extends": [
       "react-app",

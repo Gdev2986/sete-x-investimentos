@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const bcrypt_1 = __importDefault(require("bcrypt")); // Importar bcrypt para hashing
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const database_1 = __importDefault(require("../config/database"));
 class User extends sequelize_1.Model {
     // Método para verificar a senha
@@ -33,6 +33,9 @@ User.init({
         type: sequelize_1.DataTypes.STRING(100),
         unique: true,
         allowNull: false,
+        validate: {
+            isEmail: true, // Garante que o email é válido
+        },
     },
     password: {
         type: sequelize_1.DataTypes.STRING(100),
@@ -48,7 +51,7 @@ User.init({
     },
     balance: {
         type: sequelize_1.DataTypes.DECIMAL(10, 2),
-        defaultValue: 0.00,
+        defaultValue: 0.0,
     },
 }, {
     sequelize: database_1.default,
@@ -59,12 +62,10 @@ User.init({
     updatedAt: 'updated_at',
     createdAt: 'created_at',
     hooks: {
-        // Hash da senha antes de salvar o novo usuário
         beforeCreate: (user) => __awaiter(void 0, void 0, void 0, function* () {
             const salt = yield bcrypt_1.default.genSalt(10);
             user.password = yield bcrypt_1.default.hash(user.password, salt);
         }),
-        // Hash da senha antes de atualizar o usuário
         beforeUpdate: (user) => __awaiter(void 0, void 0, void 0, function* () {
             if (user.changed('password')) {
                 const salt = yield bcrypt_1.default.genSalt(10);

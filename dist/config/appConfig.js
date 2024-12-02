@@ -7,5 +7,6 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const config = {
     jwtSecret: process.env.JWT_SECRET || 'defaultSecret',
+    port: 4000,
 };
 exports.default = config;

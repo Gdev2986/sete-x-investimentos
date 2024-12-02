@@ -9,37 +9,43 @@ class Withdrawal extends Model {
   public status!: string;
 }
 
-Withdrawal.init({
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'id',
+Withdrawal.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
-    onDelete: 'CASCADE',
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: User,
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+    },
+    amount: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      validate: {
+        min: 0.01, // Valor mínimo deve ser positivo
+      },
+    },
+    status: {
+      type: DataTypes.STRING(20),
+      defaultValue: 'pending',
+    },
   },
-  amount: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: false,
-  },
-  status: {
-    type: DataTypes.STRING(20),
-    defaultValue: 'pending',
-  },
-}, {
-  sequelize,
-  schema: 'setex',
-  modelName: 'Withdrawal',
-  tableName: 'withdrawals',
-  timestamps: true,
-  updatedAt: 'updated_at',
-  createdAt: 'created_at',
-});
+  {
+    sequelize,
+    schema: 'setex',
+    modelName: 'Withdrawal',
+    tableName: 'withdrawals',
+    timestamps: true,
+    updatedAt: 'updated_at',
+    createdAt: 'created_at',
+  }
+);
 
 export default Withdrawal;
