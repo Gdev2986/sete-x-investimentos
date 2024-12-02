@@ -1,26 +1,37 @@
+// index.ts
+
 import express from 'express';
-import userRoutes from './routes/userRoutes'; 
-import depositRoutes from './routes/depositRoutes'; 
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
+import depositRoutes from './routes/depositRoutes';
 import withdrawalRoutes from './routes/withdrawalRoutes';
 import earningsRoutes from './routes/earningsRoutes';
-import authRoutes from './routes/authRoutes'; // Importar o authRoutes
+import config from './config/appConfig';
 
-import dotenv from 'dotenv';
-dotenv.config();
+// Importa tipos personalizados (garante o reconhecimento no TypeScript)
+import './custom';
 
 const app = express();
 
+// Middleware para processar JSON
 app.use(express.json());
-app.use(userRoutes);
-app.use(depositRoutes);
-app.use(withdrawalRoutes);
-app.use(earningsRoutes);
-app.use(authRoutes);
 
+// Adiciona o prefixo `/api` para todas as rotas
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/deposits', depositRoutes);
+app.use('/api/withdrawals', withdrawalRoutes);
+app.use('/api/earnings', earningsRoutes);
 
-
-const PORT = process.env.PORT || 4000;
-
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+// Middleware de erro genérico
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Erro no servidor', message: err.message });
 });
+
+// Inicia o servidor na porta configurada
+app.listen(config.port, () => {
+  console.log(`Servidor rodando na porta ${config.port}`);
+});
+
+export default app;

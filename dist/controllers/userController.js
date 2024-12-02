@@ -16,18 +16,33 @@ exports.getUser = void 0;
 const user_1 = __importDefault(require("../models/user"));
 const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Usar findByPk para buscar pelo ID
-        const user = yield user_1.default.findByPk(req.params.id);
+        const { id } = req.params;
+        // Validar o ID
+        if (!id || isNaN(Number(id))) {
+            res.status(400).json({ message: 'ID inválido' });
+            return;
+        }
+        // Buscar o usuário pelo ID
+        const user = yield user_1.default.findByPk(id);
         if (!user) {
-            res.status(404).json({ message: 'User not found' });
+            res.status(404).json({ message: 'Usuário não encontrado' });
         }
         else {
-            res.json(user);
+            // Retornar usuário com campos adicionais
+            res.status(200).json({
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                balance: user.balance,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
+            });
         }
     }
     catch (error) {
-        // Captura erros inesperados
-        res.status(500).json({ message: 'Server error', error: error.message });
+        console.error('Erro ao buscar usuário:', error);
+        res.status(500).json({ message: 'Erro no servidor', error: error.message });
     }
 });
 exports.getUser = getUser;

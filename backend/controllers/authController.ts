@@ -2,12 +2,16 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import User from '../models/user';
-
-
-const JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
+import config from '../config/appConfig';
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
+
+  // Validar se email e senha foram fornecidos
+  if (!email || !password) {
+    res.status(400).json({ message: 'Email e senha são obrigatórios' });
+    return;
+  }
 
   try {
     // Buscar o usuário pelo email
@@ -26,13 +30,24 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Gerar o token JWT
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, {
-      expiresIn: '1h', // O token expira em 1 hora
-    });
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      config.jwtSecret,
+      { expiresIn: '1h' } // O token expira em 1 hora
+    );
 
-    // Retornar o token
-    res.status(200).json({ token });
+    // Retornar o token e algumas informações do usuário
+    res.status(200).json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    });
   } catch (error) {
+    console.error('Erro no login:', error); // Log para depuração
     res.status(500).json({ message: 'Erro no servidor', error: (error as Error).message });
   }
 };

@@ -26,6 +26,12 @@ Earning.init({
     amount: {
         type: sequelize_1.DataTypes.DECIMAL(10, 2),
         allowNull: false,
+        validate: {
+            min: {
+                args: [0.01],
+                msg: 'O valor do rendimento deve ser maior que zero.',
+            },
+        },
     },
 }, {
     sequelize: database_1.default,

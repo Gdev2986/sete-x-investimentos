@@ -16,9 +16,14 @@ exports.login = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const user_1 = __importDefault(require("../models/user"));
-const JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
+const appConfig_1 = __importDefault(require("../config/appConfig"));
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
+    // Validar se email e senha foram fornecidos
+    if (!email || !password) {
+        res.status(400).json({ message: 'Email e senha são obrigatórios' });
+        return;
+    }
     try {
         // Buscar o usuário pelo email
         const user = yield user_1.default.findOne({ where: { email } });
@@ -33,13 +38,21 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return;
         }
         // Gerar o token JWT
-        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, {
-            expiresIn: '1h', // O token expira em 1 hora
+        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, appConfig_1.default.jwtSecret, { expiresIn: '1h' } // O token expira em 1 hora
+        );
+        // Retornar o token e algumas informações do usuário
+        res.status(200).json({
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+            },
         });
-        // Retornar o token
-        res.status(200).json({ token });
     }
     catch (error) {
+        console.error('Erro no login:', error); // Log para depuração
         res.status(500).json({ message: 'Erro no servidor', error: error.message });
     }
 });

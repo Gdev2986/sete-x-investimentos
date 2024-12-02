@@ -16,71 +16,25 @@ const express_1 = __importDefault(require("express"));
 const deposit_1 = __importDefault(require("../models/deposit"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = express_1.default.Router();
-// Criar um novo depósito (POST /deposits) - Protegido apenas por autenticação
-router.post('/deposits', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Criar um novo depósito
+router.post('/', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const deposit = yield deposit_1.default.create(req.body);
+        const deposit = yield deposit_1.default.create(Object.assign(Object.assign({}, req.body), { user_id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id }));
         res.status(201).json(deposit);
     }
     catch (error) {
-        next(error); // Usando next() para lidar com erros
+        res.status(400).json({ message: 'Erro ao criar depósito', error: error.message });
     }
 }));
-// Pegar todos os depósitos (GET /deposits) - Protegido por autenticação e acesso administrativo
-router.get('/deposits', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Obter todos os depósitos (apenas para administradores)
+router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposits = yield deposit_1.default.findAll();
         res.status(200).json(deposits);
     }
     catch (error) {
-        next(error); // Usando next() para lidar com erros
-    }
-}));
-// Pegar um depósito específico (GET /deposits/:id) - Protegido apenas por autenticação
-router.get('/deposits/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const deposit = yield deposit_1.default.findByPk(req.params.id);
-        if (deposit) {
-            res.status(200).json(deposit);
-        }
-        else {
-            res.status(404).json({ message: 'Depósito não encontrado' });
-        }
-    }
-    catch (error) {
-        next(error); // Usando next() para lidar com erros
-    }
-}));
-// Atualizar um depósito (PUT /deposits/:id) - Protegido apenas por autenticação
-router.put('/deposits/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const deposit = yield deposit_1.default.findByPk(req.params.id);
-        if (deposit) {
-            yield deposit.update(req.body);
-            res.status(200).json(deposit);
-        }
-        else {
-            res.status(404).json({ message: 'Depósito não encontrado' });
-        }
-    }
-    catch (error) {
-        next(error); // Usando next() para lidar com erros
-    }
-}));
-// Deletar um depósito (DELETE /deposits/:id) - Protegido por autenticação e acesso administrativo
-router.delete('/deposits/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const deposit = yield deposit_1.default.findByPk(req.params.id);
-        if (deposit) {
-            yield deposit.destroy();
-            res.status(204).send();
-        }
-        else {
-            res.status(404).json({ message: 'Depósito não encontrado' });
-        }
-    }
-    catch (error) {
-        next(error); // Usando next() para lidar com erros
+        res.status(500).json({ message: 'Erro ao buscar depósitos', error: error.message });
     }
 }));
 exports.default = router;

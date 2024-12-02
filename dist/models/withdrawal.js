@@ -26,10 +26,22 @@ Withdrawal.init({
     amount: {
         type: sequelize_1.DataTypes.DECIMAL(10, 2),
         allowNull: false,
+        validate: {
+            min: {
+                args: [0.01],
+                msg: 'O valor da retirada deve ser maior que zero.',
+            },
+        },
     },
     status: {
         type: sequelize_1.DataTypes.STRING(20),
         defaultValue: 'pending',
+        validate: {
+            isIn: {
+                args: [['pending', 'approved', 'rejected']],
+                msg: 'Status inválido. Deve ser "pending", "approved" ou "rejected".',
+            },
+        },
     },
 }, {
     sequelize: database_1.default,

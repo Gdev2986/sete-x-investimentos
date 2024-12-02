@@ -1,26 +1,32 @@
 {
   "compilerOptions": {
-    "target": "es5",                     // Mantém compatível com versões mais antigas
-    "lib": ["dom", "dom.iterable", "esnext"],  // Libs necessárias para o front-end e compatibilidade com ESNext
-    "allowJs": true,                     // Permite usar arquivos JS junto com TS
-    "skipLibCheck": true,                // Evita checagem de arquivos de definições (pode ser útil para bibliotecas)
-    "esModuleInterop": true,             // Importa/exporta compatível com ES Modules e CommonJS
-    "allowSyntheticDefaultImports": true,
-    "strict": true,                      // Ativa verificação rigorosa de tipos
-    "forceConsistentCasingInFileNames": true,  // Garante consistência em nomes de arquivos
-    "noFallthroughCasesInSwitch": true,  // Evita casos não intencionais em switch
-    "module": "esnext",                  // Esnext para front-end compatível com React
-    "moduleResolution": "node",          // Usa a resolução de módulos do Node.js
-    "resolveJsonModule": true,           // Suporta importação de arquivos JSON
-    "isolatedModules": true,             // Cada arquivo será tratado como um módulo independente (React)
-    "noEmit": true,                      // Não emite arquivos de saída (geralmente em React)
-    "jsx": "react-jsx"                   // Suporte a JSX em React
+    "typeRoots": ["./node_modules/@types", "./custom"], // Inclui tipos personalizados e bibliotecas externas
+    "target": "es6",                      // Compatível com ES6
+    "lib": ["es6", "dom", "esnext"],      // Bibliotecas necessárias para Node.js
+    "allowJs": true,                      // Permite arquivos JavaScript
+    "skipLibCheck": true,                 // Ignora verificações em tipos de bibliotecas
+    "esModuleInterop": true,              // Suporte a ESModules e CommonJS
+    "allowSyntheticDefaultImports": true, // Permite importar módulos com exportação padrão
+    "strict": true,                       // Ativa verificações rigorosas
+    "forceConsistentCasingInFileNames": true, // Garante consistência em nomes de arquivos
+    "noFallthroughCasesInSwitch": true,   // Previne falhas em switch
+    "module": "commonjs",                 // Compatível com Node.js
+    "moduleResolution": "node",           // Resolução de módulos no estilo Node.js
+    "resolveJsonModule": true,            // Permite importação de JSON
+    "isolatedModules": false,             // Não isola arquivos como módulos independentes
+    "noEmit": false,                      // Permite emissão de arquivos
+    "outDir": "./dist",                   // Define saída de compilação para backend
+    "baseUrl": ".",                       // Base para resolver caminhos relativos
+    "paths": {                            // Atalhos de caminho
+      "@/*": ["./src/*"],
+      "backend/*": ["./backend/*"]
+    }
   },
-  "include": [
-    "src"                                // Inclui apenas a pasta src (fronte-end)
-  ],
+  "include": [ "./custom.d.ts", "./backend/**/*"], // Inclui apenas o backend e os tipos personalizados
   "exclude": [
-    "backend",                           // Exclui o back-end da compilação do front-end
-    "node_modules"
-  ],
+    "node_modules",                       // Exclui dependências
+    "dist",                               // Exclui a pasta de saída
+    "public",                             // Exclui o frontend
+    "src"                                 // Exclui o frontend
+  ]
 }
