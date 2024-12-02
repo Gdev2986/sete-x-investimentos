@@ -12,7 +12,6 @@ const withdrawalRoutes_1 = __importDefault(require("./routes/withdrawalRoutes"))
 const earningsRoutes_1 = __importDefault(require("./routes/earningsRoutes"));
 const appConfig_1 = __importDefault(require("./config/appConfig"));
 // Importa tipos personalizados (garante o reconhecimento no TypeScript)
-require("./custom");
 const app = (0, express_1.default)();
 // Middleware para processar JSON
 app.use(express_1.default.json());
@@ -29,6 +28,6 @@ app.use((err, req, res, next) => {
 });
 // Inicia o servidor na porta configurada
 app.listen(appConfig_1.default.port, () => {
-    console.log(`Servidor rodando na porta ${appConfig_1.default.port}`);
+    console.log(`Server running on port ${appConfig_1.default.port}`);
 });
 exports.default = app;

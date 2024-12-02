@@ -11,6 +11,6 @@ if (!process.env.JWT_SECRET) {
 }
 const config = {
     jwtSecret: process.env.JWT_SECRET,
-    port: parseInt(process.env.PORT || '4000', 10), // Garantir que o valor é um número
+    port: 4000, // Garantir que o valor é um número
 };
 exports.default = config;

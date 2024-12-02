@@ -1,32 +1,32 @@
 {
   "compilerOptions": {
-    "typeRoots": ["./node_modules/@types", "./custom"], // Inclui tipos personalizados e bibliotecas externas
-    "target": "es6",                      // Compatível com ES6
-    "lib": ["es6", "dom", "esnext"],      // Bibliotecas necessárias para Node.js
-    "allowJs": true,                      // Permite arquivos JavaScript
-    "skipLibCheck": true,                 // Ignora verificações em tipos de bibliotecas
-    "esModuleInterop": true,              // Suporte a ESModules e CommonJS
-    "allowSyntheticDefaultImports": true, // Permite importar módulos com exportação padrão
-    "strict": true,                       // Ativa verificações rigorosas
-    "forceConsistentCasingInFileNames": true, // Garante consistência em nomes de arquivos
-    "noFallthroughCasesInSwitch": true,   // Previne falhas em switch
-    "module": "commonjs",                 // Compatível com Node.js
-    "moduleResolution": "node",           // Resolução de módulos no estilo Node.js
-    "resolveJsonModule": true,            // Permite importação de JSON
-    "isolatedModules": false,             // Não isola arquivos como módulos independentes
-    "noEmit": false,                      // Permite emissão de arquivos
-    "outDir": "./dist",                   // Define saída de compilação para backend
-    "baseUrl": ".",                       // Base para resolver caminhos relativos
-    "paths": {                            // Atalhos de caminho
+    "typeRoots": ["./node_modules/@types"], // Inclui apenas os tipos necessários
+    "target": "es6",
+    "lib": ["es6", "dom", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "noEmit": false,
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
       "@/*": ["./src/*"],
       "backend/*": ["./backend/*"]
     }
   },
-  "include": [ "./custom.d.ts", "./backend/**/*"], // Inclui apenas o backend e os tipos personalizados
+  "include": ["./backend/**/*"], // Inclui apenas arquivos do backend
   "exclude": [
-    "node_modules",                       // Exclui dependências
-    "dist",                               // Exclui a pasta de saída
-    "public",                             // Exclui o frontend
-    "src"                                 // Exclui o frontend
+    "node_modules",
+    "dist",
+    "public",
+    "src"
   ]
 }

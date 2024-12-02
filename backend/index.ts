@@ -9,7 +9,6 @@ import earningsRoutes from './routes/earningsRoutes';
 import config from './config/appConfig';
 
 // Importa tipos personalizados (garante o reconhecimento no TypeScript)
-import './custom';
 
 const app = express();
 
@@ -31,7 +30,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 
 // Inicia o servidor na porta configurada
 app.listen(config.port, () => {
-  console.log(`Servidor rodando na porta ${config.port}`);
+  console.log(`Server running on port ${config.port}`);
 });
 
 export default app;
