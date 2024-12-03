@@ -1,15 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Col, Row, Form, Button } from 'react-bootstrap';
 import Table from '../../../components/Table';
 import swal from 'sweetalert2';
-import { depositos } from '../../../helpers/data'; // Importando os dados dos depósitos
+import { getDeposits, updateDeposit } from '../../../helpers/api/deposits'; // Funções de API para o backend
 
 const CustomAdvancedTable = () => {
-    const [usersData, setUsersData] = useState(depositos); // Usando os dados importados
-    const [tempUsersData, setTempUsersData] = useState(depositos); // Dados temporários
-    const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false); // Estado para o botão "Salvar"
+    const [usersData, setUsersData] = useState([]); // Estado inicial para dados dos depósitos
+    const [tempUsersData, setTempUsersData] = useState([]);
+    const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false);
 
-    // Função para lidar com a mudança de status
+    // Carregar dados do backend ao montar o componente
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await getDeposits();
+                setUsersData(response.data); // Dados do backend
+                setTempUsersData(response.data); // Estado temporário
+            } catch (error) {
+                swal.fire('Erro', 'Não foi possível carregar os dados.', 'error');
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // Alterar status localmente
     const handleStatusChange = (id: number, newStatus: string) => {
         const updatedUsers = usersData.map((user) => {
             if (user.id === id) {
@@ -18,65 +33,57 @@ const CustomAdvancedTable = () => {
             return user;
         });
         setUsersData(updatedUsers);
-        setIsSaveButtonEnabled(true); // Habilitar o botão "Salvar" após uma mudança
+        setIsSaveButtonEnabled(true); // Habilitar botão de salvar
     };
 
-    // Função para salvar as alterações
-    const handleSave = () => {
+    // Salvar alterações no backend
+    const handleSave = async () => {
         swal.fire({
-            title: 'Tem Certeza?',
-            text: "Uma notificação será enviada para o usuário.",
+            title: 'Confirmação',
+            text: 'Deseja salvar as alterações? Uma notificação será enviada ao usuário.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#28bb4b',
             cancelButtonColor: '#f34e4e',
-            confirmButtonText: 'Alterar Status',
-        }).then((result) => {
+            confirmButtonText: 'Salvar',
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                swal.fire('Alteração Realizada', 'Status alterado com sucesso! O cliente foi notificado.', 'success');
-                setTempUsersData(usersData); // Atualiza os dados temporários para refletir o novo estado
-                setIsSaveButtonEnabled(false); // Desabilitar o botão após salvar
+                try {
+                    for (const user of usersData) {
+                        if (user.status !== tempUsersData.find((u) => u.id === user.id)?.status) {
+                            await updateDeposit(user.id, { status: user.status }); // Atualização no backend
+                        }
+                    }
+                    swal.fire('Sucesso', 'As alterações foram salvas.', 'success');
+                    setTempUsersData(usersData); // Atualiza estado temporário
+                    setIsSaveButtonEnabled(false); // Desabilita botão de salvar
+                } catch (error) {
+                    swal.fire('Erro', 'Falha ao salvar alterações.', 'error');
+                }
             } else {
-                setUsersData(tempUsersData); // Restaura os dados se o modal for cancelado
+                setUsersData(tempUsersData); // Reverte alterações
             }
         });
     };
 
     const columns = [
-        {
-            Header: 'ID',
-            accessor: 'id',
-            sort: true,
-            className: 'text-center',
-            Cell: ({ value }: any) => <span style={{ whiteSpace: 'nowrap' }}>{value}</span>,
-        },
-        {
-            Header: 'Nome',
-            accessor: 'nome',
-            sort: true,
-            className: 'text-center',
-        },
+        { Header: 'ID', accessor: 'id', sort: true, className: 'text-center' },
+        { Header: 'Nome', accessor: 'nome', sort: true, className: 'text-center' },
         {
             Header: 'Valor Depositado (R$)',
             accessor: 'valorDepositado',
             sort: true,
             className: 'text-center',
-            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), // Formatação de moeda
+            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
         },
         {
             Header: 'Saldo Atual (R$)',
             accessor: 'saldoAtual',
             sort: true,
             className: 'text-center',
-            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), // Formatação de moeda
+            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
         },
-        {
-            Header: 'Data do Depósito',
-            accessor: 'dataDeposito',
-            sort: true,
-            className: 'text-center',
-            Cell: ({ value }: any) => <span style={{ whiteSpace: 'nowrap', fontSize: '0.9rem' }}>{value}</span>,
-        },
+        { Header: 'Data do Depósito', accessor: 'dataDeposito', sort: true, className: 'text-center' },
         {
             Header: 'Status',
             accessor: 'status',
@@ -87,7 +94,6 @@ const CustomAdvancedTable = () => {
                     value={row.original.status}
                     onChange={(e) => handleStatusChange(row.original.id, e.target.value)}
                     className="text-center"
-                    style={{ marginRight: '1.5rem', fontSize: '0.9rem' }}
                 >
                     <option value="Pendente">Pendente</option>
                     <option value="Aprovado">Aprovado</option>
@@ -95,89 +101,38 @@ const CustomAdvancedTable = () => {
                 </Form.Select>
             ),
         },
-        {
-            Header: 'Enviar Comprovante',
-            accessor: 'comprovante',
-            sort: false,
-            className: 'text-center',
-            Cell: ({ row }: any) => (
-                <Form.Group controlId={`file-upload-${row.original.id}`} className="d-flex align-items-center justify-content-center">
-                    <label
-                        htmlFor={`file-upload-${row.original.id}`}
-                        className="btn btn-light btn-sm d-flex align-items-center"
-                        style={{
-                            backgroundColor: '#41C56D',
-                            color: '#FFFFFF',
-                            fontSize: '0.85rem',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        <i
-                            className="mdi mdi-cloud-upload"
-                            style={{ fontSize: '18px', marginRight: '5px', color: '#FFFFFF' }}
-                        ></i>
-                        Arquivo
-                    </label>
-                    <Form.Control type="file" id={`file-upload-${row.original.id}`} style={{ display: 'none' }} />
-                </Form.Group>
-            ),
-        },
     ];
 
     const sizePerPageList = [
-        {
-            text: '5',
-            value: 5,
-        },
-        {
-            text: '10',
-            value: 10,
-        },
-        {
-            text: '25',
-            value: 25,
-        },
-        {
-            text: 'Todos',
-            value: usersData.length,
-        },
+        { text: '5', value: 5 },
+        { text: '10', value: 10 },
+        { text: '25', value: 25 },
+        { text: 'Todos', value: usersData.length },
     ];
 
     return (
-        <>
-            <Row>
-                <Col>
-                    <Card>
-                        <Card.Body>
-                            <div className="d-flex justify-content-between align-items-center">
-                                <h4 className="header-title">Solicitações de Depósitos</h4>
-                            </div>
-                            <br />
-                            <Table
-                                columns={columns}
-                                data={usersData}
-                                pageSize={5}
-                                sizePerPageList={sizePerPageList}
-                                isSortable={true}
-                                pagination={true}
-                                isSelectable={false}
-                                tableClass="text-center"
-                            />
-                            <div className="d-flex justify-content-end mt-3">
-                                <Button
-                                    variant="success"
-                                    onClick={handleSave}
-                                    disabled={!isSaveButtonEnabled}
-                                    style={{ justifyContent: 'flex-end' }}
-                                >
-                                    Salvar
-                                </Button>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-        </>
+        <Row>
+            <Col>
+                <Card>
+                    <Card.Body>
+                        <h4 className="header-title">Solicitações de Depósitos</h4>
+                        <Table
+                            columns={columns}
+                            data={usersData}
+                            pageSize={5}
+                            sizePerPageList={sizePerPageList}
+                            isSortable={true}
+                            pagination={true}
+                        />
+                        <div className="d-flex justify-content-end mt-3">
+                            <Button variant="success" onClick={handleSave} disabled={!isSaveButtonEnabled}>
+                                Salvar
+                            </Button>
+                        </div>
+                    </Card.Body>
+                </Card>
+            </Col>
+        </Row>
     );
 };
 

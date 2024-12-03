@@ -1,8 +1,14 @@
 {
   "compilerOptions": {
-    "typeRoots": ["./node_modules/@types"], // Inclui apenas os tipos necessários
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
     "target": "es6",
-    "lib": ["es6", "dom", "esnext"],
+    "lib": [
+      "es6",
+      "dom",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -10,19 +16,18 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "commonjs",
+    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": false,
-    "noEmit": false,
+    "isolatedModules": true,
+    "noEmit": true,
     "outDir": "./dist",
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"],
-      "backend/*": ["./backend/*"]
-    }
+    "jsx": "react"
   },
-  "include": ["./backend/**/*"], // Inclui apenas arquivos do backend
+  "include": [
+    "./backend/**/*"
+  ],
   "exclude": [
     "node_modules",
     "dist",

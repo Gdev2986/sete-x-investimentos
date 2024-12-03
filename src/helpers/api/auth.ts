@@ -2,25 +2,41 @@ import { APICore } from './apiCore';
 
 const api = new APICore();
 
-// account
+// Configurar token de autorização
+const setAuthorization = (token: string | null) => {
+    if (token) {
+        api.setAuthorization(token);
+    } else {
+        api.setAuthorization(null);
+    }
+};
+
+// Login
 function login(params: { email: string; password: string }) {
-    const baseUrl = '/login/';
-    return api.create(`${baseUrl}`, params);
+    const baseUrl = '/auth/login';
+    return api
+        .create(`${baseUrl}`, params)
+        .then((response) => {
+            const user = response.data;
+            api.setLoggedInUser(user); // Salva o usuário no armazenamento local
+            setAuthorization(user.token);
+            return user;
+        });
 }
 
+// Logout
 function logout() {
-    const baseUrl = '/logout/';
-    return api.create(`${baseUrl}`, {});
+    const baseUrl = '/auth/logout';
+    return api.create(`${baseUrl}`, {}).finally(() => {
+        api.setLoggedInUser(null);
+        setAuthorization(null);
+    });
 }
 
+// Registro
 function signup(params: { fullname: string; email: string; password: string }) {
-    const baseUrl = '/register/';
+    const baseUrl = '/auth/register';
     return api.create(`${baseUrl}`, params);
 }
 
-function forgotPassword(params: { email: string }) {
-    const baseUrl = '/forget-password/';
-    return api.create(`${baseUrl}`, params);
-}
-
-export { login, logout, signup, forgotPassword };
+export { login, logout, signup };
