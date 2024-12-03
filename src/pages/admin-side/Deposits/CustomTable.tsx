@@ -2,20 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { Card, Col, Row, Form, Button } from 'react-bootstrap';
 import Table from '../../../components/Table';
 import swal from 'sweetalert2';
-import { getDeposits, updateDeposit } from '../../../helpers/api/deposits'; // Funções de API para o backend
+import { getDeposits, updateDeposit } from '../../../helpers/api/deposits'; // Importando funções da API
+
+// Definindo o tipo Deposit
+type Deposit = {
+    id: number;
+    nome: string;
+    valorDepositado: number;
+    saldoAtual: number;
+    dataDeposito: string;
+    status: string;
+};
 
 const CustomAdvancedTable = () => {
-    const [usersData, setUsersData] = useState([]); // Estado inicial para dados dos depósitos
-    const [tempUsersData, setTempUsersData] = useState([]);
+    // Estados para dados dos depósitos
+    const [usersData, setUsersData] = useState<Deposit[]>([]); // Dados reais
+    const [tempUsersData, setTempUsersData] = useState<Deposit[]>([]); // Dados temporários
     const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false);
 
-    // Carregar dados do backend ao montar o componente
+    // Carregar os dados do backend
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await getDeposits();
-                setUsersData(response.data); // Dados do backend
-                setTempUsersData(response.data); // Estado temporário
+                const response = await getDeposits(); // Chama a API
+                setUsersData(response.data);
+                setTempUsersData(response.data);
             } catch (error) {
                 swal.fire('Erro', 'Não foi possível carregar os dados.', 'error');
             }
@@ -24,19 +35,16 @@ const CustomAdvancedTable = () => {
         fetchData();
     }, []);
 
-    // Alterar status localmente
+    // Atualizar status localmente
     const handleStatusChange = (id: number, newStatus: string) => {
-        const updatedUsers = usersData.map((user) => {
-            if (user.id === id) {
-                return { ...user, status: newStatus };
-            }
-            return user;
-        });
+        const updatedUsers = usersData.map((user) =>
+            user.id === id ? { ...user, status: newStatus } : user
+        );
         setUsersData(updatedUsers);
-        setIsSaveButtonEnabled(true); // Habilitar botão de salvar
+        setIsSaveButtonEnabled(true);
     };
 
-    // Salvar alterações no backend
+    // Salvar as alterações no backend
     const handleSave = async () => {
         swal.fire({
             title: 'Confirmação',
@@ -50,22 +58,24 @@ const CustomAdvancedTable = () => {
             if (result.isConfirmed) {
                 try {
                     for (const user of usersData) {
-                        if (user.status !== tempUsersData.find((u) => u.id === user.id)?.status) {
-                            await updateDeposit(user.id, { status: user.status }); // Atualização no backend
+                        const original = tempUsersData.find((u) => u.id === user.id);
+                        if (original && user.status !== original.status) {
+                            await updateDeposit(user.id, { status: user.status }); // Atualiza no backend
                         }
                     }
                     swal.fire('Sucesso', 'As alterações foram salvas.', 'success');
-                    setTempUsersData(usersData); // Atualiza estado temporário
-                    setIsSaveButtonEnabled(false); // Desabilita botão de salvar
+                    setTempUsersData(usersData);
+                    setIsSaveButtonEnabled(false);
                 } catch (error) {
                     swal.fire('Erro', 'Falha ao salvar alterações.', 'error');
                 }
             } else {
-                setUsersData(tempUsersData); // Reverte alterações
+                setUsersData(tempUsersData); // Restaura os dados antigos se o modal for cancelado
             }
         });
     };
 
+    // Colunas da tabela
     const columns = [
         { Header: 'ID', accessor: 'id', sort: true, className: 'text-center' },
         { Header: 'Nome', accessor: 'nome', sort: true, className: 'text-center' },
@@ -103,6 +113,7 @@ const CustomAdvancedTable = () => {
         },
     ];
 
+    // Opções de paginação
     const sizePerPageList = [
         { text: '5', value: 5 },
         { text: '10', value: 10 },

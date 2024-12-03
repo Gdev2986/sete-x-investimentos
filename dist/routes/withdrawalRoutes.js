@@ -37,4 +37,53 @@ router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddlewar
         res.status(500).json({ message: 'Erro ao buscar retiradas', error: error.message });
     }
 }));
+// Obter retiradas de um usuário específico (autenticado)
+router.get('/user/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const withdrawals = yield withdrawal_1.default.findAll({ where: { user_id: id } });
+        if (!withdrawals.length) {
+            res.status(404).json({ message: 'Nenhuma retirada encontrada para este usuário' });
+            return;
+        }
+        res.status(200).json(withdrawals);
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Erro ao buscar retiradas do usuário', error: error.message });
+    }
+}));
+// Atualizar uma retirada (apenas para administradores)
+router.put('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const withdrawal = yield withdrawal_1.default.findByPk(id);
+        if (!withdrawal) {
+            res.status(404).json({ message: 'Retirada não encontrada' });
+            return;
+        }
+        withdrawal.status = status || withdrawal.status;
+        yield withdrawal.save();
+        res.status(200).json(withdrawal);
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Erro ao atualizar retirada', error: error.message });
+    }
+}));
+// Excluir uma retirada (apenas para administradores)
+router.delete('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const withdrawal = yield withdrawal_1.default.findByPk(id);
+        if (!withdrawal) {
+            res.status(404).json({ message: 'Retirada não encontrada' });
+            return;
+        }
+        yield withdrawal.destroy();
+        res.status(200).json({ message: 'Retirada excluída com sucesso' });
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Erro ao excluir retirada', error: error.message });
+    }
+}));
 exports.default = router;

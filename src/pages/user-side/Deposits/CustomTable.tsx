@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, Modal, Button, Form } from 'react-bootstrap';
 import Table from '../../../components/Table';
-import axios from 'axios';
+import swal from 'sweetalert2';
+import { getUserDeposits, createDeposit } from '../../../helpers/api/deposits'; // Importando funções da API
 
 // Definindo o tipo para os depósitos
 type Deposit = {
@@ -14,7 +15,7 @@ type Deposit = {
     comprovante?: string;
 };
 
-// Configurando colunas da tabela
+// Configurando as colunas da tabela
 const columns = [
     {
         Header: 'ID',
@@ -63,18 +64,18 @@ const UserDeposits = () => {
     const [showShake, setShowShake] = useState(false);
 
     // Obtendo o ID do usuário dinamicamente
-    const userId = localStorage.getItem('user_id') || sessionStorage.getItem('user_id'); // Exemplo de onde pegar o ID
+    const userId = localStorage.getItem('user_id') || sessionStorage.getItem('user_id'); // ID do usuário autenticado
 
     // Função para alternar o estado de visibilidade do modal
     const toggleResponsiveModal = () => setResponsiveModal(!responsiveModal);
 
-    // Função para buscar depósitos do backend
+    // Função para buscar os depósitos do backend
     const fetchUserDeposits = async () => {
         try {
-            const response = await axios.get(`/api/deposits/user/${userId}`);
+            const response = await getUserDeposits(Number(userId)); // Chama a API
             setUserDeposits(response.data);
         } catch (error) {
-            console.error('Erro ao buscar depósitos:', error);
+            swal.fire('Erro', 'Não foi possível carregar os depósitos.', 'error');
         }
     };
 
@@ -105,16 +106,17 @@ const UserDeposits = () => {
         }
 
         const newDeposit = {
-            user_id: Number(userId), // Usando o ID dinâmico do usuário
+            user_id: Number(userId), // ID dinâmico do usuário
             valorDepositado: valorNumerico,
         };
 
         try {
-            await axios.post('/api/deposits', newDeposit);
+            await createDeposit(newDeposit); // Chama a API para criar o depósito
+            swal.fire('Sucesso', 'Depósito criado com sucesso!', 'success');
             fetchUserDeposits(); // Atualiza a lista após a criação
             toggleResponsiveModal();
         } catch (error) {
-            console.error('Erro ao criar depósito:', error);
+            swal.fire('Erro', 'Falha ao criar depósito.', 'error');
         }
     };
 

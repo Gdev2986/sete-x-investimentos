@@ -37,4 +37,35 @@ router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddlewar
         res.status(500).json({ message: 'Erro ao buscar depósitos', error: error.message });
     }
 }));
+// Obter os depósitos de um usuário específico
+router.get('/user/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const deposits = yield deposit_1.default.findAll({ where: { user_id: id } });
+        res.status(200).json(deposits);
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Erro ao buscar depósitos do usuário', error: error.message });
+    }
+}));
+// Atualizar o status de um depósito específico
+router.put('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params; // Captura o ID do depósito
+        const { status } = req.body; // Captura o novo status do corpo da requisição
+        // Busca o depósito pelo ID
+        const deposit = yield deposit_1.default.findByPk(id);
+        if (!deposit) {
+            res.status(404).json({ message: 'Depósito não encontrado' });
+            return;
+        }
+        // Atualiza o status do depósito
+        deposit.status = status;
+        yield deposit.save();
+        res.status(200).json(deposit);
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Erro ao atualizar o depósito', error: error.message });
+    }
+}));
 exports.default = router;

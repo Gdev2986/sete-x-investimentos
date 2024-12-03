@@ -1,40 +1,35 @@
 import jwtDecode from 'jwt-decode';
 import axios from 'axios';
 
-import config from '../../config'
+import config from '../../config';
 
-// content type
+// Configurações globais do axios
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.baseURL = config.API_URL;
 
-// intercepting to capture errors
+// Interceptação de erros para capturar e gerenciar respostas
 axios.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+    (response) => response,
     (error) => {
-        // Any status codes that falls outside the range of 2xx cause this function to trigger
         let message;
-
-        if (error && error.response && error.response.status === 404) {
-            // window.location.href = '/not-found';
-        } else if (error && error.response && error.response.status === 403) {
+        if (error?.response?.status === 404) {
+            // Redirecionamento para página não encontrada (desabilitado)
+        } else if (error?.response?.status === 403) {
             window.location.href = '/access-denied';
         } else {
-            switch (error.response.status) {
+            switch (error.response?.status) {
                 case 401:
-                    message = 'Invalid credentials';
+                    message = 'Credenciais inválidas';
                     break;
                 case 403:
-                    message = 'Access Forbidden';
+                    message = 'Acesso proibido';
                     break;
                 case 404:
-                    message = 'Sorry! the data you are looking for could not be found';
+                    message = 'Desculpe, os dados procurados não foram encontrados';
                     break;
-                default: {
+                default:
                     message =
-                        error.response && error.response.data ? error.response.data['message'] : error.message || error;
-                }
+                        error.response?.data?.message || error.message || 'Erro desconhecido';
             }
             return Promise.reject(message);
         }
@@ -43,181 +38,94 @@ axios.interceptors.response.use(
 
 const AUTH_SESSION_KEY = 'setex_user';
 
-/**
- * Sets the default authorization
- * @param {*} token
- */
-const setAuthorization = (token: string | null) => {
-    if (token) axios.defaults.headers.common['Authorization'] = 'JWT ' + token;
-    else delete axios.defaults.headers.common['Authorization'];
-};
-
-const getUserFromCookie = () => {
-    const user = sessionStorage.getItem(AUTH_SESSION_KEY);
-    return user ? (typeof user == 'object' ? user : JSON.parse(user)) : null;
-};
 class APICore {
     /**
-     * Fetches data from given url
+     * Define o token de autorização no cabeçalho
      */
-    get = (url: string, params: any) => {
-        let response;
-        if (params) {
-            var queryString = params
-                ? Object.keys(params)
-                      .map((key) => key + '=' + params[key])
-                      .join('&')
-                : '';
-            response = axios.get(`${url}?${queryString}`, params);
+    setAuthorization = (token: string | null) => {
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         } else {
-            response = axios.get(`${url}`, params);
+            delete axios.defaults.headers.common['Authorization'];
         }
-        return response;
-    };
-
-    getFile = (url: string, params: any) => {
-        let response;
-        if (params) {
-            var queryString = params
-                ? Object.keys(params)
-                      .map((key) => key + '=' + params[key])
-                      .join('&')
-                : '';
-            response = axios.get(`${url}?${queryString}`, { responseType: 'blob' });
-        } else {
-            response = axios.get(`${url}`, { responseType: 'blob' });
-        }
-        return response;
-    };
-
-    getMultiple = (urls: string, params: any) => {
-        const reqs = [];
-        let queryString = '';
-        if (params) {
-            queryString = params
-                ? Object.keys(params)
-                      .map((key) => key + '=' + params[key])
-                      .join('&')
-                : '';
-        }
-
-        for (const url of urls) {
-            reqs.push(axios.get(`${url}?${queryString}`));
-        }
-        return axios.all(reqs);
     };
 
     /**
-     * post given data to url
+     * Retorna o usuário autenticado da sessão
      */
-    create = (url: string, data: any) => {
-        return axios.post(url, data);
+    getLoggedInUser = () => {
+        const user = sessionStorage.getItem(AUTH_SESSION_KEY);
+        return user ? JSON.parse(user) : null;
     };
 
     /**
-     * Updates patch data
+     * Define o usuário autenticado na sessão
      */
-    updatePatch = (url: string, data: any) => {
-        return axios.patch(url, data);
-    };
-
-    /**
-     * Updates data
-     */
-    update = (url: string, data: any) => {
-        return axios.put(url, data);
-    };
-
-    /**
-     * Deletes data
-     */
-    delete = (url: string) => {
-        return axios.delete(url);
-    };
-
-    /**
-     * post given data to url with file
-     */
-    createWithFile = (url: string, data: any) => {
-        const formData = new FormData();
-        for (const k in data) {
-            formData.append(k, data[k]);
-        }
-
-        const config: any = {
-            headers: {
-                ...axios.defaults.headers,
-                'content-type': 'multipart/form-data',
-            },
-        };
-        return axios.post(url, formData, config);
-    };
-
-    /**
-     * post given data to url with file
-     */
-    updateWithFile = (url: string, data: any) => {
-        const formData = new FormData();
-        for (const k in data) {
-            formData.append(k, data[k]);
-        }
-
-        const config: any = {
-            headers: {
-                ...axios.defaults.headers,
-                'content-type': 'multipart/form-data',
-            },
-        };
-        return axios.patch(url, formData, config);
-    };
-
-    isUserAuthenticated = () => {
-        const user = this.getLoggedInUser();
-
-        if (!user) {
-            return false;
-        }
-        const decoded: any = jwtDecode(user.token);
-        const currentTime = Date.now() / 1000;
-        if (decoded.exp < currentTime) {
-            console.warn('access token expired');
-            return false;
-        } else {
-            return true;
-        }
-    };
-
     setLoggedInUser = (session: any) => {
-        if (session) sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
-        else {
+        if (session) {
+            sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+        } else {
             sessionStorage.removeItem(AUTH_SESSION_KEY);
         }
     };
+
     /**
-     * Returns the logged in user
+     * Verifica se o usuário está autenticado
      */
-    getLoggedInUser = () => {
-        return getUserFromCookie();
+    isUserAuthenticated = () => {
+        const user = this.getLoggedInUser();
+        if (!user) return false;
+
+        const decoded: any = jwtDecode(user.token);
+        const currentTime = Date.now() / 1000;
+        return decoded.exp > currentTime;
     };
 
-    setUserInSession = (modifiedUser: any) => {
-        let userInfo = sessionStorage.getItem(AUTH_SESSION_KEY);
-        if (userInfo) {
-            const { token, user } = JSON.parse(userInfo);
-            this.setLoggedInUser({ token, ...user, ...modifiedUser });
+    // Métodos de requisição
+    get = (url: string, params: any) => {
+        if (params) {
+            const queryString = Object.keys(params)
+                .map((key) => `${key}=${params[key]}`)
+                .join('&');
+            return axios.get(`${url}?${queryString}`);
         }
+        return axios.get(url);
+    };
+
+    create = (url: string, data: any) => axios.post(url, data);
+
+    update = (url: string, data: any) => axios.put(url, data);
+
+    delete = (url: string) => axios.delete(url);
+
+    createWithFile = (url: string, data: any) => {
+        const formData = new FormData();
+        for (const key in data) {
+            formData.append(key, data[key]);
+        }
+        return axios.post(url, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+    };
+
+    updateWithFile = (url: string, data: any) => {
+        const formData = new FormData();
+        for (const key in data) {
+            formData.append(key, data[key]);
+        }
+        return axios.patch(url, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
     };
 }
 
-/*
-Check if token available in session
-*/
-let user = getUserFromCookie();
+// Inicialização do token de autorização na carga do arquivo
+const user = sessionStorage.getItem(AUTH_SESSION_KEY);
 if (user) {
-    const { token } = user;
+    const { token } = JSON.parse(user);
     if (token) {
-        setAuthorization(token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
 }
 
-export { APICore, setAuthorization };
+export { APICore };

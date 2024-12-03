@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-import profile from '../../../assets/images/users/user-1.jpg';
-import { user } from '../../../helpers/fake-backend';
+import axios from 'axios';
 
 const PersonalData: React.FC = () => {
   const [isEditing, setIsEditing] = useState<{ [key: string]: boolean }>({
@@ -10,13 +9,32 @@ const PersonalData: React.FC = () => {
   });
 
   const [formData, setFormData] = useState({
-    firstName: 'Gabriel',
-    lastName: 'Campos',
-    username: user.username,
-    email: user.email,
+    firstName: '',
+    lastName: '',
+    username: '',
+    email: '',
+    profileImage: '',
   });
 
+  const [originalData, setOriginalData] = useState(formData); // Dados originais para comparação
   const [showEmailConfirmationMessage, setShowEmailConfirmationMessage] = useState(false);
+
+  const userId = localStorage.getItem('user_id') || sessionStorage.getItem('user_id'); // Obtendo o ID do usuário
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`/api/users/${userId}`);
+        setFormData(response.data);
+        setOriginalData(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar dados do usuário:', error);
+        alert('Erro ao carregar os dados do usuário.');
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
 
   const handleEditToggle = (field: string) => {
     setIsEditing((prev) => ({ ...prev, [field]: !prev[field] }));
@@ -27,14 +45,43 @@ const PersonalData: React.FC = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSaveChanges = () => {
-    console.log('Salvar alterações:', formData);
-    if (formData.email !== user.email) {
-      setShowEmailConfirmationMessage(true);
-    } else {
-      setShowEmailConfirmationMessage(false);
+  const handleSaveChanges = async () => {
+    try {
+      const { firstName, lastName, username, email } = formData;
+      await axios.put(`/api/users/${userId}`, { firstName, lastName, username, email });
+
+      if (email !== originalData.email) {
+        setShowEmailConfirmationMessage(true);
+      } else {
+        setShowEmailConfirmationMessage(false);
+      }
+
+      setOriginalData(formData);
+      alert('Dados pessoais atualizados com sucesso.');
+    } catch (error) {
+      console.error('Erro ao salvar os dados:', error);
+      alert('Erro ao atualizar os dados.');
     }
-    // Adicionar a lógica para salvar os dados no backend aqui
+  };
+
+  const handleImageChange: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const formDataImage = new FormData();
+      formDataImage.append('profileImage', file);
+
+      try {
+        const response = await axios.post(`/api/users/${userId}/upload-profile-image`, formDataImage, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        setFormData({ ...formData, profileImage: response.data.imageUrl });
+        alert('Imagem de perfil atualizada com sucesso.');
+      } catch (error) {
+        console.error('Erro ao atualizar a imagem:', error);
+        alert('Erro ao atualizar a imagem de perfil.');
+      }
+    }
   };
 
   const editableStyle = (isEditable: boolean) => ({
@@ -46,7 +93,7 @@ const PersonalData: React.FC = () => {
       <h4 className="text-center">Dados Pessoais</h4>
       <div className="d-flex flex-column align-items-center mb-4">
         <img
-          src={profile}
+          src={formData.profileImage || 'https://via.placeholder.com/100'} // Imagem padrão se não houver
           alt="Foto de Perfil"
           className="rounded-circle mb-3"
           style={{ width: '100px', height: '100px', objectFit: 'cover' }}
@@ -55,18 +102,30 @@ const PersonalData: React.FC = () => {
           <Form.Label htmlFor="fileInput" className="btn btn-link p-0" style={{ cursor: 'pointer' }}>
             Alterar Imagem
           </Form.Label>
-          <Form.Control type="file" id="fileInput" style={{ display: 'none' }} />
+          <Form.Control type="file" id="fileInput" style={{ display: 'none' }} onChange={handleImageChange} />
         </Form.Group>
       </div>
       <Form className="d-flex flex-column align-items-center">
         <div className="d-flex" style={{ gap: '20px' }}>
           <Form.Group className="mb-3" controlId="formFirstName" style={{ width: '140px' }}>
             <Form.Label>Nome</Form.Label>
-            <Form.Control type="text" placeholder="Nome" value={formData.firstName} readOnly />
+            <Form.Control
+              type="text"
+              name="firstName"
+              placeholder="Nome"
+              value={formData.firstName}
+              readOnly
+            />
           </Form.Group>
           <Form.Group className="mb-3" controlId="formLastName" style={{ width: '140px' }}>
             <Form.Label>Sobrenome</Form.Label>
-            <Form.Control type="text" placeholder="Sobrenome" value={formData.lastName} readOnly />
+            <Form.Control
+              type="text"
+              name="lastName"
+              placeholder="Sobrenome"
+              value={formData.lastName}
+              readOnly
+            />
           </Form.Group>
         </div>
         <Form.Group className="mb-3 position-relative" controlId="formUsername" style={{ width: '300px' }}>
@@ -110,7 +169,11 @@ const PersonalData: React.FC = () => {
         </Form.Group>
       </Form>
       <div className="text-center mt-4">
-        <Button variant="success" onClick={handleSaveChanges} style={{ backgroundColor: '#28a745', borderColor: '#28a745' }}>
+        <Button
+          variant="success"
+          onClick={handleSaveChanges}
+          style={{ backgroundColor: '#28a745', borderColor: '#28a745' }}
+        >
           Salvar Alterações
         </Button>
       </div>

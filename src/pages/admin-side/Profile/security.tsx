@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
+import axios from 'axios';
 
 const Security: React.FC = () => {
   const [passwordData, setPasswordData] = useState({
@@ -9,18 +10,45 @@ const Security: React.FC = () => {
   });
 
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
   };
 
-  const handleSavePassword = () => {
+  const handleSavePassword = async () => {
+    // Verifica se as novas senhas coincidem
     if (passwordData.newPassword !== passwordData.confirmNewPassword) {
       setPasswordError('As senhas não coincidem.');
-    } else {
+      return;
+    }
+
+    try {
+      // Verifica a senha atual no backend
+      const verifyResponse = await axios.post('/api/auth/verify-password', {
+        currentPassword: passwordData.currentPassword,
+      });
+
+      if (!verifyResponse.data.valid) {
+        setPasswordError('Senha atual incorreta.');
+        return;
+      }
+
+      // Atualiza a senha no backend
+      await axios.put('/api/auth/update-password', {
+        newPassword: passwordData.newPassword,
+      });
+
       setPasswordError(null);
-      console.log('Salvar nova senha:', passwordData);
-      // Adicionar a lógica para salvar a nova senha no backend aqui
+      setSuccessMessage('Senha alterada com sucesso!');
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmNewPassword: '',
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar a senha:', error);
+      setPasswordError('Erro ao atualizar a senha. Tente novamente.');
     }
   };
 
@@ -59,6 +87,7 @@ const Security: React.FC = () => {
           />
         </Form.Group>
         {passwordError && <Alert variant="danger">{passwordError}</Alert>}
+        {successMessage && <Alert variant="success">{successMessage}</Alert>}
         <Button variant="primary" onClick={handleSavePassword}>
           Salvar Nova Senha
         </Button>

@@ -7,6 +7,7 @@ import depositRoutes from './routes/depositRoutes';
 import withdrawalRoutes from './routes/withdrawalRoutes';
 import earningsRoutes from './routes/earningsRoutes';
 import config from './config/appConfig';
+import passwordRoutes from './routes/passwordRoutes';
 
 // Importa tipos personalizados (garante o reconhecimento no TypeScript)
 
@@ -21,6 +22,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/deposits', depositRoutes);
 app.use('/api/withdrawals', withdrawalRoutes);
 app.use('/api/earnings', earningsRoutes);
+app.use('/api/auth', passwordRoutes);
 
 // Middleware de erro genérico
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
