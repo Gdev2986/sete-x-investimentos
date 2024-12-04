@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { Card, Col, Row, Modal, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Card, Col, Row, Modal, Button, Form } from 'react-bootstrap';
 import Table from '../../../components/Table';
-import AdmintoDatepicker from '../../../components/Datepicker'; // Importando o Datepicker
-import { retiradas } from './datatable'; // Importando dados dos rendimentos
+import swal from 'sweetalert2';
 
 const columns = [
     {
@@ -16,28 +15,13 @@ const columns = [
         sort: true,
     },
     {
-        Header: 'Valor Alocado (R$)',
-        accessor: 'valorAlocado',
+        Header: 'Valor Solicitado (R$)',
+        accessor: 'valorSolicitado',
         sort: true,
     },
     {
-        Header: 'Lucro Bruto (R$)',
-        accessor: 'lucroBruto',
-        sort: true,
-    },
-    {
-        Header: 'Impostos (R$)',
-        accessor: 'impostos',
-        sort: true,
-    },
-    {
-        Header: '% Clientes (R$)',
-        accessor: 'percentualClientes',
-        sort: true,
-    },
-    {
-        Header: 'Lucro Real (R$)',
-        accessor: 'lucroReal',
+        Header: 'Status',
+        accessor: 'status',
         sort: true,
     },
 ];
@@ -52,40 +36,39 @@ const sizePerPageList = [
         value: 10,
     },
     {
-        text: '25',
-        value: 25,
-    },
-    {
         text: 'Todos',
-        value: retiradas.length,
+        value: 20, // Ajuste para refletir o número de dados disponíveis
     },
 ];
 
-const CustomAdvancedTable = () => {
-    const [responsiveModal, setResponsiveModal] = useState<boolean>(false);
-    const [rotation, setRotation] = useState<number>(45); // Estado para controlar a rotação do ícone
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 1))); // Estado para controlar a data selecionada
+const UserWithdrawals = ({ saldoDisponivel }: { saldoDisponivel: number }) => {
+    const [modalOpen, setModalOpen] = useState<boolean>(false);
+    const [withdrawalAmount, setWithdrawalAmount] = useState<number>(0);
+    const [withdrawals, setWithdrawals] = useState<any[]>([]); // Simula dados de retiradas
 
-    // Função para alternar o estado de visibilidade do modal e resetar a rotação ao fechar
-    const toggleResponsiveModal = () => {
-        setResponsiveModal(!responsiveModal);
-        if (responsiveModal) {
-            setRotation(45); // Reseta a rotação ao fechar o modal
-        } else {
-            toggleIconRotation(); // Alterna a rotação ao abrir o modal
-        }
+    const toggleModal = () => {
+        setModalOpen(!modalOpen);
+        if (modalOpen) setWithdrawalAmount(0); // Reseta o valor ao fechar o modal
     };
 
-    // Função para alternar a rotação entre 45 e 90 graus
-    const toggleIconRotation = () => {
-        setRotation((prevRotation) => (prevRotation === 45 ? 90 : 45));
-    };
-
-    // Função para atualizar a data selecionada
-    const handleDateChange = (date: Date) => {
-        if (date) {
-            setSelectedDate(date);
+    const handleWithdrawRequest = () => {
+        if (withdrawalAmount > saldoDisponivel) {
+            swal.fire('Erro', 'O valor solicitado excede o saldo disponível.', 'error');
+            return;
         }
+
+        // Simula a criação de uma nova solicitação de retirada
+        const newWithdrawal = {
+            id: withdrawals.length + 1,
+            data: new Date().toLocaleDateString('pt-BR'),
+            valorSolicitado: withdrawalAmount,
+            status: 'Pendente',
+        };
+
+        setWithdrawals([...withdrawals, newWithdrawal]);
+        toggleModal();
+
+        swal.fire('Solicitação Enviada', 'Sua solicitação de retirada foi enviada com sucesso.', 'success');
     };
 
     return (
@@ -93,80 +76,54 @@ const CustomAdvancedTable = () => {
             {/* Botão para abrir o modal */}
             <Button
                 variant="success"
-                className="waves-effect waves-light mb-3 d-flex align-items-center "
-                style={{ borderRadius: "10px" }}
-                onClick={toggleResponsiveModal} // Chama a função que abre o modal e altera a rotação
+                className="waves-effect waves-light mb-3"
+                style={{ borderRadius: '10px' }}
+                onClick={toggleModal}
             >
-                {/* Ícone MDI com rotação controlada pelo estado e transição suave */}
-                <i
-                    className="mdi mdi-close"
-                    style={{
-                        transform: `rotate(${rotation}deg)`,
-                        marginRight: '10px',
-                        transition: 'transform 0.3s ease',
-                    }}
-                ></i>
-                Nova Retirada
+                Solicitar Retirada
             </Button>
 
-            {/* Modal Responsivo */}
-            <Modal show={responsiveModal} onHide={toggleResponsiveModal}>
+            {/* Modal para solicitar retirada */}
+            <Modal show={modalOpen} onHide={toggleModal}>
                 <Modal.Header closeButton>
-                    <h4 className="modal-title">Adicione um Novo Rendimento</h4>
+                    <h4 className="modal-title">Nova Solicitação de Retirada</h4>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="row">
-                        <div className="col-md-12">
-                            <div className="mb-3">
-                                <label className="form-label">Data do Rendimento</label> <br />
-                                <AdmintoDatepicker
-                                    hideAddon={true}
-                                    value={selectedDate}
-                                    onChange={(date: Date) => handleDateChange(date)}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <div className="mb-3">
-                                <label htmlFor="field-1" className="form-label">
-                                    Valor Alocado
-                                </label>
-                                <input type="number" className="form-control" id="field-1" placeholder="Insira o valor" required />
-                            </div>
-                        </div>
-                        <div className="col-md-6">
-                            <div className="mb-3">
-                                <label htmlFor="field-2" className="form-label">
-                                    Lucro Bruto
-                                </label>
-                                <input type="number" className="form-control" id="field-2" placeholder="Insira o valor" required />
-                            </div>
-                        </div>
-                    </div>
-                    
+                    <Form.Group className="mb-3">
+                        <Form.Label>Saldo Disponível: R$ {saldoDisponivel.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</Form.Label>
+                        <Form.Control
+                            type="number"
+                            placeholder="Insira o valor da retirada"
+                            value={withdrawalAmount}
+                            onChange={(e) => setWithdrawalAmount(Number(e.target.value))}
+                            min="1"
+                            max={saldoDisponivel}
+                        />
+                    </Form.Group>
                 </Modal.Body>
-
-                <Modal.Footer >
-                    <Button variant="secondary" className="waves-effect" onClick={toggleResponsiveModal} >
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={toggleModal}>
                         Cancelar
                     </Button>
-                    <Button type="submit" className="btn btn-info waves-effect waves-light" style={{ backgroundColor :'#41C56D'}}>
-                        Salvar
+                    <Button
+                        variant="success"
+                        onClick={handleWithdrawRequest}
+                        disabled={withdrawalAmount <= 0 || withdrawalAmount > saldoDisponivel}
+                    >
+                        Confirmar
                     </Button>
                 </Modal.Footer>
             </Modal>
 
-            {/* Tabela de Rendimentos */}
+            {/* Tabela de retiradas */}
             <Row>
                 <Col>
                     <Card>
                         <Card.Body>
-                            <h4 className="header-title">Rendimentos</h4>
+                            <h4 className="header-title">Histórico de Retiradas</h4>
                             <Table
                                 columns={columns}
-                                data={retiradas}
+                                data={withdrawals}
                                 pageSize={5}
                                 sizePerPageList={sizePerPageList}
                                 isSortable={true}
@@ -180,4 +137,4 @@ const CustomAdvancedTable = () => {
     );
 };
 
-export default CustomAdvancedTable;
+export default UserWithdrawals;

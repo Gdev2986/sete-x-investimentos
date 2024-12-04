@@ -88,9 +88,9 @@ const Login = () => {
     if (userLoggedIn && user) {
         // Redireciona com base na role do usuário
         if (user.role === 'admin') {
-            redirectUrl = `/${user.role}/dashboard`; // Admin dashboard
+            redirectUrl = `/admin/dashboard`; // Admin dashboard
         } else if (user.role === 'user') {
-            redirectUrl = `/${user.role}/dashboard`; // User dashboard
+            redirectUrl = `/user/dashboard`; // User dashboard
         }
     } else if (location.state) {
         const { from } = location.state as LocationState;
@@ -116,7 +116,7 @@ const Login = () => {
                 <VerticalForm<UserData>
                     onSubmit={onSubmit}
                     resolver={schemaResolver}
-                    defaultValues={{ email: 'teste@teste.com', password: 'test' }}
+                    defaultValues={{ email: '', password: '' }}
                 >
                     <FormInput
                         type="email"

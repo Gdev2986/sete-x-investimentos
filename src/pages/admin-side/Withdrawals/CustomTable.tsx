@@ -20,27 +20,24 @@ type Retirada = {
 };
 
 const CustomAdvancedTable = () => {
-    const [usersData, setUsersData] = useState<Retirada[]>(retiradas); // Usando os dados de retiradas com o tipo Retirada
-    const [tempUsersData, setTempUsersData] = useState<Retirada[]>(retiradas); // Dados temporários para restaurar se o modal for cancelado
-    const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false); // Estado para o botão "Salvar"
+    const [usersData, setUsersData] = useState<Retirada[]>(retiradas); // Dados de retiradas
+    const [tempUsersData, setTempUsersData] = useState<Retirada[]>(retiradas); // Backup dos dados originais
+    const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false); // Estado do botão "Salvar"
 
-    // Função para lidar com a mudança de status
+    // Lidar com a mudança de status
     const handleStatusChange = (id: number, newStatus: string) => {
-        const updatedUsers = usersData.map((user) => {
-            if (user.id === id) {
-                return { ...user, status: newStatus };
-            }
-            return user;
-        });
+        const updatedUsers = usersData.map((user) =>
+            user.id === id ? { ...user, status: newStatus } : user
+        );
         setUsersData(updatedUsers);
-        setIsSaveButtonEnabled(true); // Habilitar o botão "Salvar" após uma mudança
+        setIsSaveButtonEnabled(true); // Habilitar botão após mudança
     };
 
-    // Função para salvar as alterações
+    // Salvar as alterações confirmadas
     const handleSave = () => {
         swal.fire({
-            title: 'Tem Certeza?',
-            text: "Uma notificação será enviada para o usuário.",
+            title: 'Tem certeza?',
+            text: 'Uma notificação será enviada ao usuário.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#28bb4b',
@@ -48,11 +45,11 @@ const CustomAdvancedTable = () => {
             confirmButtonText: 'Alterar Status',
         }).then((result) => {
             if (result.isConfirmed) {
-                swal.fire('Alteração Realizada', 'Status alterado com sucesso! O cliente foi notificado.', 'success');
-                setTempUsersData(usersData); // Atualiza os dados temporários para refletir o novo estado
-                setIsSaveButtonEnabled(false); // Desabilitar o botão após salvar
+                swal.fire('Alteração Realizada!', 'Status atualizado com sucesso.', 'success');
+                setTempUsersData(usersData); // Atualizar backup com os novos dados
+                setIsSaveButtonEnabled(false); // Desativar botão após salvar
             } else {
-                setUsersData(tempUsersData); // Restaura os dados se o modal for cancelado
+                setUsersData(tempUsersData); // Restaurar backup se cancelado
             }
         });
     };
@@ -62,53 +59,50 @@ const CustomAdvancedTable = () => {
             Header: 'ID',
             accessor: 'id',
             sort: true,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de ID
-            Cell: ({ value }: any) => <span style={{ whiteSpace: 'nowrap' }}>{value}</span>,
+            className: 'text-center',
+            Cell: ({ value }: any) => <span>{value}</span>,
         },
         {
             Header: 'Nome',
             accessor: 'nome',
             sort: true,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de Nome
+            className: 'text-center',
         },
         {
             Header: 'Valor Solicitado (R$)',
             accessor: 'valorSolicitado',
             sort: true,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de valor solicitado
-            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), // Formatação correta de moeda
+            className: 'text-center',
+            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
         },
         {
             Header: 'Valor Disponível (R$)',
             accessor: 'valorDisponivel',
             sort: true,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de valor disponível
-            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), // Formatação correta de moeda
+            className: 'text-center',
+            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
         },
         {
             Header: 'Data de Solicitação',
             accessor: 'dataSolicitacao',
             sort: true,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de Data
-            Cell: ({ value }: any) => <span style={{ whiteSpace: 'nowrap', fontSize: '0.9rem' }}>{value}</span>,
+            className: 'text-center',
         },
         {
             Header: 'Método de Pagamento',
             accessor: 'metodoPagamento',
             sort: false,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de método de pagamento
+            className: 'text-center',
         },
         {
             Header: 'Status',
             accessor: 'status',
             sort: false,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de Status
+            className: 'text-center',
             Cell: ({ row }: any) => (
                 <Form.Select
                     value={row.original.status}
                     onChange={(e) => handleStatusChange(row.original.id, e.target.value)}
-                    className="text-center"
-                    style={{ marginRight: '1.5rem', fontSize: '0.9rem' }} // Ajusta o padding e o tamanho da fonte
                 >
                     <option value="Pendente">Pendente</option>
                     <option value="Aprovado">Aprovado</option>
@@ -116,89 +110,42 @@ const CustomAdvancedTable = () => {
                 </Form.Select>
             ),
         },
-        {
-            Header: 'Enviar Comprovante',  // Coluna para o input de arquivo
-            accessor: 'comprovante',
-            sort: false,
-            className: 'text-center', // Centraliza o cabeçalho e a coluna de Enviar Comprovante
-            Cell: ({ row }: any) => (  // Renderiza um input de arquivo para cada linha
-                <Form.Group controlId={`file-upload-${row.original.id}`} className="d-flex align-items-center justify-content-center">
-                    <label
-                        htmlFor={`file-upload-${row.original.id}`}
-                        className="btn btn-light btn-sm d-flex align-items-center"
-                        style={{
-                            backgroundColor: '#41C56D',
-                            color: '#FFFFFF', // Cor do texto branco
-                            fontSize: '0.85rem', // Ajusta o tamanho da fonte
-                            whiteSpace: 'nowrap', // Previne quebra de linha
-                        }}
-                    >
-                        <i
-                            className="mdi mdi-cloud-upload"
-                            style={{ fontSize: '18px', marginRight: '5px', color: '#FFFFFF' }} // Cor do ícone branco
-                        ></i>
-                        Arquivo
-                    </label>
-                    <Form.Control type="file" id={`file-upload-${row.original.id}`} style={{ display: 'none' }} />
-                </Form.Group>
-            ),
-        },
     ];
 
     const sizePerPageList = [
-        {
-            text: '5',
-            value: 5,
-        },
-        {
-            text: '10',
-            value: 10,
-        },
-        {
-            text: '25',
-            value: 25,
-        },
-        {
-            text: 'Todos',
-            value: usersData.length,
-        },
+        { text: '5', value: 5 },
+        { text: '10', value: 10 },
+        { text: '25', value: 25 },
+        { text: 'Todos', value: usersData.length },
     ];
 
     return (
-        <>
-            <Row>
-                <Col>
-                    <Card>
-                        <Card.Body>
-                            <div className="d-flex justify-content-between align-items-center">
-                                <h4 className="header-title">Solicitações de Retiradas</h4>
-                            </div>
-                            <br />
-                            <Table
-                                columns={columns}
-                                data={usersData}
-                                pageSize={5}
-                                sizePerPageList={sizePerPageList}
-                                isSortable={true}
-                                pagination={true}
-                                isSelectable={false}
-                                tableClass="text-center"
-                            />
-                            <div className="d-flex justify-content-end mt-3">
-                                <Button
-                                    variant="success"
-                                    onClick={handleSave}
-                                    disabled={!isSaveButtonEnabled}
-                                    style={{ justifyContent: 'flex-end' }} // Estilo inline
-                                >
-                                    Salvar
-                                </Button>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-        </>
+        <Row>
+            <Col>
+                <Card>
+                    <Card.Body>
+                        <h4 className="header-title">Solicitações de Retiradas</h4>
+                        <Table
+                            columns={columns}
+                            data={usersData}
+                            pageSize={5}
+                            sizePerPageList={sizePerPageList}
+                            isSortable={true}
+                            pagination={true}
+                        />
+                        <div className="d-flex justify-content-end mt-3">
+                            <Button
+                                variant="success"
+                                onClick={handleSave}
+                                disabled={!isSaveButtonEnabled}
+                            >
+                                Salvar
+                            </Button>
+                        </div>
+                    </Card.Body>
+                </Card>
+            </Col>
+        </Row>
     );
 };
 
