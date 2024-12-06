@@ -1,0 +1,42 @@
+CREATE SCHEMA IF NOT EXISTS setex;
+
+
+CREATE TABLE setex.users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    role VARCHAR(20) DEFAULT 'user',
+    balance NUMERIC(10, 2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE setex.deposits (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES setex.users(id) ON DELETE CASCADE,
+    amount NUMERIC(10, 2) NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE setex.withdrawals (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES setex.users(id) ON DELETE CASCADE,
+    amount NUMERIC(10, 2) NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE setex.earnings (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES setex.users(id) ON DELETE CASCADE,
+    amount NUMERIC(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
