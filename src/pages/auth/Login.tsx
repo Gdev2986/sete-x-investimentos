@@ -97,9 +97,9 @@ const Login = () => {
 
     if (userLoggedIn && user) {
         // Redireciona com base na role do usuário
-        if (user.role === 'admin') {
+        if (user.user.role === 'admin') {
             redirectUrl = `/admin/dashboard`; // Admin dashboard
-        } else if (user.role === 'user') {
+        } else if (user.user.role === 'user') {
             redirectUrl = `/user/dashboard`; // User dashboard
         }
     } else if (location.state) {

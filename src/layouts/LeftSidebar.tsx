@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 // helpers
 import { getMenuItems } from '../helpers/menu';
-import { user } from '../helpers/fake-backend'; // Importando o user do backend fake
+//import { user } from '../helpers/fake-backend'; // Importando o user do backend fake
 
 // components
 import Scrollbar from '../components/Scrollbar';
@@ -13,6 +13,7 @@ import AppMenu from './Menu';
 
 // images
 import profileImg from '../assets/images/users/user-1.jpg';
+import React from 'react';
 
 /* Função para filtrar itens de menu por role */
 const filterMenuByRole = (menuItems: any[], userRole: string) => {
@@ -21,8 +22,9 @@ const filterMenuByRole = (menuItems: any[], userRole: string) => {
 
 /* user box */
 const UserBox = () => {
+    let user: any = sessionStorage.getItem('setex_user');
+    user = JSON.parse(user);
     // Menu de perfil
-
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
     /*
@@ -34,27 +36,29 @@ const UserBox = () => {
 
     return (
         <div className="user-box text-center">
-            <img src={profileImg} alt="" title={user.username} className="rounded-circle img-thumbnail avatar-md" />
+            <img src={profileImg} alt="" title={user.user.name} className="rounded-circle img-thumbnail avatar-md" />
             <Dropdown show={dropdownOpen} onToggle={toggleDropdown}>
                 <Dropdown.Toggle
                     id="dropdown-notification"
-                    to={`/${user.role}/profile`}
+                    to={`/${user.user.role}/profile`}
                     as={Link}
                     onClick={toggleDropdown}
                     className="user-name h5 mt-2 mb-1 d-block"
                 >
-                    {user.username}
+                    {user.user.name}
                 </Dropdown.Toggle>
               
             </Dropdown>
-            <p className="text-muted left-user-info">{user.role}</p> {/* Exibe o role do usuário */}
+            <p className="text-muted left-user-info">{user.user.role}</p> {/* Exibe o role do usuário */}
         </div>
     );
 };
 
 /* sidebar content */
 const SideBarContent = () => {
-    const filteredMenuItems = filterMenuByRole(getMenuItems(), user.role); // Filtra os itens com base no role
+    let user: any = sessionStorage.getItem('setex_user');
+    user = JSON.parse(user);
+    const filteredMenuItems = filterMenuByRole(getMenuItems(), user?.user.role); // Filtra os itens com base no role
 
     return (
         <>

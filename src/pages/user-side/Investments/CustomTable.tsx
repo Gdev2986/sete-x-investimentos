@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Card, Col, Row } from 'react-bootstrap';
 import Table from '../../../components/Table';
 import { retiradas } from '../../../helpers/data'; // Dados das retiradas
-import { user } from '../../../helpers/fake-backend'; // Dados do usuário logado
+//import { user } from '../../../helpers/fake-backend'; // Dados do usuário logado
+let user: any = sessionStorage.getItem('setex_user');
+user = JSON.parse(user);
 
 const columns = [
     {
@@ -61,7 +63,7 @@ const sizePerPageList = [
 
 const CustomAdvancedTable = () => {
     const [userWithdrawals] = useState(
-        retiradas.filter((retirada) => retirada.userId === user.id) // Filtra retiradas pelo userId do usuário logado
+        retiradas.filter((retirada) => retirada.userId === user.user.id) // Filtra retiradas pelo userId do usuário logado
     );
 
     return (

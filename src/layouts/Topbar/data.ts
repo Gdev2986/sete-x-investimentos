@@ -1,6 +1,8 @@
 import { Notification, ProfileMenu } from '../types';
-import { user } from "../../helpers/fake-backend"
- 
+//import { user } from "../../helpers/fake-backend"
+let user: any = sessionStorage.getItem('setex_user');
+user = JSON.parse(user);
+
 // get the notifications
 const notifications: Notification[] = [
     {
@@ -81,7 +83,7 @@ const profileMenus: ProfileMenu[] = [
     {
         label: 'Meu Perfil',
         icon: 'fe-user',
-        redirectTo: `/${user.role}/profile` ,
+        redirectTo: `/${user.user.role}/profile` ,
     },
     {
         label: 'Sair',
