@@ -16,7 +16,7 @@ const express_1 = __importDefault(require("express"));
 const user_1 = __importDefault(require("../models/user"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = express_1.default.Router();
-// Criar um novo usuário (apenas para testes, não recomendado em produção)
+// Criar um novo usuário (apenas para testes)
 router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email, password } = req.body;
@@ -36,7 +36,15 @@ router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function*
 router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield user_1.default.findAll();
-        res.status(200).json(users);
+        const transformedUsers = users.map(user => ({
+            id: user.id,
+            nome: user.name,
+            email: user.email,
+            contato: '',
+            totalAlocado: 0,
+            saldoAtual: user.balance
+        }));
+        res.status(200).json(transformedUsers);
     }
     catch (error) {
         next(error);
@@ -62,7 +70,6 @@ router.put('/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaite
     try {
         const { id } = req.params;
         const { name, email, password } = req.body;
-        // Apenas o próprio usuário ou um administrador pode atualizar
         if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) !== id && ((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) !== 'admin') {
             res.status(403).json({ message: 'Permissão negada' });
             return;
@@ -74,7 +81,7 @@ router.put('/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaite
         }
         user.name = name || user.name;
         user.email = email || user.email;
-        user.password = password || user.password; // Hash a senha antes de salvar
+        user.password = password || user.password;
         yield user.save();
         res.status(200).json({ message: 'Informações atualizadas com sucesso', user });
     }
@@ -108,7 +115,7 @@ router.patch('/:id/role', authMiddleware_1.authMiddleware, authMiddleware_1.admi
             res.status(404).json({ message: 'Usuário não encontrado' });
             return;
         }
-        user.role = role; // Exemplo: 'admin' ou 'user'
+        user.role = role;
         yield user.save();
         res.status(200).json({ message: 'Role do usuário atualizado com sucesso', user });
     }

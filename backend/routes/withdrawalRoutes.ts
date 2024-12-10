@@ -4,7 +4,6 @@ import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
-// Criar uma nova retirada
 router.post('/', authMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
     const withdrawal = await Withdrawal.create({ ...req.body, user_id: req.user?.id });
@@ -14,7 +13,6 @@ router.post('/', authMiddleware, async (req: Request, res: Response): Promise<vo
   }
 });
 
-// Obter todas as retiradas (apenas para administradores)
 router.get('/', authMiddleware, adminMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
     const withdrawals = await Withdrawal.findAll();
@@ -24,7 +22,6 @@ router.get('/', authMiddleware, adminMiddleware, async (req: Request, res: Respo
   }
 });
 
-// Obter retiradas de um usuário específico (autenticado)
 router.get('/user/:id', authMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -41,7 +38,6 @@ router.get('/user/:id', authMiddleware, async (req: Request, res: Response): Pro
   }
 });
 
-// Atualizar uma retirada (apenas para administradores)
 router.put('/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -62,7 +58,6 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req: Request, res: Re
   }
 });
 
-// Excluir uma retirada (apenas para administradores)
 router.delete('/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;

@@ -1,16 +1,15 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import Earning from '../models/earnings';
 import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
-// Criar um novo rendimento
-router.post('/', authMiddleware, async (req: express.Request, res: express.Response): Promise<void> => {
+router.post('/', authMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
-    const { amount } = req.body; // Pegando a coluna 'amount' do request body
+    const { amount } = req.body;
     const earning = await Earning.create({
       amount,
-      user_id: req.user?.id, // Relacionando com o usuário autenticado
+      user_id: req.user?.id,
     });
     res.status(201).json(earning);
   } catch (error) {
@@ -18,8 +17,7 @@ router.post('/', authMiddleware, async (req: express.Request, res: express.Respo
   }
 });
 
-// Obter todos os rendimentos (apenas para administradores)
-router.get('/', authMiddleware, adminMiddleware, async (req: express.Request, res: express.Response): Promise<void> => {
+router.get('/', authMiddleware, adminMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
     const earnings = await Earning.findAll();
     res.status(200).json(earnings);
@@ -28,8 +26,7 @@ router.get('/', authMiddleware, adminMiddleware, async (req: express.Request, re
   }
 });
 
-// Obter rendimentos de um usuário específico (autenticado)
-router.get('/user/:id', authMiddleware, async (req: express.Request, res: express.Response): Promise<void> => {
+router.get('/user/:id', authMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const earnings = await Earning.findAll({ where: { user_id: id } });
@@ -45,8 +42,7 @@ router.get('/user/:id', authMiddleware, async (req: express.Request, res: expres
   }
 });
 
-// Atualizar um rendimento (apenas para administradores)
-router.put('/:id', authMiddleware, adminMiddleware, async (req: express.Request, res: express.Response): Promise<void> => {
+router.put('/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { amount } = req.body;
@@ -57,7 +53,7 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req: express.Request,
       return;
     }
 
-    earning.amount = amount || earning.amount; // Atualizando o campo 'amount'
+    earning.amount = amount || earning.amount;
     await earning.save();
 
     res.status(200).json(earning);
@@ -66,8 +62,7 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req: express.Request,
   }
 });
 
-// Excluir um rendimento (apenas para administradores)
-router.delete('/:id', authMiddleware, adminMiddleware, async (req: express.Request, res: express.Response): Promise<void> => {
+router.delete('/:id', authMiddleware, adminMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 

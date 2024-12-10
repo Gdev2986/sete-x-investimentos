@@ -46,7 +46,7 @@ User.init(
           msg: 'A senha é obrigatória.',
         },
         len: {
-          args: [8, 100], // Corrigido: Remove "args" como propriedade externa.
+          args: [8, 100],
           msg: 'A senha deve ter pelo menos 8 caracteres.',
         },
       },

@@ -5,7 +5,6 @@ import { APICore } from '../helpers/api/apiCore';
 
 // hooks
 import { useUser } from '../hooks';
-import { user } from "../helpers/fake-backend"
 import React from 'react';
 
 type PrivateRouteProps = {

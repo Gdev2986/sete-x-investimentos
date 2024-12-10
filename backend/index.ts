@@ -7,6 +7,7 @@ import withdrawalRoutes from './routes/withdrawalRoutes';
 import earningsRoutes from './routes/earningsRoutes';
 import config from './config/appConfig';
 import passwordRoutes from './routes/passwordRoutes';
+import rendimentoRoutes from './routes/rendimentoRoutes';
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/deposits', depositRoutes);
 app.use('/api/withdrawals', withdrawalRoutes);
 app.use('/api/earnings', earningsRoutes);
 app.use('/api/auth', passwordRoutes);
+app.use('/api/rendimento', rendimentoRoutes);
 
 // Middleware de erro genérico
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

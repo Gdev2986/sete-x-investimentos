@@ -4,7 +4,7 @@ import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
-// Criar um novo usuário (apenas para testes, não recomendado em produção)
+// Criar um novo usuário (apenas para testes)
 router.post('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { name, email, password } = req.body;
@@ -26,7 +26,17 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
 router.get('/', authMiddleware, adminMiddleware, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const users = await User.findAll();
-    res.status(200).json(users);
+    
+    const transformedUsers = users.map(user => ({
+      id: user.id,
+      nome: user.name,
+      email: user.email,
+      contato: '',
+      totalAlocado: 0,
+      saldoAtual: user.balance
+    }));
+
+    res.status(200).json(transformedUsers);
   } catch (error) {
     next(error);
   }
@@ -52,7 +62,6 @@ router.put('/:id', authMiddleware, async (req: Request, res: Response, next: Nex
     const { id } = req.params;
     const { name, email, password } = req.body;
 
-    // Apenas o próprio usuário ou um administrador pode atualizar
     if (req.user?.id !== id && req.user?.role !== 'admin') {
       res.status(403).json({ message: 'Permissão negada' });
       return;
@@ -66,7 +75,7 @@ router.put('/:id', authMiddleware, async (req: Request, res: Response, next: Nex
 
     user.name = name || user.name;
     user.email = email || user.email;
-    user.password = password || user.password; // Hash a senha antes de salvar
+    user.password = password || user.password;
     await user.save();
 
     res.status(200).json({ message: 'Informações atualizadas com sucesso', user });
@@ -105,7 +114,7 @@ router.patch('/:id/role', authMiddleware, adminMiddleware, async (req: Request, 
       return;
     }
 
-    user.role = role; // Exemplo: 'admin' ou 'user'
+    user.role = role;
     await user.save();
 
     res.status(200).json({ message: 'Role do usuário atualizado com sucesso', user });

@@ -16,7 +16,6 @@ const express_1 = __importDefault(require("express"));
 const withdrawal_1 = __importDefault(require("../models/withdrawal"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = express_1.default.Router();
-// Criar uma nova retirada
 router.post('/', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -27,7 +26,6 @@ router.post('/', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0
         res.status(400).json({ message: 'Erro ao criar retirada', error: error.message });
     }
 }));
-// Obter todas as retiradas (apenas para administradores)
 router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const withdrawals = yield withdrawal_1.default.findAll();
@@ -37,7 +35,6 @@ router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddlewar
         res.status(500).json({ message: 'Erro ao buscar retiradas', error: error.message });
     }
 }));
-// Obter retiradas de um usuário específico (autenticado)
 router.get('/user/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
@@ -52,7 +49,6 @@ router.get('/user/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter
         res.status(500).json({ message: 'Erro ao buscar retiradas do usuário', error: error.message });
     }
 }));
-// Atualizar uma retirada (apenas para administradores)
 router.put('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
@@ -70,7 +66,6 @@ router.put('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddle
         res.status(500).json({ message: 'Erro ao atualizar retirada', error: error.message });
     }
 }));
-// Excluir uma retirada (apenas para administradores)
 router.delete('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;

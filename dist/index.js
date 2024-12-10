@@ -12,6 +12,7 @@ const withdrawalRoutes_1 = __importDefault(require("./routes/withdrawalRoutes"))
 const earningsRoutes_1 = __importDefault(require("./routes/earningsRoutes"));
 const appConfig_1 = __importDefault(require("./config/appConfig"));
 const passwordRoutes_1 = __importDefault(require("./routes/passwordRoutes"));
+const rendimentoRoutes_1 = __importDefault(require("./routes/rendimentoRoutes"));
 const app = (0, express_1.default)();
 const allowedOrigins = [
     'http://localhost:3000',
@@ -40,6 +41,7 @@ app.use('/api/deposits', depositRoutes_1.default);
 app.use('/api/withdrawals', withdrawalRoutes_1.default);
 app.use('/api/earnings', earningsRoutes_1.default);
 app.use('/api/auth', passwordRoutes_1.default);
+app.use('/api/rendimento', rendimentoRoutes_1.default);
 // Middleware de erro genérico
 app.use((err, req, res, next) => {
     console.error(err.stack);

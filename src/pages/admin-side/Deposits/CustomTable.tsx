@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, Col, Row, Form, Button } from 'react-bootstrap';
 import Table from '../../../components/Table';
 import swal from 'sweetalert2';
-import { getDeposits, updateDeposit } from '../../../helpers/api/deposits'; // Importando funções da API
+import { getDeposits, updateDeposit } from '../../../helpers/api/deposits';
 
-// Definindo o tipo Deposit
 type Deposit = {
     id: number;
     nome: string;
@@ -15,18 +14,28 @@ type Deposit = {
 };
 
 const CustomAdvancedTable = () => {
-    // Estados para dados dos depósitos
-    const [usersData, setUsersData] = useState<Deposit[]>([]); // Dados reais
-    const [tempUsersData, setTempUsersData] = useState<Deposit[]>([]); // Dados temporários
+    const [usersData, setUsersData] = useState<Deposit[]>([]);
+    const [tempUsersData, setTempUsersData] = useState<Deposit[]>([]);
     const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false);
 
-    // Carregar os dados do backend
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await getDeposits(); // Chama a API
-                setUsersData(response.data);
-                setTempUsersData(response.data);
+                const response = await getDeposits();
+                const data = response.data as Deposit[];
+                // Ordenar pela dataDeposito do mais recente para o mais antigo, 
+                // assumindo dataDeposito como string ISO ou algo compatível
+                // Ajuste conforme o formato da data
+                const sortedData = data.sort((a, b) => {
+                    // Supondo data no formato "YYYY-MM-DD HH:mm:ss"
+                    // Ajuste conforme seu formato
+                    const dateA = new Date(a.dataDeposito).getTime();
+                    const dateB = new Date(b.dataDeposito).getTime();
+                    return dateB - dateA; // mais recente primeiro
+                });
+
+                setUsersData(sortedData);
+                setTempUsersData(sortedData);
             } catch (error) {
                 swal.fire('Erro', 'Não foi possível carregar os dados.', 'error');
             }
@@ -35,47 +44,54 @@ const CustomAdvancedTable = () => {
         fetchData();
     }, []);
 
-    // Atualizar status localmente
     const handleStatusChange = (id: number, newStatus: string) => {
         const updatedUsers = usersData.map((user) =>
             user.id === id ? { ...user, status: newStatus } : user
         );
         setUsersData(updatedUsers);
-        setIsSaveButtonEnabled(true);
+
+        // Se houve alteração no status de algum depósito, habilita o botão "Salvar"
+        const hasChanges = updatedUsers.some((updated, i) => updated.status !== tempUsersData[i].status);
+        setIsSaveButtonEnabled(hasChanges);
     };
 
-    // Salvar as alterações no backend
     const handleSave = async () => {
         swal.fire({
-            title: 'Confirmação',
-            text: 'Deseja salvar as alterações? Uma notificação será enviada ao usuário.',
+            title: 'Tem Certeza?',
+            text: 'Uma notificação será enviada ao usuário.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#28bb4b',
             cancelButtonColor: '#f34e4e',
-            confirmButtonText: 'Salvar',
+            confirmButtonText: 'Alterar Status',
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
+                    // Atualizar apenas os depósitos cujo status mudou
                     for (const user of usersData) {
                         const original = tempUsersData.find((u) => u.id === user.id);
                         if (original && user.status !== original.status) {
-                            await updateDeposit(user.id, { status: user.status }); // Atualiza no backend
+                            await updateDeposit(user.id, { status: user.status });
                         }
                     }
-                    swal.fire('Sucesso', 'As alterações foram salvas.', 'success');
+
+                    swal.fire('Alteração Realizada!', 'Status alterado com sucesso, o cliente foi notificado.', 'success');
                     setTempUsersData(usersData);
                     setIsSaveButtonEnabled(false);
                 } catch (error) {
                     swal.fire('Erro', 'Falha ao salvar alterações.', 'error');
+                    // Em caso de erro ao salvar, restaura o estado anterior
+                    setUsersData(tempUsersData);
+                    setIsSaveButtonEnabled(false);
                 }
             } else {
-                setUsersData(tempUsersData); // Restaura os dados antigos se o modal for cancelado
+                // Se clicar em "Cancelar", restaura os dados antigos
+                setUsersData(tempUsersData);
+                setIsSaveButtonEnabled(false);
             }
         });
     };
 
-    // Colunas da tabela
     const columns = [
         { Header: 'ID', accessor: 'id', sort: true, className: 'text-center' },
         { Header: 'Nome', accessor: 'nome', sort: true, className: 'text-center' },
@@ -84,14 +100,14 @@ const CustomAdvancedTable = () => {
             accessor: 'valorDepositado',
             sort: true,
             className: 'text-center',
-            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            Cell: ({ value }: any) => (value ? value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ 0,00'),
         },
         {
             Header: 'Saldo Atual (R$)',
             accessor: 'saldoAtual',
             sort: true,
             className: 'text-center',
-            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            Cell: ({ value }: any) => (value ? value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ 0,00'),
         },
         { Header: 'Data do Depósito', accessor: 'dataDeposito', sort: true, className: 'text-center' },
         {
@@ -113,7 +129,6 @@ const CustomAdvancedTable = () => {
         },
     ];
 
-    // Opções de paginação
     const sizePerPageList = [
         { text: '5', value: 5 },
         { text: '10', value: 10 },

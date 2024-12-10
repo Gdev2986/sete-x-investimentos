@@ -16,14 +16,13 @@ const express_1 = __importDefault(require("express"));
 const earnings_1 = __importDefault(require("../models/earnings"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = express_1.default.Router();
-// Criar um novo rendimento
 router.post('/', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { amount } = req.body; // Pegando a coluna 'amount' do request body
+        const { amount } = req.body;
         const earning = yield earnings_1.default.create({
             amount,
-            user_id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id, // Relacionando com o usuário autenticado
+            user_id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id,
         });
         res.status(201).json(earning);
     }
@@ -31,7 +30,6 @@ router.post('/', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0
         res.status(400).json({ message: 'Erro ao criar rendimento', error: error.message });
     }
 }));
-// Obter todos os rendimentos (apenas para administradores)
 router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const earnings = yield earnings_1.default.findAll();
@@ -41,7 +39,6 @@ router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddlewar
         res.status(500).json({ message: 'Erro ao buscar rendimentos', error: error.message });
     }
 }));
-// Obter rendimentos de um usuário específico (autenticado)
 router.get('/user/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
@@ -56,7 +53,6 @@ router.get('/user/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter
         res.status(500).json({ message: 'Erro ao buscar rendimentos do usuário', error: error.message });
     }
 }));
-// Atualizar um rendimento (apenas para administradores)
 router.put('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
@@ -66,7 +62,7 @@ router.put('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddle
             res.status(404).json({ message: 'Rendimento não encontrado' });
             return;
         }
-        earning.amount = amount || earning.amount; // Atualizando o campo 'amount'
+        earning.amount = amount || earning.amount;
         yield earning.save();
         res.status(200).json(earning);
     }
@@ -74,7 +70,6 @@ router.put('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddle
         res.status(500).json({ message: 'Erro ao atualizar rendimento', error: error.message });
     }
 }));
-// Excluir um rendimento (apenas para administradores)
 router.delete('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;

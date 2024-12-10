@@ -5,28 +5,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const database_1 = __importDefault(require("../config/database"));
-class Earning extends sequelize_1.Model {
+class UserEarningsHistory extends sequelize_1.Model {
 }
-Earning.init({
+UserEarningsHistory.init({
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
     },
     user_id: {
         type: sequelize_1.DataTypes.INTEGER,
+        allowNull: false,
+    },
+    earning_id: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: false,
+    },
+    valorRecebido: {
+        type: sequelize_1.DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
-    amount: {
-        type: sequelize_1.DataTypes.DECIMAL(10, 2),
+    taxaAplicada: {
+        type: sequelize_1.DataTypes.DECIMAL(5, 2),
         allowNull: false
     }
 }, {
     sequelize: database_1.default,
-    modelName: 'Earning',
-    tableName: 'earnings',
+    modelName: 'UserEarningsHistory',
+    tableName: 'user_earnings_history',
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at'
 });
-exports.default = Earning;
+exports.default = UserEarningsHistory;

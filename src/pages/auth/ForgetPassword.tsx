@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
+import React from 'react';
 
 // hooks
 import { useRedux } from '../../hooks/';
