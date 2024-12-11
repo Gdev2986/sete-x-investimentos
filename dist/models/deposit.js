@@ -30,7 +30,6 @@ Deposit.init({
     },
     status: {
         type: sequelize_1.DataTypes.STRING(20),
-        defaultValue: 'pending',
         validate: {
             isIn: {
                 args: [['pending', 'approved', 'rejected']],
@@ -47,5 +46,6 @@ Deposit.init({
     updatedAt: 'updated_at',
     createdAt: 'created_at',
 });
+// Defina explicitamente o relacionamento
 Deposit.belongsTo(user_1.default, { as: 'user', foreignKey: 'user_id' });
 exports.default = Deposit;

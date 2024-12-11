@@ -119,6 +119,7 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req: Request, res: Re
         const { id } = req.params;
         const { status } = req.body;
 
+        // Busca o depósito pelo ID com os dados do usuário associados
         const deposit = await Deposit.findByPk(id, {
             include: [{ model: User, as: 'user' }],
         });
@@ -128,17 +129,31 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req: Request, res: Re
             return;
         }
 
-        // Caso o status seja aprovado, atualiza o saldo do usuário.
-        if (status === 'approved' && deposit.status !== 'approved') {
-            const user = await User.findByPk(deposit.user_id);
-            if (user) {
-                user.balance += deposit.amount;
-                await user.save();
-            }
+        const user = deposit.user;
+        if (!user) {
+            res.status(404).json({ message: 'Usuário associado ao depósito não encontrado' });
+            return;
         }
 
+        // Converte valores para garantir operações matemáticas seguras
+        const userBalance = typeof user.balance === 'string' ? parseFloat(user.balance) : user.balance;
+        const depositAmount = typeof deposit.amount === 'string' ? parseFloat(deposit.amount) : deposit.amount;
+
+        // Atualiza o saldo com base no status
+        if (deposit.status === 'approved' && status !== 'approved') {
+            // Estava aprovado, alterado para outro status: subtraímos o valor
+            user.balance = userBalance - depositAmount;
+        } else if (deposit.status !== 'approved' && status === 'approved') {
+            // Não estava aprovado, agora foi aprovado: somamos o valor
+            user.balance = userBalance + depositAmount;
+        }
+
+        // Atualiza o status do depósito
         deposit.status = status;
         await deposit.save();
+
+        // Salva a alteração no saldo do usuário
+        await user.save();
 
         const updatedDeposit = await Deposit.findByPk(id, {
             include: [{ model: User, as: 'user', attributes: ['name', 'balance'] }],
@@ -151,5 +166,6 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req: Request, res: Re
         res.status(500).json({ message: 'Erro ao atualizar o depósito', error: (error as Error).message });
     }
 });
+
 
 export default router;

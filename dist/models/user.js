@@ -81,6 +81,30 @@ User.init({
                 msg: 'O saldo não pode ser negativo.',
             },
         },
+        get() {
+            const balance = this.getDataValue('balance');
+            return balance ? parseFloat(balance) : 0.0;
+        },
+        set(value) {
+            this.setDataValue('balance', value.toFixed(2));
+        },
+    },
+    total_allocated: {
+        type: sequelize_1.DataTypes.DECIMAL(10, 2),
+        defaultValue: 0.0,
+        validate: {
+            min: {
+                args: [0.0],
+                msg: 'O total alocado não pode ser negativo.',
+            },
+        },
+        get() {
+            const totalAllocated = this.getDataValue('total_allocated');
+            return totalAllocated ? parseFloat(totalAllocated) : 0.0;
+        },
+        set(value) {
+            this.setDataValue('total_allocated', value.toFixed(2));
+        },
     },
 }, {
     sequelize: database_1.default,

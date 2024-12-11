@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Card, Col, Row, Modal, Button, Form } from 'react-bootstrap';
 import Table from '../../../components/Table';
 import swal from 'sweetalert2';
 import { getUserDeposits, createDeposit } from '../../../helpers/api/deposits';
 
-// Definindo o tipo para os depósitos
 type Deposit = {
     id: number;
     dataDeposito: string;
@@ -12,32 +11,6 @@ type Deposit = {
     status: string;
 };
 
-// Configurando as colunas da tabela
-const columns = [
-    {
-        Header: 'ID',
-        accessor: 'id',
-        sort: true,
-    },
-    {
-        Header: 'Data do Depósito',
-        accessor: 'dataDeposito',
-        sort: true,
-    },
-    {
-        Header: 'Valor Depositado (R$)',
-        accessor: 'valorDepositado',
-        sort: true,
-        Cell: ({ value }: any) => formatCurrency(value),
-    },
-    {
-        Header: 'Status',
-        accessor: 'status',
-        sort: true,
-    },
-];
-
-// Função para formatar valores no formato R$ brasileiro
 const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', {
         style: 'currency',
@@ -45,14 +18,26 @@ const formatCurrency = (value: number) => {
     });
 };
 
-// Função para formatar a data
 const formatDate = (rawDate: string) => {
-    const [datePart, timePart] = rawDate.split(', '); // Separa a data da hora
-    const [day, month, year] = datePart.split('/'); // Divide o dia, mês e ano
-    const [hour, minute] = timePart.split(':'); // Divide hora e minuto
-    return `${day}/${month}/${year} ${hour}:${minute}`; // Retorna no formato desejado
+    const [datePart, timePart] = rawDate.split(', ');
+    const [day, month, year] = datePart.split('/');
+    const [hour, minute] = timePart.split(':');
+    return `${day}/${month}/${year} ${hour}:${minute}`;
 };
 
+// Tradução do status
+const formatStatus = (status: string) => {
+    switch (status) {
+        case 'approved':
+            return 'Aprovado';
+        case 'pending':
+            return 'Pendente';
+        case 'rejected':
+            return 'Rejeitado';
+        default:
+            return status;
+    }
+};
 
 const UserDeposits = () => {
     const [userDeposits, setUserDeposits] = useState<Deposit[]>([]);
@@ -60,40 +45,55 @@ const UserDeposits = () => {
     const [depositValue, setDepositValue] = useState<string>('');
     const [isInvalid, setIsInvalid] = useState(false);
     const [showShake, setShowShake] = useState(false);
+    const intervalRef = useRef<number | null>(null);
 
-    // Alternar o modal
     const toggleResponsiveModal = () => setResponsiveModal(!responsiveModal);
 
-    // Buscar depósitos do usuário
+    // Busca os depósitos do usuário e sincroniza somente as mudanças
     const fetchUserDeposits = async () => {
         try {
-            console.log("Iniciando busca dos depósitos do usuário...");
             const response = await getUserDeposits();
-            console.log("Resposta completa da API:", response);
-
-            // Garantindo que estamos lidando com os dados no formato correto
             const rawData = response || [];
             if (Array.isArray(rawData)) {
-                const deposits = rawData.map((deposit) => ({
+                const formattedDeposits = rawData.map((deposit) => ({
                     id: deposit.id,
-                    dataDeposito: formatDate(deposit.dataDeposito), // Formata a data corretamente
+                    dataDeposito: formatDate(deposit.dataDeposito),
                     valorDepositado: deposit.valorDepositado,
-                    status: deposit.status,
+                    status: formatStatus(deposit.status), // Aplica tradução
                 }));
-                console.log("Dados transformados para a tabela:", deposits);
-                setUserDeposits(deposits);
+
+                // Sincroniza somente os depósitos alterados
+                const hasChanges = formattedDeposits.some(
+                    (newDeposit, index) => 
+                        !userDeposits[index] || 
+                        newDeposit.status !== userDeposits[index].status
+                );
+
+                if (hasChanges) {
+                    setUserDeposits(formattedDeposits);
+                }
             } else {
-                console.warn("Estrutura de dados inesperada:", rawData);
                 setUserDeposits([]);
             }
         } catch (error) {
-            console.error("Erro ao buscar depósitos:", error);
-            swal.fire("Erro", "Não foi possível carregar os depósitos.", "error");
+            swal.fire('Erro', 'Não foi possível carregar os depósitos.', 'error');
         }
     };
 
     useEffect(() => {
+        // Primeira busca
         fetchUserDeposits();
+
+        // Configura um intervalo para consulta constante
+        intervalRef.current = window.setInterval(() => {
+            fetchUserDeposits();
+        }, 5000); // 5 segundos (ajustável)
+
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
     }, []);
 
     const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,75 +109,69 @@ const UserDeposits = () => {
             setTimeout(() => setShowShake(false), 300);
             return;
         }
-    
         try {
-            // Envia com a propriedade correta esperada pelo backend: amount
             await createDeposit({ amount: valorNumerico });
             swal.fire('Sucesso', 'Depósito criado com sucesso!', 'success');
-            fetchUserDeposits(); // Atualiza a tabela após o depósito
-            toggleResponsiveModal(); // Fecha o modal
-            setDepositValue(''); // Limpa o valor do campo
+            fetchUserDeposits();
+            toggleResponsiveModal();
+            setDepositValue('');
         } catch (error) {
             swal.fire('Erro', 'Falha ao criar depósito.', 'error');
-            console.error('Erro ao criar depósito:', error);
         }
     };
-    
+
+    const columns = [
+        {
+            Header: 'ID',
+            accessor: 'id',
+            sort: true,
+        },
+        {
+            Header: 'Data do Depósito',
+            accessor: 'dataDeposito',
+            sort: true,
+        },
+        {
+            Header: 'Valor Depositado (R$)',
+            accessor: 'valorDepositado',
+            sort: true,
+            Cell: ({ value }: any) => formatCurrency(value),
+        },
+        {
+            Header: 'Status',
+            accessor: 'status',
+            sort: true,
+        },
+    ];
 
     return (
         <>
-            <Button
-                variant="success"
-                className="waves-effect waves-light mb-3 d-flex align-items-center"
-                style={{ borderRadius: '10px' }}
-                onClick={toggleResponsiveModal}
-            >
-                <i
-                    className="mdi mdi-close"
-                    style={{
-                        transform: `rotate(45deg)`,
-                        marginRight: '10px',
-                        transition: 'transform 0.3s ease',
-                    }}
-                ></i>
+            <Button variant="success" className="mb-3" onClick={toggleResponsiveModal}>
                 Novo Depósito
             </Button>
 
             <Modal show={responsiveModal} onHide={toggleResponsiveModal}>
                 <Modal.Header closeButton>
-                    <h4 className="modal-title">Adicione um Novo Depósito</h4>
+                    <h4>Adicione um Novo Depósito</h4>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="mb-3">
-                        <label htmlFor="deposit-value" className="form-label">
-                            Valor do Depósito (R$)
-                        </label>
-                        <Form.Control
-                            type="text"
-                            id="deposit-value"
-                            value={depositValue}
-                            onChange={handleValorChange}
-                            isInvalid={isInvalid}
-                            placeholder="Insira o valor do depósito (mínimo R$100,00)"
-                            className={showShake && isInvalid ? 'shake' : ''}
-                            required
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            O valor mínimo para depósito é R$100,00
-                        </Form.Control.Feedback>
-                    </div>
+                    <Form.Control
+                        type="text"
+                        value={depositValue}
+                        onChange={handleValorChange}
+                        isInvalid={isInvalid}
+                        placeholder="Insira o valor do depósito (mínimo R$100,00)"
+                        required
+                    />
+                    <Form.Control.Feedback type="invalid">
+                        O valor mínimo para depósito é R$100,00
+                    </Form.Control.Feedback>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={toggleResponsiveModal}>
                         Cancelar
                     </Button>
-                    <Button
-                        type="submit"
-                        className="btn btn-info waves-effect waves-light"
-                        style={{ backgroundColor: '#41C56D' }}
-                        onClick={handleCreateDeposit}
-                        disabled={!depositValue || isInvalid}
-                    >
+                    <Button onClick={handleCreateDeposit} disabled={!depositValue || isInvalid}>
                         Confirmar Depósito
                     </Button>
                 </Modal.Footer>
@@ -187,17 +181,12 @@ const UserDeposits = () => {
                 <Col>
                     <Card>
                         <Card.Body>
-                            <h4 className="header-title">Meus Depósitos</h4>
+                            <h4>Meus Depósitos</h4>
                             <Table
                                 columns={columns}
                                 data={userDeposits}
                                 pageSize={5}
-                                sizePerPageList={[
-                                    { text: '5', value: 5 },
-                                    { text: '10', value: 10 },
-                                    { text: '25', value: 25 },
-                                    { text: 'Todos', value: 50 },
-                                ]}
+                                sizePerPageList={[{ text: '5', value: 5 }]}
                                 isSortable={true}
                                 pagination={true}
                             />

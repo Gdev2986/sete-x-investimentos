@@ -8,7 +8,8 @@ class User extends Model {
   public password!: string;
   public name!: string;
   public role!: string;
-  public balance!: number;
+  public balance!: number; // Saldo do usuário
+  public total_allocated!: number; // Total alocado do usuário
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
@@ -76,6 +77,30 @@ User.init(
           args: [0.0],
           msg: 'O saldo não pode ser negativo.',
         },
+      },
+      get() {
+        const balance = this.getDataValue('balance');
+        return balance ? parseFloat(balance) : 0.0;
+      },
+      set(value: number) {
+        this.setDataValue('balance', value.toFixed(2));
+      },
+    },
+    total_allocated: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0.0,
+      validate: {
+        min: {
+          args: [0.0],
+          msg: 'O total alocado não pode ser negativo.',
+        },
+      },
+      get() {
+        const totalAllocated = this.getDataValue('total_allocated');
+        return totalAllocated ? parseFloat(totalAllocated) : 0.0;
+      },
+      set(value: number) {
+        this.setDataValue('total_allocated', value.toFixed(2));
       },
     },
   },

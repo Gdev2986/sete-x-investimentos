@@ -89,6 +89,27 @@ router.put('/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaite
         next(error);
     }
 }));
+router.put('/:id/balance', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const { total_allocated, balance } = req.body;
+        const user = yield user_1.default.findByPk(id);
+        if (!user) {
+            res.status(404).json({ message: 'Usuário não encontrado' });
+            return;
+        }
+        if (total_allocated !== undefined)
+            user.total_allocated = total_allocated;
+        if (balance !== undefined)
+            user.balance = balance;
+        yield user.save();
+        res.status(200).json(user);
+    }
+    catch (error) {
+        console.error('Erro ao atualizar saldo do usuário:', error);
+        res.status(500).json({ message: 'Erro ao atualizar saldo do usuário', error: error.message });
+    }
+}));
 // Excluir um usuário (apenas administradores)
 router.delete('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, Col, Row, Form, Button } from 'react-bootstrap';
 import Table from '../../../components/Table';
 import swal from 'sweetalert2';
@@ -13,76 +13,135 @@ type Deposit = {
     status: string;
 };
 
+const translateStatus = (status: string): string => {
+    switch (status) {
+        case 'pending':
+            return 'Pendente';
+        case 'approved':
+            return 'Aprovado';
+        case 'rejected':
+            return 'Rejeitado';
+        default:
+            return status;
+    }
+};
+
+const revertStatusTranslation = (translatedStatus: string): string => {
+    switch (translatedStatus) {
+        case 'Pendente':
+            return 'pending';
+        case 'Aprovado':
+            return 'approved';
+        case 'Rejeitado':
+            return 'rejected';
+        default:
+            return translatedStatus;
+    }
+};
+
 const CustomAdvancedTable = () => {
     const [depositsData, setDepositsData] = useState<Deposit[]>([]);
     const [originalDepositsData, setOriginalDepositsData] = useState<Deposit[]>([]);
     const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false);
+    const intervalRef = useRef<number | null>(null);
 
-    // Função para buscar depósitos
+    // Busca os depósitos do banco
+    const fetchDeposits = async () => {
+        try {
+            const deposits = await getDeposits();
+            const formattedDeposits = deposits.map((deposit: any) => ({
+                id: deposit.id,
+                nome: deposit.nome,
+                valorDepositado: parseFloat(deposit.valorDepositado),
+                saldoAtual: parseFloat(deposit.saldoAtual),
+                dataDeposito: new Date(deposit.dataDeposito).toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                }),
+                status: deposit.status, // Mantém o status original para comunicação com o backend
+            }));
+
+            setDepositsData(formattedDeposits);
+            setOriginalDepositsData(formattedDeposits);
+        } catch (error) {
+            swal.fire('Erro', 'Não foi possível carregar os depósitos.', 'error');
+        }
+    };
+
     useEffect(() => {
-        const fetchDeposits = async () => {
-            try {
-                const deposits = await getDeposits(); // Ajustado para não usar `.data`
-                const formattedDeposits = deposits.map((deposit: any) => ({
-                    id: deposit.id,
-                    nome: deposit.nome,
-                    valorDepositado: parseFloat(deposit.valorDepositado),
-                    saldoAtual: parseFloat(deposit.saldoAtual),
-                    dataDeposito: new Date(deposit.dataDeposito).toLocaleString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                    }),
-                    status: deposit.status,
-                }));
-                setDepositsData(formattedDeposits);
-                setOriginalDepositsData(formattedDeposits);
-            } catch (error) {
-                swal.fire('Erro', 'Não foi possível carregar os depósitos.', 'error');
+        // Primeira busca
+        fetchDeposits();
+
+        // Configura um intervalo para consulta constante
+        intervalRef.current = window.setInterval(() => {
+            fetchDeposits();
+        }, 10000); // 5 segundos (ajustável)
+
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
             }
         };
-
-        fetchDeposits();
     }, []);
 
-    // Função para atualizar o status de um depósito
+    // Atualiza o status localmente
     const handleStatusChange = (id: number, newStatus: string) => {
         const updatedDeposits = depositsData.map((deposit) =>
             deposit.id === id ? { ...deposit, status: newStatus } : deposit
         );
         setDepositsData(updatedDeposits);
-
-        // Habilitar o botão Salvar se houver alterações
-        const hasChanges = updatedDeposits.some(
-            (deposit, index) => deposit.status !== originalDepositsData[index].status
-        );
-        setIsSaveButtonEnabled(hasChanges);
+        setIsSaveButtonEnabled(true); // Habilita o botão de salvar
     };
 
-    // Função para salvar alterações
-    const handleSave = async () => {
-        try {
-            const updatedDeposits = await Promise.all(
-                depositsData.map(async (deposit) => {
-                    const original = originalDepositsData.find((u) => u.id === deposit.id);
-                    if (original && deposit.status !== original.status) {
-                        const response = await updateDeposit(deposit.id, { status: deposit.status });
-                        return response; // Atualizado com os dados retornados da API
-                    }
-                    return deposit;
-                })
-            );
+    // Função para exibir o modal de confirmação
+    const showConfirmationModal = (onConfirm: () => void) => {
+        swal.fire({
+            title: 'Tem certeza?',
+            text: 'O usuário será notificado sobre as alterações.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, confirmar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                onConfirm();
+            }
+        });
+    };
 
-            setDepositsData(updatedDeposits);
-            setOriginalDepositsData(updatedDeposits);
-            setIsSaveButtonEnabled(false);
-            swal.fire('Sucesso!', 'Os depósitos foram atualizados.', 'success');
-        } catch (error) {
-            console.error('Erro ao salvar alterações:', error);
-            swal.fire('Erro', 'Não foi possível salvar as alterações.', 'error');
-        }
+    // Salva as alterações e sincroniza com o banco
+    const handleSave = () => {
+        showConfirmationModal(async () => {
+            try {
+                const updatedDeposits = await Promise.all(
+                    depositsData.map(async (deposit) => {
+                        const original = originalDepositsData.find((u) => u.id === deposit.id);
+                        if (original && deposit.status !== original.status) {
+                            const response = await updateDeposit(deposit.id, {
+                                status: revertStatusTranslation(deposit.status), // Reverte a tradução para o backend
+                            });
+                            return {
+                                ...deposit,
+                                status: response.status, // Atualiza com o status do banco
+                            };
+                        }
+                        return deposit;
+                    })
+                );
+
+                setDepositsData(updatedDeposits); // Atualiza os dados locais
+                setOriginalDepositsData(updatedDeposits); // Sincroniza os dados originais
+                setIsSaveButtonEnabled(false); // Desabilita o botão de salvar
+                swal.fire('Sucesso!', 'Os depósitos foram atualizados.', 'success');
+            } catch (error) {
+                console.error('Erro ao salvar alterações:', error);
+                swal.fire('Erro', 'Não foi possível salvar as alterações.', 'error');
+            }
+        });
     };
 
     const columns = [
@@ -107,12 +166,12 @@ const CustomAdvancedTable = () => {
             sort: false,
             Cell: ({ row }: any) => (
                 <Form.Select
-                    value={row.original.status}
-                    onChange={(e) => handleStatusChange(row.original.id, e.target.value)}
+                    value={translateStatus(row.original.status)} // Mostra o status traduzido
+                    onChange={(e) => handleStatusChange(row.original.id, revertStatusTranslation(e.target.value))}
                 >
-                    <option value="pending">Pendente</option>
-                    <option value="approved">Aprovado</option>
-                    <option value="rejected">Rejeitado</option>
+                    <option value="Pendente">{translateStatus('pending')}</option>
+                    <option value="Aprovado">{translateStatus('approved')}</option>
+                    <option value="Rejeitado">{translateStatus('rejected')}</option>
                 </Form.Select>
             ),
         },

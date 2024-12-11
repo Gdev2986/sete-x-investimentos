@@ -1,5 +1,5 @@
 import { Col, Row } from 'react-bootstrap';
-
+import React from 'react';
 import { Card, Dropdown } from 'react-bootstrap';
 import { ApexOptions } from 'apexcharts';
 

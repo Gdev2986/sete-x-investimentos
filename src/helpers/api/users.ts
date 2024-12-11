@@ -32,4 +32,9 @@ function deleteUser(userId: number) {
     return api.delete(baseUrl);
 }
 
-export { getUsers, getUserById, createUser, updateUser, deleteUser };
+function updateUserBalance(userId: number, data: { total_allocated?: number; balance?: number }) {
+    const baseUrl = `/users/${userId}/balance`;
+    return api.update(baseUrl, data);
+}
+
+export { getUsers, getUserById, createUser, updateUser, deleteUser ,updateUserBalance};

@@ -1,4 +1,4 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model, BelongsToGetAssociationMixin } from 'sequelize';
 import sequelize from '../config/database';
 import User from './user';
 
@@ -7,6 +7,10 @@ class Deposit extends Model {
   public user_id!: number;
   public amount!: number;
   public status!: string;
+
+  // Adicione isso para tipar a associação
+  public user?: User; // Aqui, adicionamos a propriedade `user`
+  public getUser!: BelongsToGetAssociationMixin<User>; // Métodos de associação
 }
 
 Deposit.init(
@@ -32,7 +36,6 @@ Deposit.init(
     },
     status: {
       type: DataTypes.STRING(20),
-      defaultValue: 'pending',
       validate: {
         isIn: {
           args: [['pending', 'approved', 'rejected']],
@@ -52,7 +55,7 @@ Deposit.init(
   }
 );
 
+// Defina explicitamente o relacionamento
 Deposit.belongsTo(User, { as: 'user', foreignKey: 'user_id' });
-
 
 export default Deposit;

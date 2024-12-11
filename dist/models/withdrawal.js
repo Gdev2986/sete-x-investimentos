@@ -17,39 +17,35 @@ Withdrawal.init({
     user_id: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: user_1.default,
-            key: 'id',
-        },
-        onDelete: 'CASCADE',
     },
     amount: {
         type: sequelize_1.DataTypes.DECIMAL(10, 2),
         allowNull: false,
-        validate: {
-            min: {
-                args: [0.01],
-                msg: 'O valor da retirada deve ser maior que zero.',
-            },
-        },
     },
     status: {
         type: sequelize_1.DataTypes.STRING(20),
         defaultValue: 'pending',
         validate: {
-            isIn: {
-                args: [['pending', 'approved', 'rejected']],
-                msg: 'Status inválido. Deve ser "pending", "approved" ou "rejected".',
-            },
+            isIn: [['pending', 'approved', 'rejected']],
         },
+    },
+    pix_key: {
+        type: sequelize_1.DataTypes.STRING(255),
+        allowNull: false,
+    },
+    name_account_withdrawal: {
+        type: sequelize_1.DataTypes.STRING(255),
+        allowNull: false,
     },
 }, {
     sequelize: database_1.default,
     schema: 'setex',
-    modelName: 'Withdrawal',
     tableName: 'withdrawals',
+    modelName: 'Withdrawal',
     timestamps: true,
-    updatedAt: 'updated_at',
     createdAt: 'created_at',
+    updatedAt: 'updated_at',
 });
+// Definição de associação
+Withdrawal.belongsTo(user_1.default, { as: 'user', foreignKey: 'user_id' });
 exports.default = Withdrawal;
