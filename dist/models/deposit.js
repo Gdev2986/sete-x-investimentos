@@ -17,11 +17,6 @@ Deposit.init({
     user_id: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: user_1.default,
-            key: 'id',
-        },
-        onDelete: 'CASCADE',
     },
     amount: {
         type: sequelize_1.DataTypes.DECIMAL(10, 2),
@@ -52,4 +47,5 @@ Deposit.init({
     updatedAt: 'updated_at',
     createdAt: 'created_at',
 });
+Deposit.belongsTo(user_1.default, { as: 'user', foreignKey: 'user_id' });
 exports.default = Deposit;

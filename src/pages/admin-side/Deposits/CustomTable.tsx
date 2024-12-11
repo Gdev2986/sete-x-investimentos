@@ -14,116 +14,105 @@ type Deposit = {
 };
 
 const CustomAdvancedTable = () => {
-    const [usersData, setUsersData] = useState<Deposit[]>([]);
-    const [tempUsersData, setTempUsersData] = useState<Deposit[]>([]);
+    const [depositsData, setDepositsData] = useState<Deposit[]>([]);
+    const [originalDepositsData, setOriginalDepositsData] = useState<Deposit[]>([]);
     const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false);
 
+    // Função para buscar depósitos
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchDeposits = async () => {
             try {
-                const response = await getDeposits();
-                const data = response.data as Deposit[];
-                // Ordenar pela dataDeposito do mais recente para o mais antigo, 
-                // assumindo dataDeposito como string ISO ou algo compatível
-                // Ajuste conforme o formato da data
-                const sortedData = data.sort((a, b) => {
-                    // Supondo data no formato "YYYY-MM-DD HH:mm:ss"
-                    // Ajuste conforme seu formato
-                    const dateA = new Date(a.dataDeposito).getTime();
-                    const dateB = new Date(b.dataDeposito).getTime();
-                    return dateB - dateA; // mais recente primeiro
-                });
-
-                setUsersData(sortedData);
-                setTempUsersData(sortedData);
+                const deposits = await getDeposits(); // Ajustado para não usar `.data`
+                const formattedDeposits = deposits.map((deposit: any) => ({
+                    id: deposit.id,
+                    nome: deposit.nome,
+                    valorDepositado: parseFloat(deposit.valorDepositado),
+                    saldoAtual: parseFloat(deposit.saldoAtual),
+                    dataDeposito: new Date(deposit.dataDeposito).toLocaleString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    }),
+                    status: deposit.status,
+                }));
+                setDepositsData(formattedDeposits);
+                setOriginalDepositsData(formattedDeposits);
             } catch (error) {
-                swal.fire('Erro', 'Não foi possível carregar os dados.', 'error');
+                swal.fire('Erro', 'Não foi possível carregar os depósitos.', 'error');
             }
         };
 
-        fetchData();
+        fetchDeposits();
     }, []);
 
+    // Função para atualizar o status de um depósito
     const handleStatusChange = (id: number, newStatus: string) => {
-        const updatedUsers = usersData.map((user) =>
-            user.id === id ? { ...user, status: newStatus } : user
+        const updatedDeposits = depositsData.map((deposit) =>
+            deposit.id === id ? { ...deposit, status: newStatus } : deposit
         );
-        setUsersData(updatedUsers);
+        setDepositsData(updatedDeposits);
 
-        // Se houve alteração no status de algum depósito, habilita o botão "Salvar"
-        const hasChanges = updatedUsers.some((updated, i) => updated.status !== tempUsersData[i].status);
+        // Habilitar o botão Salvar se houver alterações
+        const hasChanges = updatedDeposits.some(
+            (deposit, index) => deposit.status !== originalDepositsData[index].status
+        );
         setIsSaveButtonEnabled(hasChanges);
     };
 
+    // Função para salvar alterações
     const handleSave = async () => {
-        swal.fire({
-            title: 'Tem Certeza?',
-            text: 'Uma notificação será enviada ao usuário.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#28bb4b',
-            cancelButtonColor: '#f34e4e',
-            confirmButtonText: 'Alterar Status',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    // Atualizar apenas os depósitos cujo status mudou
-                    for (const user of usersData) {
-                        const original = tempUsersData.find((u) => u.id === user.id);
-                        if (original && user.status !== original.status) {
-                            await updateDeposit(user.id, { status: user.status });
-                        }
+        try {
+            const updatedDeposits = await Promise.all(
+                depositsData.map(async (deposit) => {
+                    const original = originalDepositsData.find((u) => u.id === deposit.id);
+                    if (original && deposit.status !== original.status) {
+                        const response = await updateDeposit(deposit.id, { status: deposit.status });
+                        return response; // Atualizado com os dados retornados da API
                     }
+                    return deposit;
+                })
+            );
 
-                    swal.fire('Alteração Realizada!', 'Status alterado com sucesso, o cliente foi notificado.', 'success');
-                    setTempUsersData(usersData);
-                    setIsSaveButtonEnabled(false);
-                } catch (error) {
-                    swal.fire('Erro', 'Falha ao salvar alterações.', 'error');
-                    // Em caso de erro ao salvar, restaura o estado anterior
-                    setUsersData(tempUsersData);
-                    setIsSaveButtonEnabled(false);
-                }
-            } else {
-                // Se clicar em "Cancelar", restaura os dados antigos
-                setUsersData(tempUsersData);
-                setIsSaveButtonEnabled(false);
-            }
-        });
+            setDepositsData(updatedDeposits);
+            setOriginalDepositsData(updatedDeposits);
+            setIsSaveButtonEnabled(false);
+            swal.fire('Sucesso!', 'Os depósitos foram atualizados.', 'success');
+        } catch (error) {
+            console.error('Erro ao salvar alterações:', error);
+            swal.fire('Erro', 'Não foi possível salvar as alterações.', 'error');
+        }
     };
 
     const columns = [
-        { Header: 'ID', accessor: 'id', sort: true, className: 'text-center' },
-        { Header: 'Nome', accessor: 'nome', sort: true, className: 'text-center' },
+        { Header: 'ID', accessor: 'id', sort: true },
+        { Header: 'Nome', accessor: 'nome', sort: true },
         {
             Header: 'Valor Depositado (R$)',
             accessor: 'valorDepositado',
             sort: true,
-            className: 'text-center',
-            Cell: ({ value }: any) => (value ? value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ 0,00'),
+            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
         },
         {
             Header: 'Saldo Atual (R$)',
             accessor: 'saldoAtual',
             sort: true,
-            className: 'text-center',
-            Cell: ({ value }: any) => (value ? value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ 0,00'),
+            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
         },
-        { Header: 'Data do Depósito', accessor: 'dataDeposito', sort: true, className: 'text-center' },
+        { Header: 'Data do Depósito', accessor: 'dataDeposito', sort: true },
         {
             Header: 'Status',
             accessor: 'status',
             sort: false,
-            className: 'text-center',
             Cell: ({ row }: any) => (
                 <Form.Select
                     value={row.original.status}
                     onChange={(e) => handleStatusChange(row.original.id, e.target.value)}
-                    className="text-center"
                 >
-                    <option value="Pendente">Pendente</option>
-                    <option value="Aprovado">Aprovado</option>
-                    <option value="Cancelado">Cancelado</option>
+                    <option value="pending">Pendente</option>
+                    <option value="approved">Aprovado</option>
+                    <option value="rejected">Rejeitado</option>
                 </Form.Select>
             ),
         },
@@ -133,7 +122,7 @@ const CustomAdvancedTable = () => {
         { text: '5', value: 5 },
         { text: '10', value: 10 },
         { text: '25', value: 25 },
-        { text: 'Todos', value: usersData.length },
+        { text: 'Todos', value: depositsData.length },
     ];
 
     return (
@@ -141,10 +130,10 @@ const CustomAdvancedTable = () => {
             <Col>
                 <Card>
                     <Card.Body>
-                        <h4 className="header-title">Solicitações de Depósitos</h4>
+                        <h4 className="header-title">Gerenciar Depósitos</h4>
                         <Table
                             columns={columns}
-                            data={usersData}
+                            data={depositsData}
                             pageSize={5}
                             sizePerPageList={sizePerPageList}
                             isSortable={true}
@@ -152,7 +141,7 @@ const CustomAdvancedTable = () => {
                         />
                         <div className="d-flex justify-content-end mt-3">
                             <Button variant="success" onClick={handleSave} disabled={!isSaveButtonEnabled}>
-                                Salvar
+                                Salvar Alterações
                             </Button>
                         </div>
                     </Card.Body>

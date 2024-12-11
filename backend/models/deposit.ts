@@ -19,11 +19,6 @@ Deposit.init(
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: User,
-        key: 'id',
-      },
-      onDelete: 'CASCADE',
     },
     amount: {
       type: DataTypes.DECIMAL(10, 2),
@@ -56,5 +51,8 @@ Deposit.init(
     createdAt: 'created_at',
   }
 );
+
+Deposit.belongsTo(User, { as: 'user', foreignKey: 'user_id' });
+
 
 export default Deposit;

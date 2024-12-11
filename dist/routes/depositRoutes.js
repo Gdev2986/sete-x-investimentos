@@ -17,16 +17,28 @@ const deposit_1 = __importDefault(require("../models/deposit"));
 const user_1 = __importDefault(require("../models/user"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = express_1.default.Router();
+/**
+ * Traduz o status para exibição.
+ */
 function traduzirStatus(status) {
     switch (status) {
-        case 'pending': return 'Pendente';
-        case 'approved': return 'Aprovado';
-        case 'cancelled': return 'Cancelado';
-        default: return status;
+        case 'pending':
+            return 'Pendente';
+        case 'approved':
+            return 'Aprovado';
+        case 'cancelled':
+            return 'Cancelado';
+        default:
+            return status;
     }
 }
+/**
+ * Transforma um depósito para o formato necessário no frontend.
+ */
 function transformarDeposito(deposit) {
-    const dataDeposito = deposit.created_at ? new Date(deposit.created_at).toLocaleString('pt-BR') : '';
+    const dataDeposito = deposit.created_at
+        ? new Date(deposit.created_at).toLocaleString('pt-BR')
+        : '';
     return {
         id: deposit.id,
         nome: deposit.user ? deposit.user.name : '',
@@ -36,6 +48,9 @@ function transformarDeposito(deposit) {
         status: traduzirStatus(deposit.status),
     };
 }
+/**
+ * POST: Criar um depósito.
+ */
 router.post('/', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -43,9 +58,13 @@ router.post('/', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0
         res.status(201).json(deposit);
     }
     catch (error) {
+        console.error('Erro ao criar depósito:', error);
         res.status(400).json({ message: 'Erro ao criar depósito', error: error.message });
     }
 }));
+/**
+ * GET: Listar todos os depósitos (Admin).
+ */
 router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deposits = yield deposit_1.default.findAll({
@@ -53,10 +72,10 @@ router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddlewar
                 {
                     model: user_1.default,
                     as: 'user',
-                    attributes: ['name', 'balance']
-                }
+                    attributes: ['name', 'balance'],
+                },
             ],
-            order: [['created_at', 'DESC']]
+            order: [['created_at', 'DESC']],
         });
         const transformed = deposits.map((d) => transformarDeposito(d));
         res.status(200).json(transformed);
@@ -66,12 +85,15 @@ router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddlewar
         res.status(500).json({ message: 'Erro ao buscar depósitos', error: error.message });
     }
 }));
+/**
+ * GET: Listar depósitos de um usuário específico.
+ */
 router.get('/user/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
         const { id } = req.params;
-        // Caso queira restringir apenas ao próprio usuário ou admin:
-        if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) !== 'admin' && ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) !== id) {
+        // Permite acesso apenas ao próprio usuário ou a administradores.
+        if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) !== 'admin' && Number((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) !== Number(id)) {
             res.status(403).json({ message: 'Acesso negado' });
             return;
         }
@@ -81,10 +103,10 @@ router.get('/user/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter
                 {
                     model: user_1.default,
                     as: 'user',
-                    attributes: ['name', 'balance']
-                }
+                    attributes: ['name', 'balance'],
+                },
             ],
-            order: [['created_at', 'DESC']]
+            order: [['created_at', 'DESC']],
         });
         const transformed = deposits.map((d) => transformarDeposito(d));
         res.status(200).json(transformed);
@@ -94,19 +116,32 @@ router.get('/user/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter
         res.status(500).json({ message: 'Erro ao buscar depósitos do usuário', error: error.message });
     }
 }));
+/**
+ * PUT: Atualizar o status de um depósito (Admin).
+ */
 router.put('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
         const { status } = req.body;
-        const deposit = yield deposit_1.default.findByPk(id);
+        const deposit = yield deposit_1.default.findByPk(id, {
+            include: [{ model: user_1.default, as: 'user' }],
+        });
         if (!deposit) {
             res.status(404).json({ message: 'Depósito não encontrado' });
             return;
         }
+        // Caso o status seja aprovado, atualiza o saldo do usuário.
+        if (status === 'approved' && deposit.status !== 'approved') {
+            const user = yield user_1.default.findByPk(deposit.user_id);
+            if (user) {
+                user.balance += deposit.amount;
+                yield user.save();
+            }
+        }
         deposit.status = status;
         yield deposit.save();
         const updatedDeposit = yield deposit_1.default.findByPk(id, {
-            include: [{ model: user_1.default, as: 'user', attributes: ['name', 'balance'] }]
+            include: [{ model: user_1.default, as: 'user', attributes: ['name', 'balance'] }],
         });
         const transformed = updatedDeposit ? transformarDeposito(updatedDeposit) : null;
         res.status(200).json(transformed);

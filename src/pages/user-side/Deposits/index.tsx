@@ -1,4 +1,5 @@
 import { Col, Row } from 'react-bootstrap';
+import React from 'react';
 import CustomTable from './CustomTable';
 // hooks
 import { usePageTitle } from '../../../hooks';

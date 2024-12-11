@@ -2,17 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, Modal, Button, Form } from 'react-bootstrap';
 import Table from '../../../components/Table';
 import swal from 'sweetalert2';
-import { getUserDeposits, createDeposit } from '../../../helpers/api/deposits'; // Importando funções da API
+import { getUserDeposits, createDeposit } from '../../../helpers/api/deposits';
 
 // Definindo o tipo para os depósitos
 type Deposit = {
     id: number;
-    user_id: number;
-    valorDepositado: number;
-    saldoAtual: number;
-    status: string;
     dataDeposito: string;
-    comprovante?: string;
+    valorDepositado: number;
+    status: string;
 };
 
 // Configurando as colunas da tabela
@@ -48,13 +45,14 @@ const formatCurrency = (value: number) => {
     });
 };
 
-// Configuração do tamanho das páginas na tabela
-const sizePerPageList = [
-    { text: '5', value: 5 },
-    { text: '10', value: 10 },
-    { text: '25', value: 25 },
-    { text: 'Todos', value: 50 },
-];
+// Função para formatar a data
+const formatDate = (rawDate: string) => {
+    const [datePart, timePart] = rawDate.split(', '); // Separa a data da hora
+    const [day, month, year] = datePart.split('/'); // Divide o dia, mês e ano
+    const [hour, minute] = timePart.split(':'); // Divide hora e minuto
+    return `${day}/${month}/${year} ${hour}:${minute}`; // Retorna no formato desejado
+};
+
 
 const UserDeposits = () => {
     const [userDeposits, setUserDeposits] = useState<Deposit[]>([]);
@@ -63,19 +61,34 @@ const UserDeposits = () => {
     const [isInvalid, setIsInvalid] = useState(false);
     const [showShake, setShowShake] = useState(false);
 
-    // Obtendo o ID do usuário dinamicamente
-    const userId = localStorage.getItem('user_id') || sessionStorage.getItem('user_id'); // ID do usuário autenticado
-
-    // Função para alternar o estado de visibilidade do modal
+    // Alternar o modal
     const toggleResponsiveModal = () => setResponsiveModal(!responsiveModal);
 
-    // Função para buscar os depósitos do backend
+    // Buscar depósitos do usuário
     const fetchUserDeposits = async () => {
         try {
-            const response = await getUserDeposits(Number(userId)); // Chama a API
-            setUserDeposits(response.data);
+            console.log("Iniciando busca dos depósitos do usuário...");
+            const response = await getUserDeposits();
+            console.log("Resposta completa da API:", response);
+
+            // Garantindo que estamos lidando com os dados no formato correto
+            const rawData = response || [];
+            if (Array.isArray(rawData)) {
+                const deposits = rawData.map((deposit) => ({
+                    id: deposit.id,
+                    dataDeposito: formatDate(deposit.dataDeposito), // Formata a data corretamente
+                    valorDepositado: deposit.valorDepositado,
+                    status: deposit.status,
+                }));
+                console.log("Dados transformados para a tabela:", deposits);
+                setUserDeposits(deposits);
+            } else {
+                console.warn("Estrutura de dados inesperada:", rawData);
+                setUserDeposits([]);
+            }
         } catch (error) {
-            swal.fire('Erro', 'Não foi possível carregar os depósitos.', 'error');
+            console.error("Erro ao buscar depósitos:", error);
+            swal.fire("Erro", "Não foi possível carregar os depósitos.", "error");
         }
     };
 
@@ -83,42 +96,33 @@ const UserDeposits = () => {
         fetchUserDeposits();
     }, []);
 
-    // Função para validar o valor digitado
     const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const inputValue = e.target.value.replace(/[^\d.,]/g, '');
-        if (!inputValue || parseFloat(inputValue.replace(',', '.')) < 100) {
-            setIsInvalid(true);
-            setShowShake(true);
-            setTimeout(() => setShowShake(false), 300);
-        } else {
-            setIsInvalid(false);
-        }
-        setDepositValue(inputValue);
+        const value = e.target.value.replace(/[^\d.,]/g, '');
+        setDepositValue(value);
+        setIsInvalid(parseFloat(value.replace(',', '.')) < 100);
     };
 
-    // Função para criar um novo depósito
     const handleCreateDeposit = async () => {
-        const valorNumerico = parseFloat(depositValue.replace('.', '').replace(',', '.'));
-        if (!valorNumerico || isInvalid || valorNumerico < 100) {
+        const valorNumerico = parseFloat(depositValue.replace(',', '.'));
+        if (valorNumerico < 100) {
             setShowShake(true);
             setTimeout(() => setShowShake(false), 300);
             return;
         }
-
-        const newDeposit = {
-            user_id: Number(userId), // ID dinâmico do usuário
-            valorDepositado: valorNumerico,
-        };
-
+    
         try {
-            await createDeposit(newDeposit); // Chama a API para criar o depósito
+            // Envia com a propriedade correta esperada pelo backend: amount
+            await createDeposit({ amount: valorNumerico });
             swal.fire('Sucesso', 'Depósito criado com sucesso!', 'success');
-            fetchUserDeposits(); // Atualiza a lista após a criação
-            toggleResponsiveModal();
+            fetchUserDeposits(); // Atualiza a tabela após o depósito
+            toggleResponsiveModal(); // Fecha o modal
+            setDepositValue(''); // Limpa o valor do campo
         } catch (error) {
             swal.fire('Erro', 'Falha ao criar depósito.', 'error');
+            console.error('Erro ao criar depósito:', error);
         }
     };
+    
 
     return (
         <>
@@ -130,7 +134,11 @@ const UserDeposits = () => {
             >
                 <i
                     className="mdi mdi-close"
-                    style={{ transform: `rotate(45deg)`, marginRight: '10px', transition: 'transform 0.3s ease' }}
+                    style={{
+                        transform: `rotate(45deg)`,
+                        marginRight: '10px',
+                        transition: 'transform 0.3s ease',
+                    }}
                 ></i>
                 Novo Depósito
             </Button>
@@ -168,7 +176,7 @@ const UserDeposits = () => {
                         className="btn btn-info waves-effect waves-light"
                         style={{ backgroundColor: '#41C56D' }}
                         onClick={handleCreateDeposit}
-                        disabled={!depositValue || isInvalid || parseFloat(depositValue.replace(',', '.')) < 100}
+                        disabled={!depositValue || isInvalid}
                     >
                         Confirmar Depósito
                     </Button>
@@ -184,7 +192,12 @@ const UserDeposits = () => {
                                 columns={columns}
                                 data={userDeposits}
                                 pageSize={5}
-                                sizePerPageList={sizePerPageList}
+                                sizePerPageList={[
+                                    { text: '5', value: 5 },
+                                    { text: '10', value: 10 },
+                                    { text: '25', value: 25 },
+                                    { text: 'Todos', value: 50 },
+                                ]}
                                 isSortable={true}
                                 pagination={true}
                             />
