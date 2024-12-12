@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const withdrawal_1 = __importDefault(require("../models/withdrawal"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
+const user_1 = __importDefault(require("../models/user"));
 const router = express_1.default.Router();
 // Criação de retirada pelo usuário
 router.post('/', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -40,7 +41,7 @@ router.post('/', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0
     }
 }));
 // Visualizar retiradas de um usuário específico (para usuários)
-router.get('/user', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/user/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         const withdrawals = yield withdrawal_1.default.findAll({ where: { user_id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id } });
@@ -75,14 +76,40 @@ router.put('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddle
             res.status(400).json({ message: 'Status inválido. Deve ser "pending", "approved" ou "rejected".' });
             return;
         }
-        const withdrawal = yield withdrawal_1.default.findByPk(id);
+        const withdrawal = yield withdrawal_1.default.findByPk(id, {
+            include: [{ model: user_1.default, as: 'user' }],
+        });
         if (!withdrawal) {
             res.status(404).json({ message: 'Retirada não encontrada' });
             return;
         }
+        const user = withdrawal.user;
+        if (!user) {
+            res.status(404).json({ message: 'Usuário associado à retirada não encontrado' });
+            return;
+        }
+        const userBalance = typeof user.balance === 'string' ? parseFloat(user.balance) : user.balance;
+        const withdrawalAmount = typeof withdrawal.amount === 'string' ? parseFloat(withdrawal.amount) : withdrawal.amount;
+        // Atualiza o saldo com base no fluxo de status
+        if (withdrawal.status === 'pending' && status === 'approved') {
+            // De 'pending' para 'approved': subtrai do saldo
+            user.balance = userBalance - withdrawalAmount;
+        }
+        else if (withdrawal.status === 'approved' && status === 'rejected') {
+            // De 'approved' para 'rejected': adiciona ao saldo
+            user.balance = userBalance + withdrawalAmount;
+        }
+        else if (withdrawal.status === 'rejected' && status === 'approved') {
+            // De 'rejected' para 'approved': subtrai novamente do saldo
+            user.balance = userBalance - withdrawalAmount;
+        }
         withdrawal.status = status;
         yield withdrawal.save();
-        res.status(200).json(withdrawal);
+        yield user.save();
+        const updatedWithdrawal = yield withdrawal_1.default.findByPk(id, {
+            include: [{ model: user_1.default, as: 'user', attributes: ['name', 'balance'] }],
+        });
+        res.status(200).json(updatedWithdrawal);
     }
     catch (error) {
         console.error('Erro ao atualizar retirada:', error);

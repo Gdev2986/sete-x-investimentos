@@ -3,6 +3,7 @@ import React from 'react';
 // hooks
 import { usePageTitle } from '../../../hooks';
 import CustomTable from './CustomTable';
+import CustomTable2 from './CustomTable 2';
 import Statistics from './Statistics';
 
 
@@ -26,6 +27,7 @@ const InvestmentsUser = () => {
             <Row>
                 <Col xl={12}>
                     <CustomTable />
+                    <CustomTable2 />
                 </Col>
             </Row>
         </>

@@ -4,7 +4,6 @@ import Table from '../../../components/Table';
 import swal from 'sweetalert2';
 import { getUserWithdrawals } from '../../../helpers/api/withdrawals';
 
-// Define a tipagem dos dados de retirada
 type Withdrawal = {
     id: number;
     dataSolicitacao: string;
@@ -13,10 +12,24 @@ type Withdrawal = {
     comprovante: string | null;
 };
 
-type CustomAdvancedTableProps = {
-    user: {
-        id: number;
-    };
+const formatCurrency = (value: number) => {
+    return value.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+    });
+};
+
+const formatStatus = (status: string) => {
+    switch (status) {
+        case 'approved':
+            return 'Aprovado';
+        case 'pending':
+            return 'Pendente';
+        case 'rejected':
+            return 'Rejeitado';
+        default:
+            return status;
+    }
 };
 
 const columns = [
@@ -31,20 +44,14 @@ const columns = [
         accessor: 'valorSolicitado',
         sort: true,
         className: 'text-center',
-        Cell: ({ value }: any) => (
-            <span>
-                {value.toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                })}
-            </span>
-        ),
+        Cell: ({ value }: any) => <span>{formatCurrency(value)}</span>,
     },
     {
         Header: 'Status',
         accessor: 'status',
         sort: true,
         className: 'text-center',
+        Cell: ({ value }: any) => <span>{formatStatus(value)}</span>,
     },
     {
         Header: 'Comprovante',
@@ -53,72 +60,46 @@ const columns = [
         className: 'text-center',
         Cell: ({ row }: any) => (
             <a
-                className={`btn btn-light btn-sm ${
-                    !row.original.comprovante ? 'disabled' : ''
-                }`}
+                className={`btn btn-light btn-sm ${!row.original.comprovante ? 'disabled' : ''}`}
                 href={row.original.comprovante || '#'}
                 download={row.original.comprovante ? 'comprovante.png' : ''}
                 style={{
                     backgroundColor: row.original.comprovante ? '#41C56D' : '#d3d3d3',
                     color: '#FFFFFF',
                     fontSize: '0.85rem',
-                    whiteSpace: 'nowrap',
                 }}
             >
-                <i
-                    className="mdi mdi-cloud-download"
-                    style={{ fontSize: '18px', marginRight: '5px', color: '#FFFFFF' }}
-                ></i>
+                <i className="mdi mdi-cloud-download" style={{ fontSize: '18px', marginRight: '5px' }}></i>
                 {row.original.comprovante ? 'Baixar' : 'Indisponível'}
             </a>
         ),
     },
 ];
 
-const sizePerPageList = [
-    { text: '5', value: 5 },
-    { text: '10', value: 10 },
-    { text: '25', value: 25 },
-    { text: 'Todos', value: 100 },
-];
-
-const CustomAdvancedTable: React.FC<CustomAdvancedTableProps> = ({ user }) => {
+const CustomAdvancedTable: React.FC = () => {
     const [userWithdrawals, setUserWithdrawals] = useState<Withdrawal[]>([]);
     const intervalRef = useRef<number | null>(null);
 
-    const formatWithdrawalData = (data: any[]): Withdrawal[] =>
-        data.map((withdrawal) => ({
-            id: withdrawal.id,
-            dataSolicitacao: new Date(withdrawal.created_at).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-            }),
-            valorSolicitado: withdrawal.amount,
-            status:
-                withdrawal.status === 'pending'
-                    ? 'Pendente'
-                    : withdrawal.status === 'approved'
-                    ? 'Aprovado'
-                    : 'Rejeitado',
-            comprovante: withdrawal.receipt_path || null,
-        }));
-
     const fetchUserWithdrawals = async () => {
         try {
-            if (!user?.id) {
-                console.log(user)
-                console.error('Erro: ID do usuário não está disponível.');
-                swal.fire('Erro', 'ID do usuário não está disponível.', 'error');
-                return;
+            const response = await getUserWithdrawals();
+            if (Array.isArray(response)) {
+                const formattedData = response.map((withdrawal) => ({
+                    id: withdrawal.id,
+                    dataSolicitacao: new Date(withdrawal.created_at).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                    }),
+                    valorSolicitado: withdrawal.amount,
+                    status: withdrawal.status,
+                    comprovante: withdrawal.receipt_path || null,
+                }));
+                setUserWithdrawals(formattedData);
+            } else {
+                setUserWithdrawals([]);
             }
-
-            const response = await getUserWithdrawals(user.id);
-            const formattedData = formatWithdrawalData(response);
-            setUserWithdrawals(formattedData);
         } catch (error) {
-            console.error('Erro ao buscar retiradas:', error);
-            swal.fire('Erro', 'Não foi possível carregar as retiradas.', 'error');
         }
     };
 
@@ -127,14 +108,14 @@ const CustomAdvancedTable: React.FC<CustomAdvancedTableProps> = ({ user }) => {
 
         intervalRef.current = window.setInterval(() => {
             fetchUserWithdrawals();
-        }, 5000000);
+        }, 10000);
 
         return () => {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
             }
         };
-    }, [user?.id]);
+    }, []);
 
     return (
         <Row>
@@ -146,11 +127,9 @@ const CustomAdvancedTable: React.FC<CustomAdvancedTableProps> = ({ user }) => {
                             columns={columns}
                             data={userWithdrawals}
                             pageSize={5}
-                            sizePerPageList={sizePerPageList}
+                            sizePerPageList={[{ text: '5', value: 5 }]}
                             isSortable={true}
                             pagination={true}
-                            isSelectable={false}
-                            tableClass="text-center"
                         />
                     </Card.Body>
                 </Card>
