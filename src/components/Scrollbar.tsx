@@ -1,4 +1,5 @@
 import SimpleBar from 'simplebar-react';
+import React from 'react';
 
 type ScrollbarProps = SimpleBar.Props & {
     className?: string;

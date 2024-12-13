@@ -5,15 +5,15 @@ import classNames from 'classnames';
 
 // helpers
 import { getMenuItems } from '../helpers/menu';
-//import { user } from '../helpers/fake-backend'; // Importando o user do backend fake
 
 // components
 import Scrollbar from '../components/Scrollbar';
 import AppMenu from './Menu';
 
 // images
-import profileImg from '../assets/images/users/user-1.jpg';
+import profileImg from '../assets/images/users/profileImg.jpg';
 import React from 'react';
+
 
 /* Função para filtrar itens de menu por role */
 const filterMenuByRole = (menuItems: any[], userRole: string) => {
@@ -26,6 +26,7 @@ const UserBox = () => {
     user = JSON.parse(user);
     // Menu de perfil
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+    const fullName = `${user.user.first_name || ''} ${user.user.last_name || ''}`
 
     /*
      * toggle dropdown
@@ -36,7 +37,7 @@ const UserBox = () => {
 
     return (
         <div className="user-box text-center">
-            <img src={profileImg} alt="" title={user.user.name} className="rounded-circle img-thumbnail avatar-md" />
+            <img src={profileImg} alt="" title={fullName} className="rounded-circle img-thumbnail avatar-md" />
             <Dropdown show={dropdownOpen} onToggle={toggleDropdown}>
                 <Dropdown.Toggle
                     id="dropdown-notification"
@@ -45,7 +46,7 @@ const UserBox = () => {
                     onClick={toggleDropdown}
                     className="user-name h5 mt-2 mb-1 d-block"
                 >
-                    {user.user.name}
+                    {fullName}
                 </Dropdown.Toggle>
               
             </Dropdown>

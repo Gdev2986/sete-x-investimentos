@@ -30,7 +30,7 @@ function transformarDeposito(deposit: any) {
         : '';
     return {
         id: deposit.id,
-        nome: deposit.user ? deposit.user.name : '',
+        username: deposit.user ? deposit.user.username : '',
         valorDepositado: deposit.amount || 0,
         saldoAtual: deposit.user ? deposit.user.balance : 0,
         dataDeposito,
@@ -64,7 +64,7 @@ router.get('/', authMiddleware, adminMiddleware, async (req: Request, res: Respo
                 {
                     model: User,
                     as: 'user',
-                    attributes: ['name', 'balance'],
+                    attributes: ['username', 'balance'],
                 },
             ],
             order: [['created_at', 'DESC']],
@@ -97,7 +97,7 @@ router.get('/user/:id', authMiddleware, async (req: Request, res: Response): Pro
                 {
                     model: User,
                     as: 'user',
-                    attributes: ['name', 'balance'],
+                    attributes: ['username', 'balance'],
                 },
             ],
             order: [['created_at', 'DESC']],
@@ -156,7 +156,7 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req: Request, res: Re
         await user.save();
 
         const updatedDeposit = await Deposit.findByPk(id, {
-            include: [{ model: User, as: 'user', attributes: ['name', 'balance'] }],
+            include: [{ model: User, as: 'user', attributes: ['username', 'balance'] }],
         });
 
         const transformed = updatedDeposit ? transformarDeposito(updatedDeposit) : null;

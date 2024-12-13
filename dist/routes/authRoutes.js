@@ -28,19 +28,34 @@ router.post('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, func
 // Rota de registro
 router.post('/register', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, email, password } = req.body;
-        // Verifica se o e-mail já está em uso
+        console.log('Dados recebidos no registro:', req.body); // Log dos dados recebidos
+        const { firstName, lastName, username, email, contact, password } = req.body;
+        // Verifica se o e-mail ou username já estão em uso
         const existingUser = yield user_1.default.findOne({ where: { email } });
-        if (existingUser) {
-            res.status(400).json({ message: 'E-mail já está em uso' });
+        const existingUsername = yield user_1.default.findOne({ where: { username } });
+        if (existingUser || existingUsername) {
+            res.status(400).json({
+                message: 'E-mail ou nome de usuário já estão em uso',
+            });
             return;
         }
         // Cria um novo usuário
-        const user = yield user_1.default.create({ name, email, password });
-        res.status(201).json({ message: 'Usuário criado com sucesso', user });
+        const user = yield user_1.default.create({
+            first_name: firstName,
+            last_name: lastName,
+            username,
+            email,
+            contact,
+            password,
+        });
+        res.status(201).json({
+            message: 'Usuário criado com sucesso',
+            user,
+        });
     }
     catch (error) {
-        next(error); // Passa o erro para o middleware de erro
+        console.error('Erro ao registrar usuário:', error); // Log do erro
+        next(error);
     }
 }));
 exports.default = router;

@@ -62,7 +62,7 @@ const Statistics = () => {
             .then(response => {
                 const users = response.data;
                 const onlyUsers = users.filter((user: any) => user.role !== 'admin');
-                const somaTotalAlocado = onlyUsers.reduce((acc: number, user: any) => acc + (user.balance || 0), 0);
+                const somaTotalAlocado = onlyUsers.reduce((acc: number, user: any) => acc + (user.totalAlocado || 0), 0);
                 setTotalAlocado(somaTotalAlocado);
             })
             .catch(error => {

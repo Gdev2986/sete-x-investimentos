@@ -107,7 +107,7 @@ router.put('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddle
         yield withdrawal.save();
         yield user.save();
         const updatedWithdrawal = yield withdrawal_1.default.findByPk(id, {
-            include: [{ model: user_1.default, as: 'user', attributes: ['name', 'balance'] }],
+            include: [{ model: user_1.default, as: 'user', attributes: ['username', 'balance'] }],
         });
         res.status(200).json(updatedWithdrawal);
     }

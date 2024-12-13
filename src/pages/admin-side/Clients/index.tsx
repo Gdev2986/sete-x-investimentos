@@ -1,5 +1,5 @@
 import { Col, Row } from 'react-bootstrap';
-
+import React from 'react';
 // hooks
 import { usePageTitle } from '../../../hooks';
 

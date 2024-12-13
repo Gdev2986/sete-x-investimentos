@@ -42,6 +42,21 @@ export const getUserWithdrawals = async (): Promise<any[]> => {
 };
 
 /**
+ * Busca todas as retiradas (apenas para administradores)
+ * @returns Uma lista de todas as retiradas
+ */
+export const getAllWithdrawals = async (): Promise<any[]> => {
+    try {
+        const response = await axios.get('/withdrawals'); // A rota definida no backend
+        return response.data || [];
+    } catch (error: any) {
+        console.error("Erro ao buscar todas as retiradas:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+
+/**
  * Cria uma nova retirada para o usuário autenticado
  * @param data Dados da retirada
  * @returns A retirada criada

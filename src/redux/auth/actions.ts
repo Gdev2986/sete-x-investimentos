@@ -51,10 +51,23 @@ export const logoutUser = (): AuthActionType => ({
 });
 
 // Ação de cadastro de usuário
-export const signupUser = (fullname: string, email: string, password: string): AuthActionType => ({
-    type: AuthActionTypes.SIGNUP_USER,
-    payload: { fullname, email, password },
-});
+// Ação de cadastro de usuário
+export const signupUser = (
+    firstName: string,
+    lastName: string,
+    username: string,
+    email: string,
+    contact: string,
+    password: string
+): AuthActionType => {
+    console.log('Ação SIGNUP_USER disparada:', { firstName, lastName, username, email, contact, password });
+    return {
+        type: AuthActionTypes.SIGNUP_USER,
+        payload: { firstName, lastName, username, email, contact, password },
+    };
+};
+
+
 
 // Ação de recuperação de senha
 export const forgotPassword = (email: string): AuthActionType => ({

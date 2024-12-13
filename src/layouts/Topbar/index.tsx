@@ -14,13 +14,12 @@ import { notifications, profileMenus } from "./data";
 
 // images
 import logoSm from "../../assets/images/logo-sm.png";
-import avatar1 from "../../assets/images/users/user-1.jpg";
+import avatar1 from "../../assets/images/users/profileImg.jpg";
 import logoDark from "../../assets/images/logo-dark.png";
 import logoLight from "../../assets/images/logo-light.png";
 
 import { Link } from "react-router-dom";
 import classNames from "classnames";
-//import { user } from "../../helpers/fake-backend"
 let user: any = sessionStorage.getItem('setex_user');
 user = JSON.parse(user);
 
@@ -67,7 +66,7 @@ const Topbar = ({ openLeftMenuCallBack, containerClass }: TopbarProps) => {
             {/* User */}
             <ProfileDropdown
               userImage={avatar1}
-              username={user.user.name}
+              username={user.user.username}
               userId={user.user.id} // Aqui você passa o ID do usuário
               menuItems={profileMenus}
             />

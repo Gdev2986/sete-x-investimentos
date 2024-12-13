@@ -16,16 +16,16 @@ const express_1 = __importDefault(require("express"));
 const user_1 = __importDefault(require("../models/user"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = express_1.default.Router();
-// Criar um novo usuário (apenas para testes)
+// Criar um novo usuário
 router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, email, password } = req.body;
+        const { username, email, password, first_name, last_name, contact } = req.body;
         const existingUser = yield user_1.default.findOne({ where: { email } });
         if (existingUser) {
             res.status(400).json({ message: 'E-mail já está em uso' });
             return;
         }
-        const user = yield user_1.default.create({ name, email, password });
+        const user = yield user_1.default.create({ username, email, password, first_name, last_name, contact });
         res.status(201).json({ message: 'Usuário criado com sucesso', user });
     }
     catch (error) {
@@ -38,11 +38,14 @@ router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddlewar
         const users = yield user_1.default.findAll();
         const transformedUsers = users.map(user => ({
             id: user.id,
-            nome: user.name,
+            username: user.username,
+            first_name: user.first_name,
+            last_name: user.last_name,
             email: user.email,
-            contato: '',
-            totalAlocado: 0,
-            saldoAtual: user.balance
+            contact: user.contact,
+            totalAlocado: user.total_allocated,
+            saldoAtual: user.balance,
+            permissao: user.role,
         }));
         res.status(200).json(transformedUsers);
     }
@@ -53,7 +56,8 @@ router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddlewar
 // Obter um único usuário por ID
 router.get('/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield user_1.default.findByPk(req.params.id);
+        const id = Number(req.params.id);
+        const user = yield user_1.default.findByPk(id);
         if (!user) {
             res.status(404).json({ message: 'Usuário não encontrado' });
             return;
@@ -68,9 +72,10 @@ router.get('/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaite
 router.put('/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
-        const { id } = req.params;
-        const { name, email, password } = req.body;
-        if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) !== id && ((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) !== 'admin') {
+        const id = Number(req.params.id); // Convertemos o parâmetro para número
+        const { username, email, password, first_name, last_name, contact } = req.body;
+        // Garantir que `req.user?.id` seja convertido corretamente antes da comparação
+        if (Number((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) !== id && ((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) !== 'admin') {
             res.status(403).json({ message: 'Permissão negada' });
             return;
         }
@@ -79,9 +84,13 @@ router.put('/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaite
             res.status(404).json({ message: 'Usuário não encontrado' });
             return;
         }
-        user.name = name || user.name;
-        user.email = email || user.email;
-        user.password = password || user.password;
+        // Atualizamos somente os campos que foram enviados na requisição
+        user.username = username !== null && username !== void 0 ? username : user.username;
+        user.email = email !== null && email !== void 0 ? email : user.email;
+        user.password = password !== null && password !== void 0 ? password : user.password;
+        user.first_name = first_name !== null && first_name !== void 0 ? first_name : user.first_name;
+        user.last_name = last_name !== null && last_name !== void 0 ? last_name : user.last_name;
+        user.contact = contact !== null && contact !== void 0 ? contact : user.contact;
         yield user.save();
         res.status(200).json({ message: 'Informações atualizadas com sucesso', user });
     }
@@ -89,9 +98,10 @@ router.put('/:id', authMiddleware_1.authMiddleware, (req, res, next) => __awaite
         next(error);
     }
 }));
+// Atualizar o saldo de um usuário
 router.put('/:id/balance', authMiddleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { id } = req.params;
+        const id = Number(req.params.id);
         const { total_allocated, balance } = req.body;
         const user = yield user_1.default.findByPk(id);
         if (!user) {
@@ -110,26 +120,10 @@ router.put('/:id/balance', authMiddleware_1.authMiddleware, (req, res) => __awai
         res.status(500).json({ message: 'Erro ao atualizar saldo do usuário', error: error.message });
     }
 }));
-// Excluir um usuário (apenas administradores)
-router.delete('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { id } = req.params;
-        const user = yield user_1.default.findByPk(id);
-        if (!user) {
-            res.status(404).json({ message: 'Usuário não encontrado' });
-            return;
-        }
-        yield user.destroy();
-        res.status(200).json({ message: 'Usuário excluído com sucesso' });
-    }
-    catch (error) {
-        next(error);
-    }
-}));
-// Alterar role de um usuário (apenas administradores)
+// Atualizar a role de um usuário
 router.patch('/:id/role', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { id } = req.params;
+        const id = Number(req.params.id);
         const { role } = req.body;
         const user = yield user_1.default.findByPk(id);
         if (!user) {
@@ -138,7 +132,23 @@ router.patch('/:id/role', authMiddleware_1.authMiddleware, authMiddleware_1.admi
         }
         user.role = role;
         yield user.save();
-        res.status(200).json({ message: 'Role do usuário atualizado com sucesso', user });
+        res.status(200).json({ message: 'Permissão atualizada com sucesso', user });
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+// Excluir um usuário (apenas administradores)
+router.delete('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const id = Number(req.params.id);
+        const user = yield user_1.default.findByPk(id);
+        if (!user) {
+            res.status(404).json({ message: 'Usuário não encontrado' });
+            return;
+        }
+        yield user.destroy();
+        res.status(200).json({ message: 'Usuário excluído com sucesso' });
     }
     catch (error) {
         next(error);

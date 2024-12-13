@@ -1,112 +1,191 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, Col, Row, Form, Button } from 'react-bootstrap';
 import Table from '../../../components/Table';
 import swal from 'sweetalert2';
-import { retiradas } from '../../../helpers/data'; // Importando corretamente as retiradas
+import { getAllWithdrawals, updateWithdrawal } from '../../../helpers/api/withdrawals';
+import { getUsers } from '../../../helpers/api/users';
 
-// Definindo o tipo para os dados de retiradas
-type Retirada = {
+type Withdrawal = {
     id: number;
-    userId: number;
-    nome: string;
+    titularConta: string;
+    nomeUsuario: string;
+    saldoUsuario: number;
     valorSolicitado: number;
-    valorDisponivel: number;
-    status: string;
     dataSolicitacao: string;
+    status: string;
     metodoPagamento: string;
-    comprovante: string;
-    ultimaAtualizacao: string;
-    observacoes: string;
+};
+
+const translateStatus = (status: string): string => {
+    switch (status) {
+        case 'pending':
+            return 'Pendente';
+        case 'approved':
+            return 'Aprovado';
+        case 'rejected':
+            return 'Rejeitado';
+        default:
+            return status;
+    }
+};
+
+const revertStatusTranslation = (translatedStatus: string): string => {
+    switch (translatedStatus) {
+        case 'Pendente':
+            return 'pending';
+        case 'Aprovado':
+            return 'approved';
+        case 'Rejeitado':
+            return 'rejected';
+        default:
+            return translatedStatus;
+    }
 };
 
 const CustomAdvancedTable = () => {
-    const [usersData, setUsersData] = useState<Retirada[]>(retiradas); // Dados de retiradas
-    const [tempUsersData, setTempUsersData] = useState<Retirada[]>(retiradas); // Backup dos dados originais
-    const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false); // Estado do botão "Salvar"
+    const [withdrawalsData, setWithdrawalsData] = useState<Withdrawal[]>([]);
+    const [originalWithdrawalsData, setOriginalWithdrawalsData] = useState<Withdrawal[]>([]);
+    const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false);
+    const intervalRef = useRef<number | null>(null);
 
-    // Lidar com a mudança de status
-    const handleStatusChange = (id: number, newStatus: string) => {
-        const updatedUsers = usersData.map((user) =>
-            user.id === id ? { ...user, status: newStatus } : user
-        );
-        setUsersData(updatedUsers);
-        setIsSaveButtonEnabled(true); // Habilitar botão após mudança
+    // Combina dados de usuários e retiradas
+    const fetchWithdrawalsWithUsers = async () => {
+        try {
+            const [usersResponse, withdrawalsResponse] = await Promise.all([
+                getUsers(),
+                getAllWithdrawals(),
+            ]);
+
+            const users = usersResponse.data || [];
+            console.log('Data user', usersResponse)
+            const userMap = users.reduce((acc, user) => {
+                acc[user.id] = user;
+                return acc;
+            }, {} as Record<number, { name: string; balance: number }>);
+
+            const withdrawals = withdrawalsResponse.map((withdrawal: any) => {
+                const user = userMap[withdrawal.user_id] || {};
+                return {
+                    id: withdrawal.id || 0,
+                    titularConta: withdrawal.name_account_withdrawal || 'Não Informado',
+                    nomeUsuario: user.username || 'Usuário Desconhecido',
+                    saldoUsuario: user.saldoAtual || 0,
+                    valorSolicitado: parseFloat(withdrawal.amount) || 0,
+                    dataSolicitacao: withdrawal.created_at
+                        ? new Date(withdrawal.created_at).toLocaleString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                          })
+                        : 'Data Inválida',
+                    status: withdrawal.status || 'pending',
+                    metodoPagamento: withdrawal.pix_key || 'Não Informado',
+                };
+            });
+
+            setWithdrawalsData(withdrawals);
+            setOriginalWithdrawalsData(withdrawals);
+        } catch (error) {
+            console.error('Erro ao buscar retiradas e usuários:', error);
+            swal.fire('Erro', 'Não foi possível carregar as retiradas e usuários.', 'error');
+        }
     };
 
-    // Salvar as alterações confirmadas
+    useEffect(() => {
+        fetchWithdrawalsWithUsers();
+
+        // Atualização periódica
+        intervalRef.current = window.setInterval(() => {
+            fetchWithdrawalsWithUsers();
+        }, 10000);
+
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, []);
+
+    const handleStatusChange = (id: number, newStatus: string) => {
+        const updatedWithdrawals = withdrawalsData.map((withdrawal) =>
+            withdrawal.id === id ? { ...withdrawal, status: newStatus } : withdrawal
+        );
+        setWithdrawalsData(updatedWithdrawals);
+        setIsSaveButtonEnabled(true);
+    };
+
     const handleSave = () => {
         swal.fire({
             title: 'Tem certeza?',
-            text: 'Uma notificação será enviada ao usuário.',
+            text: 'O usuário será notificado sobre as alterações.',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#28bb4b',
-            cancelButtonColor: '#f34e4e',
-            confirmButtonText: 'Alterar Status',
+            confirmButtonText: 'Sim, confirmar',
+            cancelButtonText: 'Cancelar',
         }).then((result) => {
             if (result.isConfirmed) {
-                swal.fire('Alteração Realizada!', 'Status atualizado com sucesso.', 'success');
-                setTempUsersData(usersData); // Atualizar backup com os novos dados
-                setIsSaveButtonEnabled(false); // Desativar botão após salvar
-            } else {
-                setUsersData(tempUsersData); // Restaurar backup se cancelado
+                const saveChanges = async () => {
+                    try {
+                        const updatedWithdrawals = await Promise.all(
+                            withdrawalsData.map(async (withdrawal) => {
+                                const original = originalWithdrawalsData.find((u) => u.id === withdrawal.id);
+                                if (original && withdrawal.status !== original.status) {
+                                    const response = await updateWithdrawal(withdrawal.id, {
+                                        status: revertStatusTranslation(withdrawal.status),
+                                    });
+                                    return { ...withdrawal, status: response.status };
+                                }
+                                return withdrawal;
+                            })
+                        );
+
+                        setWithdrawalsData(updatedWithdrawals);
+                        setOriginalWithdrawalsData(updatedWithdrawals);
+                        setIsSaveButtonEnabled(false);
+                        swal.fire('Sucesso!', 'As retiradas foram atualizadas.', 'success');
+                    } catch (error) {
+                        console.error('Erro ao salvar alterações:', error);
+                        swal.fire('Erro', 'Não foi possível salvar as alterações.', 'error');
+                    }
+                };
+
+                saveChanges();
             }
         });
     };
 
     const columns = [
+        { Header: 'ID', accessor: 'id', sort: true },
+        { Header: 'Titular da Conta', accessor: 'titularConta', sort: true },
+        { Header: 'Nome do Usuário', accessor: 'nomeUsuario', sort: true },
         {
-            Header: 'ID',
-            accessor: 'id',
+            Header: 'Saldo (R$)',
+            accessor: 'saldoUsuario',
             sort: true,
-            className: 'text-center',
-            Cell: ({ value }: any) => <span>{value}</span>,
-        },
-        {
-            Header: 'Nome',
-            accessor: 'nome',
-            sort: true,
-            className: 'text-center',
+            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
         },
         {
             Header: 'Valor Solicitado (R$)',
             accessor: 'valorSolicitado',
             sort: true,
-            className: 'text-center',
             Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
         },
-        {
-            Header: 'Valor Disponível (R$)',
-            accessor: 'valorDisponivel',
-            sort: true,
-            className: 'text-center',
-            Cell: ({ value }: any) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        },
-        {
-            Header: 'Data de Solicitação',
-            accessor: 'dataSolicitacao',
-            sort: true,
-            className: 'text-center',
-        },
-        {
-            Header: 'Método de Pagamento',
-            accessor: 'metodoPagamento',
-            sort: false,
-            className: 'text-center',
-        },
+        { Header: 'Data de Solicitação', accessor: 'dataSolicitacao', sort: true },
+        { Header: 'Método de Pagamento', accessor: 'metodoPagamento', sort: false },
         {
             Header: 'Status',
             accessor: 'status',
             sort: false,
-            className: 'text-center',
             Cell: ({ row }: any) => (
                 <Form.Select
-                    value={row.original.status}
-                    onChange={(e) => handleStatusChange(row.original.id, e.target.value)}
+                    value={translateStatus(row.original.status)}
+                    onChange={(e) => handleStatusChange(row.original.id, revertStatusTranslation(e.target.value))}
                 >
-                    <option value="Pendente">Pendente</option>
-                    <option value="Aprovado">Aprovado</option>
-                    <option value="Cancelado">Cancelado</option>
+                    <option value="Pendente">{translateStatus('pending')}</option>
+                    <option value="Aprovado">{translateStatus('approved')}</option>
+                    <option value="Rejeitado">{translateStatus('rejected')}</option>
                 </Form.Select>
             ),
         },
@@ -116,7 +195,7 @@ const CustomAdvancedTable = () => {
         { text: '5', value: 5 },
         { text: '10', value: 10 },
         { text: '25', value: 25 },
-        { text: 'Todos', value: usersData.length },
+        { text: 'Todos', value: withdrawalsData.length },
     ];
 
     return (
@@ -124,22 +203,18 @@ const CustomAdvancedTable = () => {
             <Col>
                 <Card>
                     <Card.Body>
-                        <h4 className="header-title">Solicitações de Retiradas</h4>
+                        <h4 className="header-title">Gerenciar Retiradas</h4>
                         <Table
                             columns={columns}
-                            data={usersData}
+                            data={withdrawalsData}
                             pageSize={5}
                             sizePerPageList={sizePerPageList}
                             isSortable={true}
                             pagination={true}
                         />
                         <div className="d-flex justify-content-end mt-3">
-                            <Button
-                                variant="success"
-                                onClick={handleSave}
-                                disabled={!isSaveButtonEnabled}
-                            >
-                                Salvar
+                            <Button variant="success" onClick={handleSave} disabled={!isSaveButtonEnabled}>
+                                Salvar Alterações
                             </Button>
                         </div>
                     </Card.Body>

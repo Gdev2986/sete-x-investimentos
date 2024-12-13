@@ -3,7 +3,7 @@ import { Col, Row, Card, Nav, Tab } from 'react-bootstrap';
 import { usePageTitle } from '../../../hooks';
 
 // Importando componentes
-import PersonalData from './personal-data';
+import AdminPersonalData from './personal-data';
 import Security from './security';
 import Permissions from './permissions';
 
@@ -20,7 +20,7 @@ const Profile: React.FC = () => {
   });
 
   const tabContents = [
-    { title: 'Dados Pessoais', id: 1, content: <PersonalData /> },
+    { title: 'Dados Pessoais', id: 1, content: <AdminPersonalData /> },
     { title: 'Segurança', id: 2, content: <Security /> },
     { title: 'Permissões', id: 3, content: <Permissions /> },
   ];

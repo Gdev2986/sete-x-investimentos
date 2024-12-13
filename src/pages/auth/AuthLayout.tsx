@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-
+import React from 'react';
 // images
 import LogoDark from '../../assets/images/logo-dark.png';
 import LogoLight from '../../assets/images/logo-light.png';

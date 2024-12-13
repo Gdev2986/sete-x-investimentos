@@ -23,10 +23,12 @@ import { AuthActionTypes } from "./constants";
 
 type UserData = {
   payload: {
+    firstName: string;
+    lastName: string;
     username: string;
-    password: string;
-    fullname: string;
     email: string;
+    contact: string;
+    password: string;
   };
   type: string;
 };
@@ -70,21 +72,31 @@ function* logout(): SagaIterator {
 }
 
 function* signup({
-  payload: { fullname, email, password },
-}: UserData): SagaIterator {
+  payload: { first_name, last_name, username, email, contact, password },
+}: {
+  payload: { first_name: string; last_name: string; username: string; email: string; contact: string; password: string };
+}): SagaIterator {
   try {
-    const params: any = { name: fullname, email, password };
+    const params = {
+      first_name,
+      last_name,
+      username,
+      email,
+      contact: contact.replace(/\D/g, ''), // Garantindo que o contato contenha apenas números
+      password,
+
     const response = yield call(signupApi, params);
-    const user = response.data;
-    // api.setLoggedInUser(user);
-    // setAuthorization(user['token']);
-    yield put(authApiResponseSuccess(AuthActionTypes.SIGNUP_USER, user));
+    console.log('Resposta da API:', response);
+    yield put(authApiResponseSuccess(AuthActionTypes.SIGNUP_USER, response.data));
   } catch (error: any) {
+    console.error('Erro na saga signup:', error);
     yield put(authApiResponseError(AuthActionTypes.SIGNUP_USER, error));
-    api.setLoggedInUser(null);
-    setAuthorization(null);
   }
 }
+
+
+
+
 
 function* forgotPassword({ payload: { email } }: UserData): SagaIterator {
   try {

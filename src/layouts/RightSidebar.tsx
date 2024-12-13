@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { Tab } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import React from 'react';
 
 // actions
 import { hideRightSidebar } from '../redux/actions';

@@ -55,16 +55,44 @@ User.init({
             },
         },
     },
-    name: {
-        type: sequelize_1.DataTypes.STRING(100),
+    username: {
+        type: sequelize_1.DataTypes.STRING(50),
+        unique: true,
         allowNull: false,
         validate: {
             notNull: {
-                msg: 'O nome é obrigatório.',
+                msg: 'O nome de usuário é obrigatório.',
             },
             len: {
-                args: [3, 100],
-                msg: 'O nome deve ter entre 3 e 100 caracteres.',
+                args: [3, 50],
+                msg: 'O nome de usuário deve ter entre 3 e 50 caracteres.',
+            },
+        },
+    },
+    first_name: {
+        type: sequelize_1.DataTypes.STRING(50),
+        allowNull: false,
+        validate: {
+            notNull: {
+                msg: 'O primeiro nome é obrigatório.',
+            },
+            len: {
+                args: [1, 50],
+                msg: 'O primeiro nome deve ter no máximo 50 caracteres.',
+            },
+        },
+    },
+    last_name: {
+        type: sequelize_1.DataTypes.STRING(50),
+        allowNull: true,
+    },
+    contact: {
+        type: sequelize_1.DataTypes.STRING(15),
+        allowNull: true,
+        validate: {
+            is: {
+                args: /^[0-9]+$/,
+                msg: 'O contato deve conter apenas números.',
             },
         },
     },

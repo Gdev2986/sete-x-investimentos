@@ -1,12 +1,16 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-const user: any = sessionStorage.getItem('setex_user');
+import { APICore } from '../helpers/api/apiCore';
+
+const api = new APICore();
+
+
 
 const Root = () => {
+    const loggedInUser = api.getLoggedInUser();
 
     const getRootUrl = () => {
-        let url: string = `auth/login`;
-        return url;
+        return `${loggedInUser.user.role}/dashboard`;
     };
 
     const url = getRootUrl();

@@ -6,6 +6,7 @@ const api = new APICore();
 function getUsers() {
     const baseUrl = '/users';
     return api.get(baseUrl, {});
+
 }
 
 // Obter um único usuário pelo ID
@@ -14,17 +15,20 @@ function getUserById(userId: number) {
     return api.get(baseUrl, {});
 }
 
-// Criar um novo usuário (apenas para testes ou administradores)
-function createUser(data: { name: string; email: string; password: string }) {
-    const baseUrl = '/users';
-    return api.create(baseUrl, data);
-}
+
 
 // Atualizar informações de um usuário
-function updateUser(userId: number, data: { name?: string; email?: string; password?: string; role?: string }) {
+function updateUser(userId: number, data: { username?: string; email?: string; password?: string; role?: string }) {
     const baseUrl = `/users/${userId}`;
     return api.update(baseUrl, data);
 }
+
+function updateUserRole(userId: number, role: string) {
+    const baseUrl = `/users/${userId}/role`;
+    console.log(`Chamando API para atualizar permissão de userId ${userId} para ${role}`);
+    return api.patch(baseUrl, { role }); 
+  }
+  
 
 // Excluir um usuário (apenas para administradores)
 function deleteUser(userId: number) {
@@ -37,4 +41,4 @@ function updateUserBalance(userId: number, data: { total_allocated?: number; bal
     return api.update(baseUrl, data);
 }
 
-export { getUsers, getUserById, createUser, updateUser, deleteUser ,updateUserBalance};
+export { getUsers, getUserById, updateUser, deleteUser ,updateUserBalance, updateUserRole};

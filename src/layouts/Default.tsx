@@ -1,5 +1,6 @@
 import { Suspense, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import React from 'react';
 
 // hooks
 import { useRedux } from '../hooks/';

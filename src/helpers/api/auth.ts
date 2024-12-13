@@ -21,28 +21,52 @@ function login(params: { email: string; password: string }): any {
 
 // Logout
 function logout(): any {
-    const baseUrl = 'api/auth/logout'; // Corrige a URL para incluir o prefixo '/api'
+    const baseUrl = 'auth/logout'; // Corrige a URL para incluir o prefixo '/api'
     return api.create(`${baseUrl}`, {}).finally(() => {
         api.setLoggedInUser(null); // Remove o usuário do armazenamento local
         setAuthorization(null); // Remove o token do cabeçalho
     });
 }
 
-// Registro
-function signup(params: { name: string; email: string; password: string }) {
-    const baseUrl = 'auth/register'; // Corrige a URL para incluir o prefixo '/api'
-    return api.create(`${config.API_URL}${baseUrl}`, params);
+
+function signup(params: {
+    firstName: string;
+    lastName: string;
+    username: string;
+    email: string;
+    contact: string;
+    password: string;
+}) {
+    const baseUrl = 'auth/register';
+    
+    // Transformando os campos
+    const mappedParams = {
+        first_name: params.firstName,
+        last_name: params.lastName,
+        username: params.username,
+        email: params.email,
+        contact: params.contact.replace(/\D/g, ''), // Remove caracteres não numéricos do contato
+        password: params.password,
+    };
+
+    console.log('[Signup Function] Dados enviados ao backend:', mappedParams); // Log para depuração
+
+    // Fazendo a requisição ao backend
+    return api.create(`${config.API_URL}/${baseUrl}`, mappedParams);
 }
+
+
+  
 
 // Verificar senha atual
 function verifyPassword(data: { currentPassword: string }) {
-    const baseUrl = 'api/auth/verify-password';
+    const baseUrl = 'auth/verify-password';
     return api.create(baseUrl, data);
 }
 
 // Atualizar senha
 function updatePassword(data: { newPassword: string }) {
-    const baseUrl = 'api/auth/update-password';
+    const baseUrl = 'auth/update-password';
     return api.update(baseUrl, data);
 }
 

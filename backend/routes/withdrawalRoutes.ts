@@ -105,7 +105,7 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req: Request, res: Re
       await user.save();
 
       const updatedWithdrawal = await Withdrawal.findByPk(id, {
-          include: [{ model: User, as: 'user', attributes: ['name', 'balance'] }],
+          include: [{ model: User, as: 'user', attributes: ['username', 'balance'] }],
       });
 
       res.status(200).json(updatedWithdrawal);

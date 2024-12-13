@@ -101,6 +101,8 @@ class APICore {
 
     delete = (url: string) => axios.delete(url);
 
+    patch = (url: string, data: any) => axios.patch(url, data);
+
     createWithFile = (url: string, data: any) => {
         const formData = new FormData();
         for (const key in data) {

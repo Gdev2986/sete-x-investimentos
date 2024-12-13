@@ -1,5 +1,6 @@
 import { Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import React from 'react';
 
 const Footer = () => {
     return (

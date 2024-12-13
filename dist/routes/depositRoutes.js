@@ -41,7 +41,7 @@ function transformarDeposito(deposit) {
         : '';
     return {
         id: deposit.id,
-        nome: deposit.user ? deposit.user.name : '',
+        username: deposit.user ? deposit.user.username : '',
         valorDepositado: deposit.amount || 0,
         saldoAtual: deposit.user ? deposit.user.balance : 0,
         dataDeposito,
@@ -72,7 +72,7 @@ router.get('/', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddlewar
                 {
                     model: user_1.default,
                     as: 'user',
-                    attributes: ['name', 'balance'],
+                    attributes: ['username', 'balance'],
                 },
             ],
             order: [['created_at', 'DESC']],
@@ -103,7 +103,7 @@ router.get('/user/:id', authMiddleware_1.authMiddleware, (req, res) => __awaiter
                 {
                     model: user_1.default,
                     as: 'user',
-                    attributes: ['name', 'balance'],
+                    attributes: ['username', 'balance'],
                 },
             ],
             order: [['created_at', 'DESC']],
@@ -154,7 +154,7 @@ router.put('/:id', authMiddleware_1.authMiddleware, authMiddleware_1.adminMiddle
         // Salva a alteração no saldo do usuário
         yield user.save();
         const updatedDeposit = yield deposit_1.default.findByPk(id, {
-            include: [{ model: user_1.default, as: 'user', attributes: ['name', 'balance'] }],
+            include: [{ model: user_1.default, as: 'user', attributes: ['username', 'balance'] }],
         });
         const transformed = updatedDeposit ? transformarDeposito(updatedDeposit) : null;
         res.status(200).json(transformed);
